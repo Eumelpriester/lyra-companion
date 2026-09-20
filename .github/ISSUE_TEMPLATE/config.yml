@@ -1,0 +1,32 @@
+# Kontaktwege stehen hier nur, wenn es sie WIRKLICH gibt. Ein Kontaktweg, der ins
+# Leere zeigt, ist schlimmer als keiner: er kostet den Melder seine Muehe und uns
+# die Meldung. Jeden Eintrag vor dem Commit einmal anklicken.
+#
+# Geprueft am 20.09.2026: Die Website hat KEINE eigene Unterseite /de/faq/ — die FAQ
+# ist ein Abschnitt der Startseite (Anker #faq). Der Link unten zeigt deshalb auf
+# den Anker, nicht auf eine Seite, die es nicht gibt.
+#
+# BEWUSST NICHT HIER: Discord. Der Server wird am 20.09.2026 angelegt; der
+# Einladungslink kommt hier hinein, sobald er existiert und ohne Ablauf gesetzt ist.
+#
+# NACHZUTRAGEN, SOBALD ES SOWEIT IST:
+#   * Discord: Einladungslink als dritter contact_links-Eintrag.
+#   * Discussions: erst im Repo aktivieren, dann verlinken.
+#   * CurseForge: der Slug steht erst fest, wenn das Projekt aus der Moderation
+#     kommt. Am Tag der Freigabe hier eintragen und den Link einmal anklicken.
+blank_issues_enabled: false
+contact_links:
+  - name: "Website: FAQ, Download, Kontakt"
+    url: https://lyracompanion.de
+    about: >
+      Die FAQ beantwortet die häufigsten Fragen („wie mache ich sie leiser“,
+      „warum ist die Stimme stumm“, „was sammelt sie“). Ganz unten steht der
+      Kontaktweg. Fehler gehören trotzdem hierher ins Issue: nur die Vorlage
+      fragt nach dem `/lyra debug`-Block, und ohne den raten wir.
+  - name: "Erst probieren: /lyra hilfe, /lyra status, /lyra debug"
+    url: https://lyracompanion.de/de/#faq
+    about: >
+      `/lyra hilfe` listet alle Befehle. `/lyra status` zeigt Selbsttest,
+      Client-Weiche und Sprachpakete — steht dort eine Ausfall-Zeile, ist die
+      Ursache meistens schon gefunden. Für „wie mache ich sie leiser“ gibt es
+      `/lyra leise` und die Einstellungsseite, dafür braucht es kein Issue.

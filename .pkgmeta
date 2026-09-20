@@ -1,0 +1,120 @@
+# .pkgmeta — BigWigs-Packager-Konfiguration fuer Lyra Gestalt.
+#
+# Entscheidung (curseforge/schritte-upload.md §6): EIN CurseForge-Projekt,
+# ein Zip mit VIER Addon-Ordnern. Begruendung dort, kurz: Author Rewards
+# brauchen die volle Downloadzahl an einem Projekt, ein Moderationsdurchgang
+# statt vier, und die haeufigste Support-Frage ("warum habe ich keine Stimme?")
+# faellt weg, wenn alles in einem Download liegt.
+#
+# Repo-Layout, das diese Datei voraussetzt (erzeugt von tools/release-sync.sh):
+#
+#   Lyra_Gestalt.toc            <- Haupt-TOC in der WURZEL. Daraus leitet der Packager alles ab.
+#   Lyra_Gestalt_Vanilla.toc    <- erzeugte Flavor-Kopie (Classic Era 1.15.9)
+#   Core/ Gestalt/ Sinne/ UI/ Locales/ bilder/ laute/
+#   phrasen.lua dialog.lua bruecken_dialog.lua rituale_dialog.lua welle2_dialog.lua
+#   LICENSE  LICENSE-ASSETS.md  CHANGELOG.md  README.md  CONTRIBUTING.md
+#   Pakete/
+#     Stimme_de/   -> Lyra_Gestalt_Stimme_de.toc, manifest.lua, stimme/*.ogg
+#     Stimme_en/   -> Lyra_Gestalt_Stimme_en.toc, manifest.lua, stimme/*.ogg
+#     Daten/       -> Lyra_Gestalt_Daten.toc, gefahren.lua, Bruecke.lua, LICENSE
+#   tools/ docs/ .github/       <- gehoeren NICHT ins Zip
+#
+# Ergebnis im Zip, genau diese vier Ordner auf oberster Ebene:
+#   Lyra_Gestalt/  Lyra_Gestalt_Stimme_de/  Lyra_Gestalt_Stimme_en/  Lyra_Gestalt_Daten/
+
+package-as: Lyra_Gestalt
+
+# Die Zusatz-Addons aus Pakete/ an die oberste Ebene des Pakets heben.
+# Achtung: Der Quellpfad beginnt IMMER mit dem package-as-Namen.
+# Ist "Pakete" danach leer, wird der Ordner nicht mit eingepackt.
+move-folders:
+  Lyra_Gestalt/Pakete/Stimme_de: Lyra_Gestalt_Stimme_de
+  Lyra_Gestalt/Pakete/Stimme_en: Lyra_Gestalt_Stimme_en
+  Lyra_Gestalt/Pakete/Daten: Lyra_Gestalt_Daten
+
+# Was nicht ins Zip gehoert. Dateien und Ordner, die mit einem Punkt beginnen,
+# ignoriert der Packager ohnehin immer (.pkgmeta, .github, .gitignore) — und
+# alles, was Git nicht kennt, ebenfalls (release.sh setzt jede untracked Datei
+# auf die ignore-Liste; .release/ und dist/ stehen deshalb in .gitignore).
+#
+# WICHTIG: Hier bewusst KEIN "*.md"-Glob. Das wuerde LICENSE-ASSETS.md mitnehmen —
+# und die Lizenzlage MUSS im ausgelieferten Paket liegen (CurseForge-Regel fuer
+# Fremdinhalte, GPLv3-Pflicht fuer Lyra_Gestalt_Daten). Deshalb einzeln listen.
+# ⛔ KEINE Kommentare hinter einem Listeneintrag. Der YAML-Parser von release.sh
+# (yaml_listitem, Zeile 897) schneidet nur fuehrende und abschliessende
+# Anfuehrungszeichen ab, kein "#…" am Zeilenende. Aus
+#     - "*.wav"   # Kommentar
+# wird das Muster  *.wav"   # Kommentar  — mit einem Anfuehrungszeichen mitten
+# drin. Das zerlegt spaeter die eval-Zeile "eval copy_directory_tree ... -i \"$ignore\"",
+# die Positionsargumente verrutschen, und der Packager meldet
+#     Copying files into :
+#     mkdir: Verzeichnis »« konnte nicht angelegt werden
+# und packt ein LEERES Zip. Getestet am 17.09.2026, release.sh master.
+# (Dieselbe Falle steckt in vermarktung/github/pkgmeta-ein-paket.yaml.)
+ignore:
+  - README.md
+  - CHANGELOG.md
+  - CHANGELOG.en.md
+  - CONTRIBUTING.md
+  - tools
+  - docs
+  - dist
+  - "*.xcf"
+  - "*.psd"
+  # nur die gerenderten OGG ausliefern, nie die Rohspuren:
+  - "*.wav"
+  - "*.pyc"
+  - "luac.out"
+# NICHT ignorieren: LICENSE, LICENSE-ASSETS.md (Wurzel) und Pakete/Daten/LICENSE (GPLv3).
+#
+# CHANGELOG.md ist hier ignoriert, steht aber trotzdem im CF-Changelog-Feld:
+# manual-changelog liest die Datei aus dem Repo (topdir), nicht aus dem Paket.
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+# Eingebettete Bibliotheken seit Welle 5 (20.09.2026): LibStub, CallbackHandler-1.0,
+# HereBeDragons-2.0 (+Pins) unter Lyra_Gestalt/Libs/ - byte-gleich aus dem Client kopiert,
+# NICHT per externals gezogen (Offline-Bau, feste Revision, Lizenzhinweis in Libs/LICENSE.txt).
+# Sobald HereBeDragons fuer die Minimap-Pins dazukommt, hier eintragen:
+# externals:
+#   Libs/HereBeDragons:
+#     url: https://repos.curseforge.com/wow/herebedragons
+# embedded-libraries:
+#   - herebedragons
+
+# Kein nolib-Paket: die Libs sind klein (~60 KB) und ein zweites Zip verwirrt mehr als es spart.
+enable-nolib-creation: no
+
+# --- Multi-Client (PORT 0.9.0, 18.09.2026) -----------------------------------
+# Die Basis-TOC traegt jetzt
+#     ## Interface: 11509
+#     ## Interface-TBC: 20506
+#     ## Interface-Mists: 50504
+#     ## Interface-Mainline: 120100
+# und der Packager erzeugt daraus beim Paketieren selbst
+#     Lyra_Gestalt_Vanilla.toc  _TBC.toc  _Mists.toc  _Mainline.toc
+# (release.sh, Zeilen 1978-1996: retail -> _Mainline, classic -> _Vanilla, bcc -> _TBC,
+# mists -> _Mists, forever -> _Camelot). Die Zusatzpakete in Pakete/ tragen dieselben
+# Zeilen und bekommen die gleichen Flavor-TOCs.
+#
+# WICHTIG, sonst packt der Packager nur eine TOC: das Erzeugen laeuft NUR mit
+# "-S" bzw. mit diesem Schalter hier. Er steht ab 0.9.0 auf yes.
+enable-toc-creation: yes
+
+# Lyra_Gestalt_Vanilla.toc wird weiter von tools/release-sync.sh gespiegelt und
+# BEWUSST NICHT geloescht:
+#   * sie ist der getestete Stand fuer Classic Era und liegt damit auch im Repo,
+#     nicht nur im Zip — ein Blick in git zeigt, was der Era-Client wirklich liest;
+#   * ein Zip, das jemand von Hand aus dem Repo baut (tools/dist-bauen.sh), hat sie
+#     dann ebenfalls.
+# Der Packager schreibt seine eigene Fassung ueber diese Datei; sie muss darum
+# INHALTSGLEICH mit der Basis-TOC bleiben (das stellt release-sync.sh sicher).
+#
+# WoW: FOREVER fehlt absichtlich. Sobald ein Client die Interface-Nummer bestaetigt
+# (Beta sagt 16001, Build 1.60.1.69913), kommt in die Basis-TOC
+#     ## Interface-Camelot: 16001
+# und der Packager erzeugt Lyra_Gestalt_Camelot.toc. Vorher nicht: ein falsches
+# Version-Tag ist schlimmer als ein fehlendes (metadaten.md §3), und ohne Suffix-TOC
+# laedt Forever die suffixlose Lyra_Gestalt.toc — mit "veraltet"-Hinweis, aber sie laedt.

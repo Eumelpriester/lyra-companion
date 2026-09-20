@@ -1,0 +1,63 @@
+-- persoenlich.lua — MUSTER / TEMPLATE. Leer, nur Struktur. NUR DATEN, kein Code.
+--
+-- Dieses Paket ist NICHT Teil des Release-Zips und wird es nie sein: die Zeilen
+-- stehen ueber DEINEN Charakter und entstehen auf DEINEM Rechner. Wer es benutzen
+-- will, legt den Ordner selbst an:
+--
+--   Interface/AddOns/Lyra_Gestalt_Persoenlich/Lyra_Gestalt_Persoenlich.toc   <- aus *.toc.muster
+--   Interface/AddOns/Lyra_Gestalt_Persoenlich/persoenlich.lua                <- aus dieser Datei
+--
+-- Danach den Client EINMAL KOMPLETT NEU STARTEN. Ein /reload genuegt nicht: die
+-- Addon-Liste wird beim Programmstart aufgebaut. Kontrolle im Spiel: /lyra persoenlich.
+--
+-- Erzeugen statt tippen: tools/persoenlich-vorlage.py im Entwicklungs-Repo fuellt
+-- die Vorlagen deterministisch aus den SavedVariables von Lyra_Gestalt.
+--
+-- Einziger globaler Wert: LyraGestalt_Persoenlich. Geprueft wird alles im Kern
+-- (Lyra_Gestalt/Sinne/Persoenlich.lua) — eine kaputte Zeile wird schlicht verworfen,
+-- mit Grund, sichtbar in /lyra persoenlich.
+--
+-- Regeln, die der Loader durchsetzt:
+--   * nur Ereignisse der Klassen "plauder" und "still", NIE "warn".
+--     Persoenliche Zeilen haben keine vorgerenderte Stimme; eine Warnung muss sprechen.
+--   * hoechstens 120 Zeichen je Zeile.
+--   * keine |c-Farbcodes und andere |-Escapes, keine Steuerzeichen, keine URL,
+--     keine {platzhalter}. Anrede-Token wie {Held|Heldin} sind erlaubt.
+--   * kein Charaktername, kein Realm, kein fremder Spielername IN einer Zeile.
+--     Der Charaktername steht genau einmal, in charKey, und wird nie ausgegeben.
+--   * hoechstens 200 Eintraege.
+--   * ein Paket mit fremdem charKey wird ignoriert, nicht geloescht.
+--
+-- "Lieber nichts als etwas Falsches": Was nicht in der Chronik steht, steht auch
+-- nicht in einer Zeile. Kein erfundener Rivale, kein erfundener Beinahe-Tod,
+-- keine erfundene Zone.
+--
+-- Vollstaendige Beschreibung: README.md in diesem Ordner.
+
+LyraGestalt_Persoenlich = {
+    version = 1,
+    erzeugt = "JJJJ-MM-TT",       -- Datum der Erzeugung
+    quelle  = "hand",             -- "hand" | "vorlage" | "modell"
+    charKey = "Name-Realm",       -- genau dein Charakter; wird nie ausgegeben
+    zeilen  = {
+
+        -- Muster: Zonengruss mit Geschichte. "key" ist derselbe Schluessel, mit dem
+        -- der Sinn meldet (bei ZONE_ERINNERUNG der Zonenname). Ohne key gilt die
+        -- Zeile ueberall.
+        -- { ereignis = "ZONE_ERINNERUNG", key = "Undercity",
+        --   de = "…",
+        --   en = "…" },
+
+        -- Muster: Stufen-Meilenstein. "key" ist die Stufe.
+        -- { ereignis = "STUFE_MEILENSTEIN", key = "30",
+        --   de = "…",
+        --   en = "…" },
+
+        -- Muster: mit Bedingung. "wenn" schraenkt ein, wann die Zeile gilt.
+        -- { ereignis = "RAST_AN",
+        --   de = "…",
+        --   en = "…",
+        --   wenn = { zeit = "tag" } },
+
+    },
+}

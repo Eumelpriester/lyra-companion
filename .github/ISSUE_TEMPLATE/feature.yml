@@ -1,0 +1,63 @@
+name: Feature request
+description: An idea for something Lyra should notice, show or say
+title: "[Idea] "
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two things Lyra will never do, no matter how good the idea:
+        **act for you** (key press, movement, casting, targeting — any automation)
+        and **use data about other players** (names, whispers, group members,
+        addon channels, chat output). Requests in those directions get closed
+        with a link to this line, not because the idea is bad but because the
+        addon would stop being allowed.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happens today, and what bothers you about it?
+      description: The situation in the game, not the solution yet.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What should Lyra do instead?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part is this about?
+      options:
+        - A new sense (something she should notice)
+        - A warning (threshold, timing, level)
+        - Voice / phrases / wording
+        - Dialog tree, /lyra commands
+        - Look, position, size, bubble
+        - Settings, presets, quiet modes
+        - Chronicle, bestiary, danger map
+        - Localization / a new language
+        - Something else
+    validations:
+      required: true
+
+  - type: input
+    id: client
+    attributes:
+      label: Which client does this concern?
+      placeholder: "Classic Era / Hardcore"
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: This does not require Lyra to press a key, move, cast or target
+          required: true
+        - label: This does not require data about other players
+          required: true
+        - label: I searched the existing issues

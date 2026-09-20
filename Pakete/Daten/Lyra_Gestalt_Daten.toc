@@ -1,0 +1,27 @@
+## Interface: 11509
+## Interface-TBC: 20506
+## Interface-Mists: 50504
+## Interface-Mainline: 120100
+# PORT 0.9.0: dieselben Flavor-Zeilen wie im Kern (Lyra_Gestalt.toc). Der Packager erzeugt
+# daraus die _Vanilla/_TBC/_Mists/_Mainline-TOCs. WoW: Forever (## Interface-Camelot: 16001,
+# Beta-Nummer vom 17.09.2026) fehlt hier absichtlich noch - Begruendung steht im Kern-TOC.
+# Ein Zusatzpaket MUSS die Flavor-Zeilen mitfuehren: ohne sie laedt der Client den Kern
+# (mit passendem Suffix), das Paket aber nicht - und dann fehlt genau das, wofuer es da ist.
+## Title: Lyra Gestalt - Danger Map (Deathlog data)
+## Title-deDE: Lyra Gestalt - Gefahrenkarte (Deathlog-Daten)
+## Notes: Aggregated hardcore death hotspots from the public Deathlog database. Lyra warns before cliffs, deep water and deadly camps. Contains no names and no last words.
+## Notes-deDE: Aggregierte Hardcore-Todesstellen aus der oeffentlichen Deathlog-Datenbank. Lyra warnt vor Klippen, tiefem Wasser und toedlichen Lagern. Enthaelt keine Namen und keine letzten Worte.
+## Author: Lyra & Harald - data: Deathlog (Deathwing, Yazpad)
+## Version: 2026-09-16
+## Dependencies: Lyra_Gestalt
+## LoadOnDemand: 0
+## X-License: GPLv3 - see LICENSE (this folder)
+## X-Website: https://github.com/Deathwing/Deathlog
+## X-Category: Data
+# Einziger globaler Wert dieses Addons: LyraGestalt_Daten (gefahren.lua). Der Kern
+# (Lyra_Gestalt/Sinne/Gefahren_Daten.lua) liest ihn bei ADDON_LOADED / PLAYER_LOGIN.
+# Dateinamen bewusst ASCII (Bruecke statt Bruecke mit Umlaut) - der Client laedt
+# Nicht-ASCII-Pfade nicht auf allen Systemen zuverlaessig.
+
+gefahren.lua
+Bruecke.lua

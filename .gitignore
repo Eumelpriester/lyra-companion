@@ -1,0 +1,32 @@
+# Baukasten des Packagers und lokale Trockenlaufergebnisse.
+# WICHTIG: release.sh setzt jede Datei, die Git nicht kennt, auf die ignore-Liste.
+# Alles, was ins Zip soll, muss also committet sein — und alles, was hier steht,
+# landet garantiert nicht im Zip.
+.release/
+dist/
+release.sh
+
+# Nie in dieses Repo, unter keinen Umstaenden (vermarktung/ausfuehrung.md §A.2 Schritt 6):
+scratch-render/
+render/
+LICENSES-privat/
+
+# Rohmaterial
+*.wav
+*.xcf
+*.psd
+luac.out
+
+# Werkzeug-Abfall
+__pycache__/
+*.pyc
+*~
+*.bak
+*.orig
+*.rej
+.DS_Store
+Thumbs.db
+
+# Interne Ablaufdoku gehoert nicht in das oeffentliche Repo.
+# Sie liegt im Entwicklungs-Monorepo unter docs/release/release-ablauf.md.
+docs/release-ablauf.md

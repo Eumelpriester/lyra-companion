@@ -1,0 +1,174 @@
+## Interface: 11509
+## Title: Lyra - Arcane Companion
+## Title-deDE: Lyra - Arkane Begleiterin
+## Notes: A companion who watches, shows and speaks - and never presses a key. No automation, no chat output, no data about other players.
+## Notes-deDE: Eine Begleiterin, die wahrnimmt, zeigt und spricht - und nie eine Taste drueckt. Keine Automation, keine Chat-Ausgabe, keine Daten anderer Spieler.
+## Author: Lyra & Harald
+## Version: 0.14.0
+## SavedVariables: LyraGestaltDB
+## X-Category: Companions
+## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md
+## X-Website: https://github.com/lyragestalt/Lyra_Gestalt
+# Projekt-IDs: nach der Freigabe eintragen und das fuehrende "# " entfernen.
+# ## X-Curse-Project-ID: 123456
+# ## X-Wago-ID: a1b2c3d4
+# ## X-WoWI-ID: 26123
+# REVIEW9: hier stand "see LICENSE.md". Eine Datei dieses Namens liegt NUR im Entwicklungsbaum
+# (addon/Lyra_Gestalt/LICENSE.md, wird vom Sync als *.md nicht mitgenommen). Ausgeliefert werden
+# LICENSE und LICENSE-ASSETS.md. Die TOC hat also auf eine Datei verwiesen, die im Zip nicht
+# existiert - und genau diese Zeile liest die CurseForge-Moderation. Der Wortlaut ist jetzt
+# derselbe, den release/tools/release-sync.sh (toc_filter) beim Spiegeln setzt.
+# REVIEW: OptionalDeps auf die Stimmpakete entfernt - die Pakete haben ## Dependencies: Lyra_Gestalt,
+# das waere ein Abhaengigkeitskreis; sie werden per LoadAddOn zur Laufzeit geladen.
+
+# W5: Feature-Welle 5 "Karte" (20.09.2026) — eingebettete Bibliotheken, GANZ VORNE.
+# Sie muessen vor jeder eigenen Datei stehen: HereBeDragons-2.0.lua bricht in Zeile 4 mit
+# assert(LibStub, ...) ab, und Sinne/Karte2.lua fragt LibStub("HereBeDragons-Pins-2.0").
+# Reihenfolge innerhalb des Blocks ist die aus HereBeDragons.toc des Upstreams.
+#
+# Keine davon ist eine Abhaengigkeit: LibStub traegt sich nur ein, wenn in _G noch keine
+# hoehere Revision steht. Laedt ein anderes Addon HereBeDragons vor uns (sieben tun das auf
+# diesem Rechner), gewinnt dessen Kopie und unsere tut nichts - genau dafuer ist LibStub da.
+# Herkunft, Revisionen und Lizenzlage: LICENSES/ und Libs/LICENSE.txt.
+Libs/LibStub/LibStub.lua
+Libs/CallbackHandler-1.0/CallbackHandler-1.0.lua
+# W10B (0.14.0): LibDataBroker-1.1 stand hier und ist RAUS. Die Bibliothek steht unter
+# "All Rights Reserved" (CurseForge-Projekt 20113, Tekkub) - das deckt keine Weitergabe, und
+# eine Credit-Zeile heilt es nicht. Sie fehlt niemandem: wer eine Datenleiste benutzt
+# (Titan Panel, ElvUI, ChocolateBar, ...), bringt LDB mit seinem Anzeige-Addon selbst mit, und
+# Sinne/Welle9.lua sucht sie nur ueber LibStub und legt ohne Fund einfach kein Datenobjekt an.
+# Beleglage: LICENSES/LibDataBroker-1.1.txt, Entscheidung: docs/welle10b-2026-09-20.md.
+Libs/HereBeDragons/HereBeDragons-2.0.lua
+Libs/HereBeDragons/HereBeDragons-Pins-2.0.lua
+
+Core/Compat.lua
+# W8: Core/Selbsttest.lua steht DIREKT hinter Core/Compat.lua und VOR Core/Init.lua - und das ist
+# keine Geschmacksfrage, sondern der ganze Sinn der Datei. Sie prueft die API-Flaechen, an denen
+# eine REGISTRIERUNG haengt, und die faellt beim Laden: Sinne/Chronik.lua registriert
+# COMBAT_LOG_EVENT_UNFILTERED auf Dateiebene, und auf einem Client, der das fuer Addons zumacht,
+# ist schon der Versuch ADDON_ACTION_FORBIDDEN - ein Blizzard-Fenster mit Lyras Namen darin, das
+# kein pcall faengt. Ein Selbsttest bei PLAYER_LOGIN kaeme dafuer zu spaet.
+# Der Preis dieser Position: hier gibt es noch kein ns.print, ns.Get, ns.L, ns.on (alles
+# Core/Init.lua und Core/Locale.lua, die stehen dahinter). Die Datei benutzt darum beim Laden nur
+# ns.Compat und rohe WoW-Globale und haengt sich mit einem EIGENEN Frame an PLAYER_LOGIN.
+Core/Selbsttest.lua
+Core/Init.lua
+Locales/enUS.lua
+Locales/deDE.lua
+Core/Locale.lua
+Core/Anrede.lua
+phrasen.lua
+Core/Regie.lua
+UI/Optik.lua
+# W10B: Feature-Welle 10b "Haltbarkeit" (Roadmap 10-7). Vier benannte Farbpaletten fuer
+# Warnstufen-Puls, Sprechblase und Untertitel-Leiste. Steht DIREKT hinter UI/Optik.lua und vor
+# Gestalt/Gestalt.lua, aus zwei Gruenden:
+#   * Sie haengt ns.DEFAULTS_ACCOUNT EINEN Schluessel an ("farbe") - das muss vor ADDON_LOADED
+#     passieren, sonst fehlt er in der Datenbank. Core/Init.lua bleibt unberuehrt.
+#   * Sie legt einen Mantel um ns.onSetting und ruft darin das Original zuerst; sie gibt nichts
+#     zurueck und verschluckt nichts, liegt also fuer die spaeteren Mantel (UI/Streamer.lua,
+#     Sinne/Welle6.lua, Sinne/Welle9.lua) harmlos innen.
+# UI/Glow.lua und Gestalt/Blase.lua FRAGEN sie nur zur Laufzeit - ohne diese Zeile faellt beides
+# auf die bisherigen Farben zurueck, Wert fuer Wert (Pruefstandslauf "w10b-ohnefarben").
+UI/Farben.lua
+Gestalt/Gestalt.lua
+Gestalt/Blase.lua
+Gestalt/Stimme.lua
+# W9: Gestalt/Aussprache.lua steht DIREKT hinter Gestalt/Stimme.lua. Sie stellt nur eine Tabelle
+# und eine Ersetzungsfunktion bereit; Stimme.lua ruft sie erst zur Laufzeit (S.ttsText), die
+# Reihenfolge ist also keine Bedingung - sie steht hier, weil das die Stelle ist, an der man sie
+# sucht. Das Lexikon wirkt AUSSCHLIESSLICH auf den vorgelesenen Text, nie auf die Sprechblase.
+Gestalt/Aussprache.lua
+UI/Glow.lua
+UI/Minimap.lua
+UI/Streamer.lua
+Sinne/Leben.lua
+Sinne/Umwelt.lua
+Sinne/Kampf.lua
+Sinne/Alltag.lua
+Sinne/Chronik.lua
+Sinne/Gefahren_Daten.lua
+Sinne/Extra.lua
+Sinne/Erbe.lua
+Sinne/Leben2.lua
+Sinne/Rituale.lua
+Sinne/Persoenlich.lua
+Sinne/Faehigkeiten.lua
+Sinne/Quests.lua
+Sinne/Profil.lua
+Sinne/Karte.lua
+Sinne/Bruecken2.lua
+# Welle 3 (0.8.0): Zusammenspiel und Persoenlichkeit. Sinne/Bedrohung.lua und Sinne/Details.lua
+# stehen VOR Sinne/Bruecken.lua, weil sie dort je einen Block stillegen (ns.Bedrohung,
+# ns.DetailsSinn) - die Wachen dort lesen nur, sind also auf die Reihenfolge nicht angewiesen,
+# aber so ist die Uebernahme auch in der Ladeliste zu sehen. Sinne/Persoenlichkeit.lua steht
+# zuletzt: ihr ns.melde-Wrapper soll AUSSEN um die von Rituale.lua und Persoenlich.lua liegen.
+Sinne/Details.lua
+Sinne/Bedrohung.lua
+Sinne/DBM.lua
+Sinne/Questie2.lua
+Sinne/Persoenlichkeit.lua
+Sinne/Bruecken.lua
+UI/Settings.lua
+UI/Menue.lua
+dialog.lua
+bruecken_dialog.lua
+rituale_dialog.lua
+welle2_dialog.lua
+UI/Dialog.lua
+UI/Freitext.lua
+UI/Slash.lua
+Core/Start.lua
+# Welle 4 (0.9.x): Alltag II, HC-Modus-Wechsel, WeakAuras-Signal, GatherMate2. Steht GANZ zuletzt,
+# hinter Core/Start.lua. Zwei Gruende: der ns.melde-Wrapper aus Sinne/Persoenlichkeit.lua soll auch
+# um die Welle-4-Zeilen liegen, und der Login-Slot (ns.Regie.loginSlot) der HC-Wechsel-Zeile soll
+# der LETZTE sein - sie ist die unwichtigste Login-Zeile und darf keiner anderen den Platz nehmen.
+# Die Datei haengt nur ns.DEFAULTS_ACCOUNT vier Schluessel an (Core/Init.lua bleibt unberuehrt) und
+# registriert Events; nichts davon braucht eine fruehere Position.
+Sinne/Welle4.lua
+
+# W5: Feature-Welle 5 "Karte" (0.10.x). Pin-Infrastruktur ueber HereBeDragons, Gefahrenkarten-
+# Overlay, Geofence auf eigene Punkte. Steht GANZ zuletzt, hinter Sinne/Welle4.lua, aus drei
+# Gruenden:
+#   * Sie loest beim Login ns.Karte.aktualisieren ab (Sinne/Karte.lua, Welle 2) - der Ersatz
+#     muss nach dem Original geladen sein, sonst gewinnt das Original.
+#   * Der ns.melde-Wrapper aus Sinne/Persoenlichkeit.lua soll auch um PUNKT_NAH liegen.
+#   * Sie liest ns.Gefahren, das Sinne/Chronik.lua und Sinne/Gefahren_Daten.lua fuellen.
+# Die Datei haengt nur ns.DEFAULTS_ACCOUNT vier Schluessel an (Core/Init.lua bleibt unberuehrt).
+# Die vier Libs-Zeilen stehen ganz oben, VOR jeder eigenen Datei.
+Sinne/Karte2.lua
+Sinne/Welle6.lua
+
+# W8: Feature-Welle 8 "Vorwarnung" (0.11.x). Praeventive Sturz- und Wasserwarnung (A2).
+# GANZ ZULETZT, hinter Sinne/Welle6.lua, aus drei Gruenden:
+#   * Sie liest ns.Karte2 (HereBeDragons, Zonengroesse in Yard) und ns.Gefahren (gefuellt von
+#     Sinne/Gefahren_Daten.lua) - beide Quellen muessen fertig sein.
+#   * (W9, 20.09.2026: hier stand "Sie loest ns.Stimmung.abstandFaktor ab". Tut sie nicht mehr -
+#     die Rechnung ist nach Sinne/Leben2.lua gezogen, wohin sie fachlich gehoert, und der
+#     Ablose-Block ist ersatzlos weg. Welle8.lua haelt nur noch den Namen W.abstandFaktor auf
+#     dieselbe Funktion. Fuer die Ladereihenfolge heisst das: ein Grund weniger.)
+#   * Der ns.melde-Wrapper aus Sinne/Persoenlichkeit.lua soll auch um STURZ_VORAUS,
+#     WASSER_VORAUS und TIEFES_WASSER liegen.
+# Die Datei haengt nur EINEN Schluessel an ns.DEFAULTS_ACCOUNT (vorwarnung); Core/Init.lua bleibt
+# unberuehrt. Ein Ticker (1 s), kein OnUpdate, kein eigener SavedVariables-Eintrag.
+Sinne/Welle8.lua
+
+# W9: Feature-Welle 9a "Stimme, Oekosystem, Export" (0.12.x). LibDataBroker-Datenobjekt,
+# Profil-Export/-Import, Questie ueber die offizielle Questie.API. GANZ ZULETZT, hinter
+# Sinne/Welle8.lua, aus drei Gruenden:
+#   * Sie liest ns.Questie2 (Sinne/Questie2.lua) und ruft dessen Funktionen ueber den
+#     offiziellen Questie-Weg - die Datei muss fertig sein, sonst gibt es nichts anzumelden.
+#   * Sie legt einen Mantel um ns.onSetting (LDB-Text nachziehen) und ruft darin das Original
+#     zuerst. Sie tut das beim LADEN, die Mantel von Sinne/Welle6.lua und UI/Streamer.lua
+#     kommen bei PLAYER_LOGIN dazu und liegen damit aussen - das ist egal, weil dieser Mantel
+#     nichts zurueckgibt und nichts verschluckt.
+#   * Sie liest ns.Settings.setze fuer den Profil-Import und ns.Stimme fuer den Leisten-Text.
+# Sie haengt KEINEN Schluessel an ns.DEFAULTS_ACCOUNT und legt kein Ereignis an. Ein Frame
+# (das Kopierfenster) entsteht erst beim ersten /lyra profil export.
+Sinne/Welle9.lua
+
+# ERZEUGT von tools/release-sync.sh aus Lyra_Gestalt.toc - nicht von Hand editieren.
+# Classic Era / Hardcore 1.15.9. Der Client bevorzugt diese Datei vor Lyra_Gestalt.toc.
+# Die "## Interface-<Typ>:"-Zeilen der Basis-TOC sind hier absichtlich entfernt -
+# in einer TOC MIT Suffix gilt nur die eigene "## Interface:"-Zeile.
+# Kommentare stehen absichtlich am ENDE: Zeile 1 muss eine ## -Direktive sein (12.0.7).

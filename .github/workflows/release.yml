@@ -1,0 +1,213 @@
+# BigWigs-Packager fuer Lyra Companion.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# GRUNDREGEL DIESER DATEI, 20.09.2026 geaendert:
+#   **Kein Upload passiert von selbst.** Weder beim ersten Push, noch beim ersten
+#   Tag, noch bei einem Merge. Ein Paket geht erst dann zu CurseForge, Wago,
+#   WoWInterface oder in ein GitHub-Release, wenn jemand den Workflow von Hand
+#   startet UND dabei "hochladen" auf true stellt.
+#
+#   Vorher stand hier: Tag v* -> sofort hochladen. Das ist bequem und an genau
+#   einem Tag gefaehrlich — an dem, an dem das Repository zum ersten Mal
+#   oeffentlich wird und die Historie schon Tags enthaelt. Ein Tag, der nachtraeglich
+#   gepusht wird, haette gegen ein CurseForge-Projekt hochgeladen, das gerade in
+#   Moderation liegt. Der Upload bleibt deshalb ein bewusster Klick.
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Was wann laeuft:
+#   annotierter Tag v*        -> Torwaechter + Trockenbau. Zip haengt als Artifact
+#                                am Lauf, NICHTS wird hochgeladen.
+#   Pull Request              -> Torwaechter + Trockenbau. Faengt kaputte .pkgmeta,
+#                                fehlende TOC-Felder und Zip-Fehler ab.
+#   Manuell (Run workflow)    -> Auswahl:
+#                                  hochladen = false (Standard) -> nur Trockenbau
+#                                  hochladen = true             -> echter Release
+#
+# Versionsstand der Actions geprueft am 17.09.2026 gegen den Workflow, den BigWigs
+# selbst benutzt (BigWigsMods/BigWigs/.github/workflows/build.yml):
+#   actions/checkout@v7        (Release v7.0.1, 2026-07-20)
+#   actions/upload-artifact@v7 (Release v7.0.1)
+#   BigWigsMods/packager@v2    (Tag v2.5.1)
+#
+# Secrets (Settings -> Secrets and variables -> Actions). Die Namen sind die, die
+# release.sh liest:
+#   CF_API_KEY        CurseForge-Autor-Dashboard -> Account -> API Tokens
+#   WAGO_API_TOKEN    https://addons.wago.io/account/apikeys
+#   WOWI_API_TOKEN    erst noetig, wenn WoWInterface dazukommt (1.0)
+#   GITHUB_OAUTH      = ${{ secrets.GITHUB_TOKEN }}, stellt GitHub selbst — NICHT anlegen.
+#                     Aber: Settings -> Actions -> General -> Workflow permissions
+#                     auf "Read and write permissions", sonst
+#                     "Resource not accessible by integration".
+#
+# Fehlt ein Token, ueberspringt der Packager das Ziel kommentarlos. Das ist gewollt:
+# Solange CF_API_KEY nicht gesetzt ist, kann dieser Workflow gar nicht zu CurseForge
+# hochladen — auch dann nicht, wenn jemand versehentlich hochladen=true waehlt.
+#
+# Projekt-IDs gehoeren in die TOC (dann braucht dieser Workflow keine args). Sie
+# stehen dort heute als Kommentar, weil die Projekte noch nicht freigegeben sind:
+#   ## X-Curse-Project-ID: 123456
+#   ## X-Wago-ID: a1b2c3d4
+#   ## X-WoWI-ID: 26123
+
+name: Package and release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      hochladen:
+        description: >-
+          Wirklich hochladen (CurseForge / Wago / WoWInterface / GitHub Release)?
+          Standard ist nein — dann wird nur gebaut.
+        type: boolean
+        default: false
+        required: true
+
+jobs:
+
+  # -------------------------------------------------------------------------
+  # Torwaechter: laeuft vor allem anderen und bricht ab, wenn noch ein
+  # [[Platzhalter]] in einer ausgelieferten Lizenz- oder Textdatei steht.
+  # Ein Paket mit "[[STIMME-REFERENZ]]" in LICENSE-ASSETS.md darf niemals
+  # bei CurseForge landen.
+  # -------------------------------------------------------------------------
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Keine offenen Platzhalter in ausgelieferten Dateien
+        run: |
+          if grep -rn '\[\[' LICENSE LICENSE-ASSETS.md README.md Pakete/Daten/LICENSE 2>/dev/null; then
+            echo "::error::Offene [[…]]-Platzhalter. Vor dem Release ersetzen."
+            exit 1
+          fi
+          echo "Lizenz- und Textdateien sind vollstaendig."
+
+      - name: Lizenzdateien sind vorhanden
+        run: |
+          for f in LICENSE LICENSE-ASSETS.md Pakete/Daten/LICENSE; do
+            [ -s "$f" ] || { echo "::error::$f fehlt oder ist leer"; exit 1; }
+          done
+
+      - name: TOC-Dateien sind vorhanden
+        run: |
+          for f in Lyra_Gestalt.toc Lyra_Gestalt_Vanilla.toc \
+                   Pakete/Stimme_de/Lyra_Gestalt_Stimme_de.toc \
+                   Pakete/Stimme_en/Lyra_Gestalt_Stimme_en.toc \
+                   Pakete/Daten/Lyra_Gestalt_Daten.toc; do
+            [ -s "$f" ] || { echo "::error::$f fehlt"; exit 1; }
+          done
+
+  # -------------------------------------------------------------------------
+  # Trockenbau: baut das Zip und laedt NICHTS hoch. Das ist der Normalfall —
+  # bei jedem Tag, bei jedem Pull Request, bei jedem Handstart ohne Haken.
+  # -------------------------------------------------------------------------
+  test-build:
+    needs: gate
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.hochladen != true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Lua-Syntax und offensichtliche Fehler. Nicht blockierend, weil die
+      # Standardregeln von luacheck fuer WoW-Globals viele Warnungen erzeugen;
+      # der Log ist aber die schnellste Fehlersuche.
+      - name: luacheck
+        continue-on-error: true
+        uses: BigWigsMods/luacheck@main
+        with:
+          args: -q
+
+      - name: Package only (no upload)
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -d              # -d = kein Upload;  -d -z = auch kein Zip
+
+      - name: Zip pruefen
+        run: |
+          set -euo pipefail
+          echo "--- .release ---"
+          find .release -maxdepth 2 -print
+          for z in .release/*.zip; do
+            echo "=== $z ($(du -h "$z" | cut -f1)) ==="
+            ordner=$(unzip -Z1 "$z" | cut -d/ -f1 | sort -u)
+            echo "$ordner"
+            erwartet=$'Lyra_Gestalt\nLyra_Gestalt_Daten\nLyra_Gestalt_Stimme_de\nLyra_Gestalt_Stimme_en'
+            if [ "$ordner" != "$erwartet" ]; then
+              echo "::error::Das Zip enthaelt nicht genau die vier erwarteten Ordner."
+              exit 1
+            fi
+            if unzip -Z1 "$z" | grep -qE 'luac\.out|\.wav$|Persoenlich'; then
+              echo "::error::Verbotener Inhalt im Zip (luac.out, *.wav oder Persoenlich)."
+              exit 1
+            fi
+          done
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: lyra-companion-testbuild
+          path: .release/*.zip
+          if-no-files-found: error
+
+  # -------------------------------------------------------------------------
+  # Echter Release. Laeuft NUR beim Handstart mit hochladen=true.
+  #
+  # So geht es: Actions -> "Package and release" -> Run workflow ->
+  #   Branch/Tag: den Tag auswaehlen (z. B. v0.14.0)
+  #   hochladen:  Haken setzen
+  # -------------------------------------------------------------------------
+  release:
+    needs: gate
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.hochladen == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # GITHUB_TOKEN braucht Schreibrecht fuer GitHub Releases
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0       # volle Historie: der Packager braucht sie fuer Version und Changelog
+
+      # Sagt NUR, ob ein Token gesetzt ist — nie, welches. Die Werte kommen ueber
+      # env herein und werden nur auf "leer / nicht leer" geprueft.
+      - name: Was wird hochgeladen
+        env:
+          CF: ${{ secrets.CF_API_KEY }}
+          WAGO: ${{ secrets.WAGO_API_TOKEN }}
+          WOWI: ${{ secrets.WOWI_API_TOKEN }}
+        run: |
+          echo "Ref: $GITHUB_REF"
+          echo "Ziele, fuer die ein Token gesetzt ist:"
+          [ -n "$CF" ]   && echo "  CurseForge: ja"   || echo "  CurseForge: kein Token, wird uebersprungen"
+          [ -n "$WAGO" ] && echo "  Wago: ja"         || echo "  Wago: kein Token, wird uebersprungen"
+          [ -n "$WOWI" ] && echo "  WoWInterface: ja" || echo "  WoWInterface: kein Token, wird uebersprungen"
+          echo "  GitHub Release: immer (GITHUB_TOKEN)"
+
+      - name: Package and release
+        uses: BigWigsMods/packager@v2
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+        # Falls die Projekt-IDs NICHT in der TOC stehen, hier nachreichen:
+        # with:
+        #   args: -p 123456 -a a1b2c3d4 -w 26123
+
+# Der frueher hier stehende "alpha"-Job (Push auf main -> Alpha-Upload) ist am
+# 20.09.2026 entfernt worden. Er konnte durch den Trigger nie laufen, haette aber
+# beim Entkommentieren einer einzigen Zeile weiter oben bei JEDEM Push hochgeladen.
+# Wer Alphas will, startet den Workflow von Hand auf main mit hochladen=true —
+# der Packager erkennt am fehlenden Tag selbst, dass es eine Alpha ist.

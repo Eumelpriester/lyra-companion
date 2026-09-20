@@ -1,0 +1,113 @@
+name: Fehlermeldung (deutsch)
+description: Etwas in Lyra Companion funktioniert nicht
+title: "[Bug] "
+labels: [bug, needs-triage, de]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du dir die Zeit nimmst. Der Block aus `/lyra debug` weiter unten
+        ist das, was einen Fehler in einem Anlauf reparierbar macht statt in fünf.
+        Er enthält Version, Client-Build, Sprache, geladene Sprachpakete, aktive
+        Einstellungen und die letzten Ereignisse — **keine Charakter-, Gilden-,
+        Account- oder Kanalnamen.** Lies ihn ruhig vorher durch.
+
+        **Bevor du schreibst:** Wenn die **Stimme stumm** ist, starte den
+        Spielclient bitte einmal vollständig neu. WoW findet nur Tondateien, die
+        beim Start des Clients schon im AddOns-Ordner lagen; ein `/reload` reicht
+        dafür nicht.
+
+        Du darfst auf Deutsch schreiben. Für Englisch gibt es die Vorlage
+        „Bug report“.
+
+  - type: input
+    id: version
+    attributes:
+      label: Lyra-Version
+      description: Die `## Version`-Zeile der TOC oder die erste Zeile von `/lyra debug`.
+      placeholder: "0.13.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: Spielclient
+      description: >
+        Getestet ist Lyra auf Classic Era. Die anderen vier laufen über die
+        Client-Weiche in Core/Compat.lua — dort sind Fehler besonders willkommen.
+      options:
+        - Classic Era / Hardcore
+        - Burning Crusade (Anniversary)
+        - Mists of Pandaria Classic
+        - Retail
+        - WoW Forever
+    validations:
+      required: true
+
+  - type: input
+    id: build
+    attributes:
+      label: Client-Version / Build
+      description: Im Spiel unten links im Charakterbildschirm, oder aus `/lyra debug`.
+      placeholder: "1.15.9 (69722)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug
+    attributes:
+      label: Ausgabe von /lyra debug
+      description: >
+        Bitte den ganzen Block einfügen. Er enthält Version, Client-Build, Sprache,
+        geladene Sprachpakete, aktive Einstellungen und die letzten Ereignisse
+        (Art, Zeit, Zone) — keine Charakter- oder Accountnamen.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: status
+    attributes:
+      label: Ausgabe von /lyra status
+      description: >
+        Selbsttest, Client-Weiche, Sprache, Sprachpakete, Speicher. Steht als
+        erste Zeile der Selbsttest — die ist bei einem Ausfall die wichtigste.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Wie lässt sich der Fehler auslösen?
+      placeholder: |
+        1. …
+        2. …
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartet vs. tatsächlich
+      description: Was hättest du erwartet, was ist stattdessen passiert?
+    validations:
+      required: true
+
+  - type: textarea
+    id: errors
+    attributes:
+      label: Lua-Fehler (BugSack / BugGrabber), falls vorhanden
+      description: Den vollen Fehlertext samt Stack-Trace.
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Abgehakt
+      options:
+        - label: Ich bin auf der neuesten Version
+        - label: Ich habe alle anderen Addons abgeschaltet und der Fehler bleibt
+        - label: Ich habe den Client vollständig neu gestartet (nicht nur `/reload`)

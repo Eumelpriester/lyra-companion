@@ -1,0 +1,25 @@
+## Interface: 11509
+## Title: Lyra Gestalt - Personal lines
+## Title-deDE: Lyra Gestalt - Persoenliche Zeilen
+## Notes: Lines written from your own chronicle. Contains no data about other players. Sends nothing, reads nothing, has no network code.
+## Notes-deDE: Zeilen, die aus deiner eigenen Chronik geschrieben wurden. Enthaelt keine Daten anderer Spieler. Sendet nichts, liest nichts, hat keinen Netzcode.
+## Author: Lyra & Harald
+## Version: 0.7.0
+## Dependencies: Lyra_Gestalt
+## X-Category: Data
+## X-License: see Lyra_Gestalt/LICENSE.md
+## X-Generated-By: hand
+# Einziger globaler Wert dieses Addons: LyraGestalt_Persoenlich (persoenlich.lua). Der Kern
+# (Lyra_Gestalt/Sinne/Persoenlich.lua) liest ihn bei PLAYER_LOGIN bzw. bei ADDON_LOADED.
+#
+# BEWUSST KEIN "## LoadOnDemand: 1". Das Konzept (docs/redakteur-konzept.md 1.4) sieht LoD vor,
+# weil dort eine Bruecke den Ordner erzeugt. Diese handgeschriebene Fassung laedt normal mit
+# "## Dependencies: Lyra_Gestalt": der Client laedt das Paket dann VOR dem Kern, PLAYER_LOGIN
+# findet die Tabelle garantiert vor, und es braucht kein ladeAddon(), kein Timing und keinen
+# zweiten Weg. Ein NEU ANGELEGTER Ordner ist so oder so erst nach einem Client-Neustart in der
+# Addon-Liste (Konzept 1.6) - LoD haette daran nichts geaendert.
+#
+# BEWUSST KEIN "## SavedVariables". Dann schreibt WoW beim Logout nichts in diesen Ordner zurueck,
+# und die Datei hat genau eine Schreiberin: den Menschen (oder spaeter tools/persoenlich-vorlage.py).
+
+persoenlich.lua

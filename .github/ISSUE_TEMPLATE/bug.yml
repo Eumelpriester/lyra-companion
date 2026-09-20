@@ -1,0 +1,105 @@
+name: Bug report
+description: Something in Lyra Gestalt does not work
+title: "[Bug] "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. The `/lyra debug` block below is what makes a
+        bug fixable in one go instead of five. It contains version, client build,
+        locale, loaded voice packs and the last events — **no character, guild,
+        account or channel names.**
+
+        Before you write: if the **voice is silent**, please restart the game
+        client completely once. WoW only finds sound files that were present in
+        the AddOns folder when the client started; a `/reload` is not enough.
+
+  - type: input
+    id: version
+    attributes:
+      label: Lyra version
+      description: The `## Version` line, or the first line of `/lyra debug`.
+      placeholder: "0.7.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: Game client
+      options:
+        - Classic Era / Hardcore
+        - TBC Anniversary
+        - Wrath Classic
+        - Cataclysm Classic
+        - Mists Classic
+        - Retail
+        - WoW Forever
+    validations:
+      required: true
+
+  - type: input
+    id: build
+    attributes:
+      label: Client version / build
+      description: In game bottom left of the character screen, or from `/lyra debug`.
+      placeholder: "1.15.9 (60000)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug
+    attributes:
+      label: Output of /lyra debug
+      description: >
+        Paste the full block. It contains version, client build, locale, loaded
+        voice packs, active options and the last events (type, time, zone) —
+        no character or account names.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: status
+    attributes:
+      label: Output of /lyra status
+      description: Version, client, loaded voice packs, active options.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. …
+        2. …
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs. actual
+      description: What did you expect, what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: errors
+    attributes:
+      label: Lua error (BugSack / BugGrabber), if any
+      description: Full error text including the stack trace.
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I am on the latest version
+        - label: I disabled all other addons and the problem persists
+        - label: I restarted the game client completely (not just `/reload`)

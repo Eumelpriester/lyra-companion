@@ -1,0 +1,146 @@
+Lyra_Gestalt / Libs — Lizenzen der eingebetteten Fremdbibliotheken
+==================================================================
+
+Diese Datei wird MIT AUSGELIEFERT. Die ausfuehrliche Fassung mit Herkunftspfaden
+und Messprotokollen liegt im Entwicklungs-Repo unter LICENSES/.
+
+Stand 20.09.2026 (Feature-Welle 10b). An diesem Tag wurden alle vier
+Lizenzangaben an den OFFIZIELLEN Projektseiten nachgeschlagen; die Fundstellen
+stehen je Bibliothek unten mit URL. Bis dahin waren zwei davon offen.
+
+UEBERSICHT — vier Bibliotheken, alle unveraendert weitergegeben
+---------------------------------------------------------------
+  Bibliothek             Rev.   Lizenz                  Quelle
+  LibStub                 2     Public Domain           Dateikopf + CF 14328
+  CallbackHandler-1.0     8     BSD (Ace3 Style BSD)    CF 15049 / Ace3 13376
+  HereBeDragons-2.0      33     BSD 3-Clause            CF 94348, Volltext
+  HereBeDragons-Pins-2.0 17     BSD 3-Clause            CF 94348, Volltext
+
+Alle vier Dateien werden UNVERAENDERT weitergegeben. Es wurde keine Zeile Code
+geaendert, nichts entfernt, nichts umbenannt. Keine davon ist eine
+Abhaengigkeit: LibStub traegt eine Kopie nur dann ein, wenn im _G noch keine
+hoehere Revision steht, und Lyra_Gestalt laeuft vollstaendig ohne sie.
+
+NICHT MEHR DABEI: LibDataBroker-1.1
+-----------------------------------
+Bis 0.13.0 lag hier eine fuenfte Bibliothek. Sie ist mit 0.14.0 entfernt
+worden: LibDataBroker-1.1 steht laut seiner Projektseite unter "All Rights
+Reserved" (https://www.curseforge.com/wow/addons/libdatabroker-1-1, Projekt
+20113, Tekkub Stoutwrithe; die Lizenzseite traegt genau den Satz "All Rights
+Reserved unless otherwise explicitly stated."). Das deckt keine Weitergabe,
+und eine Credit-Zeile heilt es nicht.
+
+Fuer dich aendert sich dadurch nichts, solange du eine Datenleiste benutzt:
+Titan Panel, ElvUI-Datentexte, ChocolateBar und die Knopf-Sammler bringen
+LibDataBroker selbst mit, und Lyra meldet ihr Datenobjekt dort weiterhin an.
+Findet sie keine LDB-Bibliothek im Speicher, legt sie einfach keines an — der
+Minimap-Knopf und alles andere laufen unveraendert. Das vollstaendige
+Pruefprotokoll steht im Entwicklungs-Repo unter
+LICENSES/LibDataBroker-1.1.txt.
+
+--------------------------------------------------------------------
+LibStub                                                Revision 2
+====================================================================
+Urheber:  Kaelten, Cladhaire, ckknight, Mikk, Ammo, Nevcairiel, joshborke
+Quelle:   https://www.curseforge.com/wow/addons/libstub  (Projekt 14328)
+          Lizenzseite: .../libstub/license
+Lizenz:   PUBLIC DOMAIN. Zwei unabhaengige Belege:
+          1. Dateikopf: "LibStub is hereby placed in the Public Domain"
+          2. Projektseite, Feld "License": "Public Domain"; die Lizenzseite
+             traegt den Satz "This work is dedicated to the public domain."
+Herkunft der Kopie: TomTom/libs/HereBeDragons/LibStub/LibStub.lua
+
+--------------------------------------------------------------------
+CallbackHandler-1.0                                    Revision 8
+====================================================================
+Urheber:  Ace3 Development Team; eigenstaendiges Projekt gepflegt von
+          Nevcairiel (Hendrik Leppkes)
+Quelle:   https://www.curseforge.com/wow/addons/callbackhandler (Projekt 15049)
+          Feld "License": "BSD License"
+          https://www.curseforge.com/wow/addons/ace3 (Projekt 13376)
+          Feld "License": "Ace3 Style BSD"
+Herkunft: TomTom/libs/HereBeDragons/CallbackHandler-1.0/CallbackHandler-1.0.lua
+          (md5 3757ba9ef62c5ee38d9246bce316b5a6)
+Lizenz:   Ace3 Style BSD - die STRENGERE der beiden Angaben, an die sich
+          Lyra_Gestalt haelt (die Datei liegt eingebettet unter Libs/ und wird
+          nicht als eigenstaendige Bibliothek verteilt). Volltext:
+
+Copyright (c) 2007, Ace3 Development Team
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Redistribution of a stand alone version is strictly prohibited without
+      prior written authorization from the Lead of the Ace3 Development Team.
+    * Neither the name of the Ace3 Development Team nor the names of its contributors
+      may be used to endorse or promote products derived from this software without
+      specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+--------------------------------------------------------------------
+HereBeDragons-2.0 / HereBeDragons-Pins-2.0        Revision 33 / 17
+====================================================================
+Urheber:  Nevcairiel (Hendrik Leppkes) <h.leppkes@gmail.com>
+Upstream: https://github.com/Nevcairiel/HereBeDragons
+Quelle:   https://www.curseforge.com/wow/addons/herebedragons (Projekt 94348)
+          Feld "License": "BSD License"; Volltext auf
+          https://www.curseforge.com/wow/addons/herebedragons/license
+          TOC-Zeile "## X-License: BSD" (identisch in allen sieben auf dem
+          Entwicklungsrechner installierten Kopien und im Upstream-master).
+Herkunft: GatherMate2/Libs/HereBeDragons/ (hoechste vorhandene Revisionen)
+Lizenz:   BSD 3-Clause. Die dritte Klausel ("Neither the name of the
+          <ORGANIZATION> ...") macht die Variante eindeutig. Das Upstream-Repo
+          enthaelt KEINE LICENSE-Datei (GitHub-API, 20.09.2026: "license": null);
+          der Volltext steht auf der Projektseite. Die Platzhalter <YEAR>,
+          <OWNER> und <ORGANIZATION> hat der Autor nicht ausgefuellt;
+          Copyright-Inhaber ist nach der Autorenzeile der TOC Nevcairiel.
+          Volltext:
+
+Copyright (c) <YEAR>, <OWNER>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+Neither the name of the <ORGANIZATION> nor the names of its contributors may be
+used to endorse or promote products derived from this software without specific
+prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Nicht uebernommen wurde HereBeDragons-Migrate.lua (Migrationsdaten 7.x -> 8.0);
+weder HereBeDragons-2.0 noch HereBeDragons-Pins-2.0 laden oder brauchen sie.

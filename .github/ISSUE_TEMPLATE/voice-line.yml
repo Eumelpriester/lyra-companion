@@ -1,0 +1,76 @@
+name: Phrase suggestion
+description: A line Lyra should say in a particular situation
+title: "[Line] "
+labels: [phrase, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Lyra's lines live in `phrasen.json` — one entry per event, each line with
+        a German and an English version. Good suggestions are **short** (they have
+        to fit a speech bubble), **in her voice** (dry, a little cheeky, never
+        cruel) and they **say something about the situation**, not about the game
+        in general.
+
+        A line that is accepted gets rendered to voice in the next release, so
+        please keep it clean of placeholders: the renderer can only speak a fixed
+        sentence. `{Held|Heldin}`-style address tokens are the one exception.
+
+  - type: input
+    id: event
+    attributes:
+      label: Event
+      description: >
+        The event ID if you know it (from `/lyra debug` or the phrase list), or
+        just describe the situation.
+      placeholder: "LOGIN, HP20, ATEM, ZONE_ERINNERUNG, …"
+    validations:
+      required: true
+
+  - type: textarea
+    id: situation
+    attributes:
+      label: When exactly should she say this?
+      placeholder: "When you come back to a zone where you nearly died."
+    validations:
+      required: true
+
+  - type: textarea
+    id: en
+    attributes:
+      label: English line
+      description: Max ~120 characters. One sentence, two at most.
+    validations:
+      required: true
+
+  - type: textarea
+    id: de
+    attributes:
+      label: German line
+      description: If you can. Leave empty if not — we translate.
+
+  - type: dropdown
+    id: klasse
+    attributes:
+      label: Kind of line
+      description: >
+        A warning must be spoken and must be useful in half a second. Chatter may
+        be funny. Please do not suggest jokes for warnings.
+      options:
+        - plauder — chatter, no warning
+        - still — quiet, subtitle only
+        - warn — a warning (level 1-3)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: No placeholders, no URLs, no colour codes, no player names
+          required: true
+        - label: It fits in a speech bubble (roughly 120 characters)
+          required: true
+        - label: I wrote this myself — it is not a quote from the game or another work
+          required: true

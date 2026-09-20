@@ -1,0 +1,68 @@
+name: Wunsch / Idee (deutsch)
+description: Eine Idee für etwas, das Lyra wahrnehmen, zeigen oder sagen soll
+title: "[Idee] "
+labels: [enhancement, needs-triage, de]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Zwei Dinge wird Lyra nie tun, egal wie gut die Idee ist:
+        **für dich handeln** (Taste drücken, laufen, zaubern, anvisieren — jede Art
+        von Automatisierung) und **Daten über andere Spieler benutzen** (Namen,
+        Flüstern, Gruppenmitglieder, Addon-Kanäle, Chat-Ausgabe). Wünsche in diese
+        Richtung werden mit einem Verweis auf genau diese Zeile geschlossen — nicht,
+        weil die Idee schlecht wäre, sondern weil das Addon damit aufhören würde,
+        erlaubt zu sein.
+
+        Du darfst auf Deutsch schreiben. Für Englisch gibt es die Vorlage
+        „Feature request“.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Was passiert heute, und was stört dich daran?
+      description: Die Situation im Spiel, noch nicht die Lösung.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Was sollte Lyra stattdessen tun?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Um welchen Teil geht es?
+      options:
+        - Ein neuer Sinn (etwas, das sie bemerken soll)
+        - Eine Warnung (Schwelle, Zeitpunkt, Stufe)
+        - Stimme / Phrasen / Wortlaut
+        - Gesprächsbaum, /lyra-Befehle, Freitext
+        - Aussehen, Position, Größe, Sprechblase, Farbthema
+        - Einstellungen, Presets, Ruhemodi, Barrierefreiheit
+        - Chronik, Bestiarium, Gefahrenkarte
+        - Karte, Pins, Overlay
+        - Übersetzung / eine neue Sprache
+        - Etwas anderes
+    validations:
+      required: true
+
+  - type: input
+    id: client
+    attributes:
+      label: Welchen Client betrifft das?
+      placeholder: "Classic Era / Hardcore"
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Abgehakt
+      options:
+        - label: Dafür muss Lyra keine Taste drücken, nicht laufen, nicht zaubern, nichts anvisieren
+          required: true
+        - label: Dafür braucht es keine Daten über andere Spieler
+          required: true
+        - label: Ich habe die vorhandenen Issues durchgesehen

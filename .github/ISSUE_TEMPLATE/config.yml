@@ -6,11 +6,9 @@
 # ist ein Abschnitt der Startseite (Anker #faq). Der Link unten zeigt deshalb auf
 # den Anker, nicht auf eine Seite, die es nicht gibt.
 #
-# BEWUSST NICHT HIER: Discord. Der Server wird am 20.09.2026 angelegt; der
-# Einladungslink kommt hier hinein, sobald er existiert und ohne Ablauf gesetzt ist.
+# Discord: Server seit 20.09.2026 (Einladung ohne Ablauf, geprueft am selben Tag).
 #
 # NACHZUTRAGEN, SOBALD ES SOWEIT IST:
-#   * Discord: Einladungslink als dritter contact_links-Eintrag.
 #   * Discussions: erst im Repo aktivieren, dann verlinken.
 #   * CurseForge: der Slug steht erst fest, wenn das Projekt aus der Moderation
 #     kommt. Am Tag der Freigabe hier eintragen und den Link einmal anklicken.
@@ -30,3 +28,9 @@ contact_links:
       Client-Weiche und Sprachpakete — steht dort eine Ausfall-Zeile, ist die
       Ursache meistens schon gefunden. Für „wie mache ich sie leiser“ gibt es
       `/lyra leise` und die Einstellungsseite, dafür braucht es kein Issue.
+  - name: "Discord: #bug-reports, #questions, #ideas (EN + DE)"
+    url: https://discord.gg/pXjy8RJ5Cv
+    about: >
+      Der niedrigere Weg vor dem Issue: wer kein GitHub-Konto hat, schreibt in
+      #bug-reports (bitte mit dem Block aus `/lyra debug`), Fragen in #questions,
+      Wuensche und neue Zeilen in #ideas. Deutsch in #deutsch.

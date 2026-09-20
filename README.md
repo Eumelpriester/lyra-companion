@@ -78,11 +78,11 @@ subtitles.
 **CurseForge, Wago Addons, WoWInterface** — submitted or planned, not live yet. When a
 project page exists, it will be linked here and on the website, and not one day earlier.
 
+**Discord** — questions, bug reports and phrase ideas, in English and German: <https://discord.gg/pXjy8RJ5Cv>
+
 <!-- NACHZUTRAGEN, sobald es das wirklich gibt — nicht vorher:
      * CurseForge-Slug (Projekt 1703906), sobald "Approved"
      * Wago-Slug
-     * Discord-Einladungslink (Server wird am 20.09.2026 angelegt; Struktur und
-       Regeltexte liegen im Entwicklungs-Repo unter vermarktung/discord/)
      Ein Link auf eine Seite in Moderation ist ein toter Link mit Anlauf. -->
 
 After unpacking, **four** folders must be there:

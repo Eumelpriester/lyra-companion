@@ -28,10 +28,7 @@ started; a `/reload` is not enough.
 
 ## Suggesting a phrase
 
-Use the **Phrase suggestion** template.
-<!-- Discord: es gibt (Stand 20.09.2026) noch keinen oeffentlichen Server. Sobald der
-     Einladungslink steht: hier "or say it in #ideas on Discord" ergaenzen. Vorher nicht —
-     ein Kanal, den es nicht gibt, kostet den Vorschlag. -->
+Use the **Phrase suggestion** template, or say it in `#ideas` on Discord: <https://discord.gg/pXjy8RJ5Cv>
 
 Lyra's lines are not in the Lua files — they come from **`phrasen.json`**, which is
 the source of truth for both `phrasen.lua` and the pre-rendered voice files. One

@@ -129,14 +129,14 @@ toc_filter() {  # $1 = Rolle (kern|stimme); liest stdin, schreibt stdout
       if (!erledigt) {
         if (rolle == "kern") {
           print "## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md"
-          print "## X-Website: https://github.com/lyragestalt/Lyra_Gestalt"
+          print "## X-Website: https://github.com/Eumelpriester/lyra-companion"
           print "# Projekt-IDs: nach der Freigabe eintragen und das fuehrende \"# \" entfernen."
           print "# ## X-Curse-Project-ID: 123456"
           print "# ## X-Wago-ID: a1b2c3d4"
           print "# ## X-WoWI-ID: 26123"
         } else {
           print "## X-License: MIT (code) / ARR (voice) - see Lyra_Gestalt/LICENSE and Lyra_Gestalt/LICENSE-ASSETS.md"
-          print "## X-Website: https://github.com/lyragestalt/Lyra_Gestalt"
+          print "## X-Website: https://github.com/Eumelpriester/lyra-companion"
         }
         erledigt = 1
       }

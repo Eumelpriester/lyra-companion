@@ -14,7 +14,7 @@
 ## LoadOnDemand: 1
 ## Dependencies: Lyra_Gestalt
 ## X-License: MIT (code) / ARR (voice) - see Lyra_Gestalt/LICENSE and Lyra_Gestalt/LICENSE-ASSETS.md
-## X-Website: https://github.com/lyragestalt/Lyra_Gestalt
+## X-Website: https://github.com/Eumelpriester/lyra-companion
 # REVIEW9: "see LICENSE.md" zeigte ins Leere - dieses Paket hat gar keine eigene Lizenzdatei,
 # und im Kern heissen sie LICENSE und LICENSE-ASSETS.md.
 

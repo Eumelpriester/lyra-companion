@@ -8,7 +8,7 @@
 ## SavedVariables: LyraGestaltDB
 ## X-Category: Companions
 ## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md
-## X-Website: https://github.com/lyragestalt/Lyra_Gestalt
+## X-Website: https://github.com/Eumelpriester/lyra-companion
 # Projekt-IDs: nach der Freigabe eintragen und das fuehrende "# " entfernen.
 # ## X-Curse-Project-ID: 123456
 # ## X-Wago-ID: a1b2c3d4

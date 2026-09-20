@@ -137,6 +137,13 @@ jobs:
           set -euo pipefail
           echo "--- .release ---"
           find .release -maxdepth 2 -print
+          # Ohne nullglob bleibt das Muster bei null Treffern woertlich stehen und die
+          # Schleife prueft ein Zip, das es nicht gibt. Deshalb erst zaehlen.
+          anzahl=$(find .release -maxdepth 1 -name '*.zip' | wc -l)
+          if [ "$anzahl" -lt 1 ]; then
+            echo "::error::Kein Zip in .release/ - der Packager hat nichts gebaut."
+            exit 1
+          fi
           for z in .release/*.zip; do
             echo "=== $z ($(du -h "$z" | cut -f1)) ==="
             ordner=$(unzip -Z1 "$z" | cut -d/ -f1 | sort -u)
@@ -161,6 +168,9 @@ jobs:
           name: lyra-companion-testbuild
           path: .release/*.zip
           if-no-files-found: error
+          # .release/ ist ein verstecktes Verzeichnis; upload-artifact laesst versteckte
+          # Pfade seit v4.4 standardmaessig weg ("No files were found", Lauf #2 am 20.09.2026).
+          include-hidden-files: true
 
   # -------------------------------------------------------------------------
   # Echter Release. Laeuft NUR beim Handstart mit hochladen=true.

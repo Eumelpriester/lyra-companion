@@ -146,8 +146,11 @@ jobs:
               echo "::error::Das Zip enthaelt nicht genau die vier erwarteten Ordner."
               exit 1
             fi
-            if unzip -Z1 "$z" | grep -qE 'luac\.out|\.wav$|Persoenlich'; then
-              echo "::error::Verbotener Inhalt im Zip (luac.out, *.wav oder Persoenlich)."
+            # Gemeint ist das PERSOENLICHE PAKET (Ordner Lyra_Gestalt_Persoenlich/, traegt einen
+            # echten charKey) - nicht das regulaere Modul Sinne/Persoenlich.lua, das es laedt.
+            # Der erste Lauf (20.09.2026, v0.14.0) war genau daran rot.
+            if unzip -Z1 "$z" | grep -qE 'luac\.out|\.wav$|^Lyra_Gestalt_Persoenlich/|/persoenlich\.lua$'; then
+              echo "::error::Verbotener Inhalt im Zip (luac.out, *.wav, Lyra_Gestalt_Persoenlich/ oder persoenlich.lua)."
               exit 1
             fi
           done

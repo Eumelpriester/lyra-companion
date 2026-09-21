@@ -7,6 +7,9 @@
 --   classic_anniversary  2.5.6.69795    Burning Crusade         ## Interface 20506
 --   classic              5.5.4.69585    Mists of Pandaria       ## Interface 50504
 --   forever              1.60.1.69913   WoW: Forever (Beta)     ## Interface 16001 (Beta-Nummer!)
+--                        WOW_PROJECT_ID == 1, also DERSELBE Wert wie Retail (MAINLINE).
+--                        Forever hat KEINE eigene Projekt-Konstante (Welle 12a, 21.09.2026,
+--                        Beleg: docs/recherche/16-forever-2026-09-21.md §1.2/§1.3).
 --
 -- DIE DREI BEFUNDE, AUS DENEN DIESE DATEI BESTEHT:
 --
@@ -22,10 +25,16 @@
 --    Clients dieselbe Signatur. Auf live/forever stehen die Argumente als NeverSecret bzw.
 --    ConditionalSecret in der Doku, d. h. der Aufruf ist auch unter Secret Values erlaubt.
 --
--- ERKENNUNG: Zahl zuerst, Feature als Rueckfall — und die gefaehrlichen Flags haengen am
--- FEATURE, nicht an der Zahl. `16001` ist die Beta-Nummer vom 17.09.2026; zum Launch am
--- 04.11. wird sie hoeher sein. Eine feste Gleichheit waere zum Launch falsch, ein Bereich
--- (16000-16999) haelt eine Buildlinie 1.60.x/1.6x durch, und wenn selbst der bricht, faengt
+-- ERKENNUNG: FEATURE ZUERST, Zahl als Rueckfall, Projekt-ID erst danach — und die
+-- gefaehrlichen Flags haengen am FEATURE, nicht an der Zahl. (W12A: hier stand bis zum
+-- 21.09.2026 "Zahl zuerst, Feature als Rueckfall". Das war genau verkehrt herum; profilBestimmen()
+-- fragt seit W6 als ERSTES C_QuestLog.GetInfo / C_RestrictedActions. Auf Forever ist das der
+-- Unterschied, der zaehlt: dort meldet WOW_PROJECT_ID eine 1 — denselben Wert wie Retail —,
+-- und wuerde die ID vor dem Feature-Test gefragt, landete Forever auf dem Retail-Profil.
+-- Erreicht wird die ID-Stufe auf Forever nie, weil der Feature-Test vorher greift.)
+-- `16001` ist die Beta-Nummer vom 17.09.2026; zum Launch am 04.11. wird sie hoeher sein. Eine
+-- feste Gleichheit waere zum Launch falsch, ein Bereich (C.FOREVER_MIN..MAX = 16000-19999)
+-- haelt eine Buildlinie 1.6x bis 1.9x durch, und wenn selbst der bricht, faengt
 -- `C_QuestLog.GetInfo` den Client als "mainline-artig" ein. Der Fehler geht damit immer in die
 -- sichere Richtung: kein Combat-Log, Secret-Wachen an.
 --
@@ -84,20 +93,31 @@ end
 --     und ohne Secret-Wachen. Der Bereich steht darum als BENANNTE KONSTANTE und reicht bis
 --     19999: alles, was mit 1.6 bis 1.9 ausgeliefert werden kann. Wer ihn spaeter weiten muss,
 --     aendert eine Zahl an einer Stelle, keine Logik.
---  2. DAS TOC-SUFFIX. Das Wiki nennt `_Camelot` (Branchname "camelot" in Gethe/wow-ui-source,
---     und C_GameRules.GetActiveGameMode gibt dort "camelot" zurueck - der einzige Beleg, den
---     dieser Rechner hat). Recherchebericht 10 nennt `Interface-Forever`. Beides ist unbelegt,
---     also steht hier KEINE Entscheidung, sondern die Liste beider Kandidaten -
---     docs/toc-forever.muster zeigt die fertige Zeile fuer beide Faelle.
+--  2. DAS TOC-SUFFIX. ENTSCHIEDEN am 21.09.2026 (Welle 12a): `Camelot`, kein Kandidatenpaar
+--     mehr. Der Beleg liegt auf diesem Rechner, im Quelltext des Packagers selbst:
+--     release/release.sh Zeile 1992 schreibt fuer den Flavor forever "_Camelot.toc", und die
+--     Suffix-Erkennung (Zeile 1175) kennt ebenfalls nur "Camelot". Die DIREKTIVE liest er in
+--     beiden Schreibweisen ("## Interface-Camelot:" wie "## Interface-Forever:"), die DATEI
+--     heisst aber immer _Camelot.toc. Wago akzeptiert vier Schreibweisen, der Packager eine —
+--     also ist "Camelot" die, die ueberall traegt. Die Zeile steht seit heute in allen fuenf
+--     TOCs; docs/toc-forever.muster ist auf diesen Stand eingedampft.
+--     (Ehrlich dazu: "Camelot" ist der Codename aus dem UI-Branch und in KEINER
+--     Blizzard-Quelle bestaetigt. Belegt ist, dass die Werkzeuge ihn benutzen.)
 --  3. OB DIE TOC UEBERHAUPT ANKOMMT. Genau dafuer ist C.tocInterface da: der Client meldet ueber
 --     GetAddOnMetadata die Interface-Zahl DER TOC, DIE ER GELADEN HAT. Laeuft Lyra auf Forever
 --     und steht dort 11509, dann ist die suffixlose Basis-TOC geladen - die Flavor-Zeile fehlt
 --     oder der Packager kennt den Flavor noch nicht (recherche/10 A1). Das ist der Wert, der
---     in einem Bugreport den Unterschied macht; er liegt in C.bericht() bereit. Die ANZEIGE in
---     /lyra status fehlt noch - diese Zeile wird in Sinne/Welle6.lua gebaut, und die gehoert
---     Welle 10b nicht (offener Punkt in docs/welle10b-2026-09-20.md).
+--     in einem Bugreport den Unterschied macht; er liegt in C.bericht() bereit. Die ANZEIGE
+--     steht seit Welle 12a in /lyra status (Sinne/Welle6.lua, Zeile "Geladene TOC").
+--
+--  4. DIE PROJEKT-ID IST AUF FOREVER KEIN UNTERSCHEIDER. Der Client meldet WOW_PROJECT_ID == 1,
+--     denselben Wert wie Retail; eine eigene Forever-Konstante gibt es nicht. Deshalb steht die
+--     Projekt-ID in profilBestimmen() an DRITTER Stelle und wird auf Forever nie erreicht - der
+--     Feature-Test entscheidet vorher. Wer die Reihenfolge je umdreht, schickt jeden
+--     Forever-Spieler auf das Retail-Profil (Beleg: recherche/16 §1.3).
 C.FOREVER_MIN, C.FOREVER_MAX = 16000, 19999
-C.TOC_SUFFIX = { forever = { "Camelot", "Forever" }, era = "Vanilla", tbc = "TBC",
+-- W12A: ein Suffix je Profil, kein Kandidatenpaar mehr (Begruendung Punkt 2 oben).
+C.TOC_SUFFIX = { forever = "Camelot", era = "Vanilla", tbc = "TBC",
                  mists = "Mists", retail = "Mainline" }
 
 -- Interface-Zahl der geladenen TOC. nil heisst "der Client sagt es nicht" - nie geraten.
@@ -235,12 +255,18 @@ C.F = {
     -- RegisterEvent-Versuch ADDON_ACTION_FORBIDDEN — das ist keine Feldzensur, das ist eine Tuer.
     --
     -- WICHTIG: Der zweite Teil der Bedingung ist KEIN Schutz vor Mainline, sondern nur die
-    -- Frage "gibt es die Lesefunktion ueberhaupt" (sehr alte Classic-Builds). Denn
-    -- CombatLogGetCurrentEventInfo EXISTIERT auf Retail/Forever weiterhin: der forever-Branch
-    -- hat Blizzard_DeprecatedCombatLog/Deprecated_CombatLog.lua mit der Zeile
-    --     CombatLogGetCurrentEventInfo = C_CombatLog.GetCurrentEventInfo;
-    -- Wer dort nur auf die Funktion prueft, registriert froehlich und bekommt das Popup.
-    -- Der Riegel ist `not C.istMainlineArtig`, sonst nichts.
+    -- Frage "gibt es die Lesefunktion ueberhaupt" (sehr alte Classic-Builds).
+    --
+    -- W12A-KORREKTUR (21.09.2026): Hier stand bis heute, CombatLogGetCurrentEventInfo
+    -- EXISTIERE auf Retail/Forever weiterhin (ueber Blizzard_DeprecatedCombatLog). Ein
+    -- eingefangener API-Abzug des Forever-Beta-Clients (6045 Globale, Build 1.60.1.69893)
+    -- enthaelt die Funktion NICHT - siehe docs/recherche/16-forever-2026-09-21.md §3.3.
+    -- Auf Forever ist die Bedingung damit DOPPELT falsch: der Riegel `not C.istMainlineArtig`
+    -- greift, und die Funktion fehlt ohnehin. Folgenlos fuer das Verhalten, aber der Satz war
+    -- falsch - und ein falscher Satz in dieser Datei ist teuer, weil ihn jeder glaubt, der
+    -- spaeter die Weiche anfasst.
+    -- Der Riegel bleibt `not C.istMainlineArtig`, sonst nichts: auf Retail, wo es die Funktion
+    -- sehr wohl geben kann, feuert schon der RegisterEvent-Versuch ADDON_ACTION_FORBIDDEN.
     combatLog   = (not C.istMainlineArtig) and (CombatLogGetCurrentEventInfo ~= nil),
     secretValues = secretApi or C.istMainlineArtig,
     -- Questlog: Classic hat GetQuestLogTitle(i), Mainline C_QuestLog.GetInfo(i).

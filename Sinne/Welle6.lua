@@ -680,6 +680,16 @@ function W.status()
     if C then
         z[#z + 1] = ns.L["Client"] .. ": " .. tostring(C.profil) .. " (" .. tostring(C.version)
             .. ", " .. ns.L["Switch"] .. ": " .. tostring(C.weiche or "?") .. ")"
+        -- W12A (Roadmap 10-6, offener Punkt aus Welle 10b): WELCHE TOC der Client geladen hat
+        -- und ob sie zu ihm passt. Das ist die Zeile, die einen Forever-Bugreport in zehn
+        -- Sekunden erklaert: steht hier 11509 statt 16001, ist die suffixlose Basis-TOC
+        -- gelandet - die Flavor-Zeile fehlt oder der Packager hat sie nicht erzeugt, und der
+        -- Client markiert Lyra als "veraltet". "?" heisst "der Client sagt es nicht"; geraten
+        -- wird nichts (C.tocInterface und C.tocPasst() geben dann beide nil).
+        local okToc, tocPasst = pcall(C.tocPasst)
+        z[#z + 1] = ns.L["Loaded TOC"] .. ": " .. (C.tocInterface and tostring(C.tocInterface) or "?")
+            .. " (" .. ns.L["fits"] .. ": "
+            .. ((okToc and tocPasst ~= nil) and jaNein(tocPasst) or "?") .. ")"
         local hc = C.istHardcore and C.istHardcore()
         local ssf = C.istSelbstgefunden and C.istSelbstgefunden()
         -- Ehrlich getrennt: was der SCHALTER sagt, und was der REALM sagt. Die beiden sind

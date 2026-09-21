@@ -2,9 +2,11 @@
 ## Interface-TBC: 20506
 ## Interface-Mists: 50504
 ## Interface-Mainline: 120100
-# PORT 0.9.0: dieselben Flavor-Zeilen wie im Kern (Lyra_Gestalt.toc). Der Packager erzeugt
-# daraus die _Vanilla/_TBC/_Mists/_Mainline-TOCs. WoW: Forever (## Interface-Camelot: 16001,
-# Beta-Nummer vom 17.09.2026) fehlt hier absichtlich noch - Begruendung steht im Kern-TOC.
+## Interface-Camelot: 16001
+# PORT 0.9.0, Forever ergaenzt Welle 12a (21.09.2026): dieselben Flavor-Zeilen wie im Kern
+# (Lyra_Gestalt.toc). Der Packager erzeugt daraus die _Vanilla/_TBC/_Mists/_Mainline/_Camelot-
+# TOCs. Das Suffix heisst "Camelot" (release.sh Zeile 1992), die 16001 ist die Beta-Nummer vom
+# 17.09.2026 und wird am Patchtag 04./05.11. abgelesen nachgezogen - Begruendung im Kern-TOC.
 # Ein Zusatzpaket MUSS die Flavor-Zeilen mitfuehren: ohne sie laedt der Client den Kern
 # (mit passendem Suffix), das Paket aber nicht - und dann fehlt genau das, wofuer es da ist.
 # REVIEW9: genau das war hier passiert. Beim Port 0.9.0 haben Kern, Daten, Persoenlich und
@@ -14,7 +16,7 @@
 ## Title: Lyra Gestalt - Stimme (Deutsch)
 ## Notes: Voice pack for Lyra Gestalt. Loaded on demand by the core addon.
 ## Author: Lyra & Harald
-## Version: 0.15.2
+## Version: 0.15.3
 ## LoadOnDemand: 1
 ## Dependencies: Lyra_Gestalt
 ## X-License: MIT (code) / ARR (voice) - see Lyra_Gestalt/LICENSE and Lyra_Gestalt/LICENSE-ASSETS.md

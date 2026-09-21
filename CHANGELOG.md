@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.15.3 (2026-09-21)
+
+### WoW: Forever vorbereitet
+
+- Lyra bringt jetzt eine eigene TOC für **WoW: Forever** mit (`## Interface-Camelot: 16001`),
+  und zwar in allen fünf Paketen — Kern, Gefahrenkarte, beide Stimmpakete und die
+  persönlichen Zeilen. Der Packager erzeugt daraus beim Bau die passenden
+  `_Camelot.toc`-Dateien. Vorher lud Lyra auf Forever aus der Rückfall-TOC und stand in der
+  Addon-Liste als „veraltet“.
+- **16001 ist die Nummer des Beta-Clients.** Zum Start am 04.11.2026 steht dort eine andere,
+  und die wird abgelesen und nachgezogen, nicht geraten. Eine zu niedrige Nummer heißt
+  „veraltet“ — das Addon lädt; eine zu hohe heißt: es lädt nicht.
+- `/lyra status` zeigt eine neue Zeile **„Geladene TOC“**: welche Interface-Nummer die TOC
+  trägt, die der Client wirklich geladen hat, und ob sie zu ihm passt. Steht dort ein „?“,
+  sagt der Client es nicht — dann steht da auch nichts Geratenes.
+- Unter der Haube: die Client-Erkennung verlässt sich auf Forever nicht auf `WOW_PROJECT_ID`.
+  Der Client meldet dort denselben Wert wie Retail; Lyra entscheidet über einen Feature-Test,
+  der vorher greift. Am Verhalten ändert sich nichts — es ist jetzt geprüft statt zufällig.
+- Die Gefahrenkarte bleibt auf Forever bewusst still: ihre Daten stammen aus Classic Era, und
+  hinter denselben Karten-IDs liegen dort überarbeitete Zonen. Eine falsche Warnung ist
+  schlimmer als keine.
+
 ## 0.15.2 (2026-09-21)
 
 **Die Sterbeorte stehen jetzt in den Einstellungen.** Unter „Feineinstellung → Karte" gibt es

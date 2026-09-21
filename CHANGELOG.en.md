@@ -1,6 +1,27 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.15.3 (2026-09-21)
+
+### Ready for WoW: Forever
+
+- Lyra now ships a dedicated TOC for **WoW: Forever** (`## Interface-Camelot: 16001`), in all
+  five packages — core, danger map, both voice packs and the personal lines. The packager
+  builds the matching `_Camelot.toc` files from it. Until now Lyra loaded from the fallback
+  TOC on Forever and showed up as "out of date" in the add-on list.
+- **16001 is the beta client's number.** At launch on 4 November 2026 it will be a different
+  one, and that number gets read off the client and carried over — never guessed. Too low a
+  number means "out of date" and the add-on still loads; too high means it does not load at
+  all.
+- `/lyra status` has a new line, **"Loaded TOC"**: the interface number of the TOC the client
+  actually loaded, and whether it fits that client. A "?" means the client does not report it
+  — nothing is guessed in its place.
+- Under the hood: on Forever, client detection does not rely on `WOW_PROJECT_ID`. That client
+  reports the same value as retail; Lyra decides on a feature test that runs first. Nothing
+  changes in behaviour — it is now tested rather than accidental.
+- The danger map stays deliberately silent on Forever. Its data comes from Classic Era, and
+  the same map IDs cover reworked zones there. A wrong warning is worse than none.
+
 ## 0.15.2 (2026-09-21)
 
 **Death spots now have their own checkboxes.** Under "Fine tuning → Map" you will find two new

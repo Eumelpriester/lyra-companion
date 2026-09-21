@@ -2,32 +2,41 @@
 ## Interface-TBC: 20506
 ## Interface-Mists: 50504
 ## Interface-Mainline: 120100
-# PORT 0.9.0 (18.09.2026): Multi-Client-TOC.
+## Interface-Camelot: 16001
+# PORT 0.9.0 (18.09.2026), Forever ergaenzt Welle 12a (21.09.2026): Multi-Client-TOC.
 #
-# Diese drei "## Interface-<Typ>:"-Zeilen liest NICHT der Spielclient, sondern der
+# Diese vier "## Interface-<Typ>:"-Zeilen liest NICHT der Spielclient, sondern der
 # BigWigs-Packager (release/release.sh). Mit "enable-toc-creation: yes" in .pkgmeta erzeugt er
-# daraus beim Paketieren Lyra_Gestalt_Vanilla.toc (11509), _TBC.toc (20506), _Mists.toc (50504)
-# und _Mainline.toc (120100) - eine Dateiliste, vier Flavor-TOCs, keine Doppelpflege.
+# daraus beim Paketieren Lyra_Gestalt_Vanilla.toc (11509), _TBC.toc (20506), _Mists.toc (50504),
+# _Mainline.toc (120100) und _Camelot.toc (16001) - eine Dateiliste, fuenf Flavor-TOCs, keine
+# Doppelpflege.
 # Die Basis-Zeile bleibt bewusst 11509: die Datei ohne Suffix ist der Rueckfall fuer unbekannte
 # Clients, und Classic Era ist der einzige Client, auf dem dieses Addon GETESTET ist.
 #
-# WoW: FOREVER fehlt hier absichtlich noch:
-#   ## Interface-Camelot: 16001
-# 16001 ist die BETA-Nummer vom 17.09.2026 (Build 1.60.1.69913, Branch "forever" in
-# Gethe/wow-ui-source). Zum Launch am 04.11.2026 wird sie hoeher sein, und ein falsches
-# Version-Tag ist schlimmer als ein fehlendes (release/docs/release-ablauf.md, metadaten.md §3):
-# der Client wuerde das Addon als "veraltet" markieren oder gar nicht laden.
-# Ohne diese Zeile laedt auf Forever die suffixlose Lyra_Gestalt.toc - mit einem
-# "veraltet"-Hinweis, aber sie laedt, und Core/Compat.lua erkennt den Client zur Laufzeit
-# (Interface-Bereich 16000-16999 plus Feature-Test auf C_QuestLog.GetInfo).
-# Zeile aktivieren, sobald ein Beta-/Launch-Client die Nummer bestaetigt hat -
-# Pruefpunkt F-1 in docs/port-2026-09-18.md.
+# WARUM DAS SUFFIX "Camelot" HEISST UND NICHT "Forever":
+# release/release.sh Zeile 1992 schreibt fuer den Flavor forever ausdruecklich "_Camelot.toc",
+# und die Suffix-Erkennung (Zeile 1175) kennt nur "Camelot". Der Packager liest zwar BEIDE
+# Direktiven ("## Interface-Camelot:" und "## Interface-Forever:") - erzeugt aber in beiden
+# Faellen dieselbe Datei. Wago nennt fuer forever die Suffixe -Camelot/_Camelot/-Forever/
+# _Forever, der Packager nur _Camelot. Also ist "Camelot" die Schreibweise, die ueberall traegt.
+# Beleg: docs/recherche/16-forever-2026-09-21.md §2.1.
+#
+# 16001 IST DIE BETA-NUMMER vom 17.09.2026 (Build 1.60.1.69913), dreifach belegt
+# (Blizzard-Forum-Titel, forever_api.json, wow-build-tools PR #245). Sie steht hier bewusst,
+# obwohl der Launch am 04.11.2026 eine hoehere Zahl bringt: eine zu NIEDRIGE Interface-Nummer
+# heisst "veraltet" - das Addon laedt. Eine zu HOHE heisst: es laedt nicht. 16001 ist also die
+# sichere Richtung, und am Patchtag 04./05.11. wird die Launch-Nummer ABGELESEN und hier
+# nachgezogen (docs/patchtag.md §1 und §2a). Nie rechnen, nie raten.
+#
+# ACHTUNG fuer eine spaetere 1.7x-Linie: Core/Compat.lua deckt zur Laufzeit 16000-19999 ab,
+# der Packager aber nur 16xxx (release.sh Zeile 198/1283). Ein 17xxx-Build bricht dann den BAU
+# ab ("interface version that is not compatible"), nicht das Addon. Dann Packager aktualisieren.
 ## Title: Lyra - Arcane Companion
 ## Title-deDE: Lyra - Arkane Begleiterin
 ## Notes: A companion who watches, shows and speaks - and never presses a key. No automation, no chat output, no data about other players.
 ## Notes-deDE: Eine Begleiterin, die wahrnimmt, zeigt und spricht - und nie eine Taste drueckt. Keine Automation, keine Chat-Ausgabe, keine Daten anderer Spieler.
 ## Author: Lyra & Harald
-## Version: 0.15.2
+## Version: 0.15.3
 ## SavedVariables: LyraGestaltDB
 ## X-Category: Companions
 ## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md

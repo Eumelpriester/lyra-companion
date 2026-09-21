@@ -236,6 +236,9 @@ ns.locales.deDE = {
     ["frames"] = "Fenster",
     ["Client"] = "Client",
     ["Switch"] = "Weiche",
+    -- W12A: /lyra status zeigt die Interface-Nummer der TOC, die der Client geladen hat.
+    ["Loaded TOC"] = "Geladene TOC",
+    ["fits"] = "passt",
     ["Manual switch"] = "Schalter",
     ["Realm"] = "Realm",
     ["Memory"] = "Speicher",

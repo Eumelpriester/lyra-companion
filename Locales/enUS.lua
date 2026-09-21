@@ -241,6 +241,9 @@ ns.locales.enUS = {
     ["frames"] = "frames",
     ["Client"] = "Client",
     ["Switch"] = "switch",
+    -- W12A: /lyra status shows the interface number of the TOC the client actually loaded.
+    ["Loaded TOC"] = "Loaded TOC",
+    ["fits"] = "fits",
     ["Manual switch"] = "manual switch",
     ["Realm"] = "realm",
     ["Memory"] = "Memory",

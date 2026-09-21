@@ -142,7 +142,8 @@ about other players' deaths — that is Deathlog's job.
 carries interface numbers for TBC, Mists and Retail and the code has a client switch,
 but no other client has been played through — treat them as untested. On Retail the
 combat-log senses would be limited by the new secret-value rules anyway. For *WoW:
-Forever* we are waiting for a client that confirms its interface number.
+Forever* the package carries its own TOC (interface 16001, checked against the beta API dump);
+it has not been played in the beta client yet.
 
 **Why is the voice not playing?**
 Three usual reasons: (1) you installed while the client was running — restart the

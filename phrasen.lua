@@ -998,5 +998,39 @@ LyraGestalt_Phrasen = {
       { de = "Davon liegt woanders schon ein Stapel. Beim letzten Mal jedenfalls.", en = "There's already a pile of that somewhere else. Last time, at least.", stimme = "lager_anderswo-1", wenn = nil },
       { de = "Du sammelst das zum zweiten Mal. Zumindest stand es beim letzten Mal noch woanders.", en = "You're collecting that for the second time. It was still somewhere else when I last looked.", stimme = "lager_anderswo-2", wenn = nil },
     } },
+    TAXI_DAUER_KURZ = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "amused", pose = nil, halte = 10, cue = nil, drossel = "flug", texte = {
+      { de = "Kurzer Hüpfer. Halt dich fest.", en = "Short hop. Hold on.", stimme = "taxi_dauer_kurz-1", wenn = nil },
+      { de = "Nach {ziel}, etwa {minuten} Minuten. Kaum der Rede wert.", en = "To {ziel}, about {minuten} minutes. Barely worth mentioning.", stimme = nil, wenn = nil },
+    } },
+    TAXI_DAUER_MITTEL = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "interested", pose = nil, halte = 12, cue = nil, drossel = "flug", texte = {
+      { de = "Mittelstrecke. Ich erzähl dir was.", en = "Mid-range. I'll keep you company.", stimme = "taxi_dauer_mittel-1", wenn = nil },
+      { de = "Nach {ziel}. Etwa {minuten} Minuten, wenn der Greif mitspielt.", en = "To {ziel}. About {minuten} minutes, if the gryphon behaves.", stimme = nil, wenn = nil },
+    } },
+    TAXI_DAUER_LANG = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "whatever", pose = nil, halte = 14, cue = nil, drossel = "flug", texte = {
+      { de = "Das dauert. Ich döse ein bisschen, ich weck dich.", en = "This'll take a while. I'll doze off — I'll wake you.", stimme = "taxi_dauer_lang-1", wenn = nil },
+      { de = "{minuten} Minuten nach {ziel}. Mach's dir bequem.", en = "{minuten} minutes to {ziel}. Make yourself comfortable.", stimme = nil, wenn = nil },
+    } },
+    TAXI_DAUER_NEU = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "thinking", pose = nil, halte = 12, cue = nil, drossel = "flug", texte = {
+      { de = "Die Strecke kenn ich noch nicht. Mal sehen, wie lang das dauert.", en = "I don't know this route yet. Let's see how long it takes.", stimme = "taxi_dauer_neu-1", wenn = nil },
+      { de = "Neue Strecke. Ich merk mir die Zeit.", en = "New route. I'll remember how long it took.", stimme = "taxi_dauer_neu-2", wenn = nil },
+    } },
+    TAXI_BALD = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "interested", pose = nil, halte = 8, cue = nil, drossel = "flug", texte = {
+      { de = "Gleich da. Aufwachen.", en = "Almost there. Wake up.", stimme = "taxi_bald-1", wenn = nil },
+      { de = "Fast unten. Augen auf.", en = "Nearly down. Eyes open.", stimme = "taxi_bald-2", wenn = nil },
+    } },
+    TAXI_LANDUNG = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "amused", pose = nil, halte = 10, cue = nil, drossel = "flug", texte = {
+      { de = "Boden. Gute Reise war das.", en = "Ground. Decent trip.", stimme = "taxi_landung-1", wenn = nil },
+      { de = "Da wären wir. Schüttel dich mal.", en = "Here we are. Shake it off.", stimme = "taxi_landung-2", wenn = nil },
+      { de = "Unten. Riech mal — andere Gegend.", en = "Down. Smell that — different country.", stimme = "taxi_landung-3", wenn = nil },
+    } },
+    SPIEL_ANGEBOT = { klasse = "plauder", stufe = 0, gruppeOk = false, miene = "amused", pose = nil, halte = 12, cue = nil, drossel = "session", texte = {
+      { de = "Das dauert. Soll ich dich was fragen?", en = "This'll take a while. Want me to ask you something?", stimme = "spiel_angebot-1", wenn = nil },
+      { de = "Langer Flug. Ich hätte da ein Spiel.", en = "Long flight. I've got a game.", stimme = "spiel_angebot-2", wenn = nil },
+      { de = "Zeit totschlagen, oder willst du die Aussicht?", en = "Kill some time, or do you want the view?", stimme = "spiel_angebot-3", wenn = nil },
+    } },
+    SPIEL_ABBRUCH = { klasse = "plauder", stufe = 0, gruppeOk = false, miene = "neutral", pose = nil, halte = 8, cue = nil, drossel = "600", texte = {
+      { de = "Wir sind da. Spiel aus.", en = "We're here. Game over.", stimme = "spiel_abbruch-1", wenn = nil },
+      { de = "Gelandet. Den Rest merk ich mir.", en = "Landed. I'll keep the rest for later.", stimme = "spiel_abbruch-2", wenn = nil },
+    } },
   },
 }

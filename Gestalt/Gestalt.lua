@@ -178,6 +178,81 @@ ring2:SetVertexColor(G.RING_ALARM[1], G.RING_ALARM[2], G.RING_ALARM[3], 1)
 ring2:Hide()
 G.ring2 = ring2
 
+-- W14B: DER STILLE FLUGRING (Recherche 19 §3.2).
+-- Die Falle, um die es hier geht: ring und ring2 oben gehoeren der WARNSTUFE (G.warnOptik,
+-- G.RING_DAUER). Wer den Flugfortschritt darauf legt, hat ihn beim naechsten HP20 ueberschrieben
+-- und damit eine Warnanzeige gegen eine Komfortanzeige getauscht. Das ist die teuerste Art,
+-- sich diese Funktion zu ruinieren. Darum ein EIGENER Cooldown-Frame, und die beiden Ringe
+-- oben werden nicht angefasst.
+--
+-- Drei Eigenschaften, auf die es ankommt:
+--   * KEINE ZIFFER, nie: SetHideCountdownNumbers(true). Der Ring ist eine Anzeige zum
+--     Vorbeischauen, keine Uhr - die Zahl haette die ganze Gestaltungsentscheidung aufgehoben.
+--   * KEIN OnUpdate: den Wischer zeichnet der Client selbst. Das ist der ganze Grund, warum es
+--     ein Cooldown-Frame ist und keine eigene Textur mit einem Timer daran.
+--   * KEINE neue Grafik: der Frame kommt aus CooldownFrameTemplate. Fehlt das Template auf
+--     einem Client, ist die Anzeige eben nicht da und niemand merkt es (alles in pcall).
+--
+-- WARUM EINGERUECKT statt "darunter gelegt": ein Kind-Frame zeichnet im Client immer ueber die
+-- Texturen seines Eltern-Frames, der Warnring liesse sich also gar nicht ueberdecken-frei
+-- darunterlegen. Die ehrliche Loesung ist Geometrie: der Wischer sitzt um G.FLUG_EINZUG
+-- eingerueckt, also INNERHALB des Rings ueber der Scheibe (portrait_scheibe.png), und beruehrt
+-- die Ringkante nie.
+G.FLUG_FARBE = { 0.706, 0.549, 1.0 }    -- #b48cff, dieselbe Arkan-Farbe wie der ruhige Ring
+G.FLUG_ALPHA = 0.22                     -- still heisst still
+G.FLUG_EINZUG = 0.09                    -- Anteil der Kante, um den der Wischer innen sitzt
+G.flugRingStand = { an = false, dauer = 0, seit = 0 }
+
+local flugRing
+do
+    local ok, cd = pcall(CreateFrame, "Cooldown", nil, ruckF, "CooldownFrameTemplate")
+    if ok and type(cd) == "table" then
+        flugRing = cd
+        pcall(function()
+            local e = 112 * G.FLUG_EINZUG
+            cd:ClearAllPoints()
+            cd:SetPoint("TOPLEFT", ruckF, "TOPLEFT", e, -e)
+            cd:SetPoint("BOTTOMRIGHT", ruckF, "BOTTOMRIGHT", -e, e)
+            if cd.SetHideCountdownNumbers then cd:SetHideCountdownNumbers(true) end
+            if cd.SetCountdownAbbrevThreshold then cd:SetCountdownAbbrevThreshold(0) end
+            if cd.SetDrawEdge then cd:SetDrawEdge(false) end
+            if cd.SetDrawBling then cd:SetDrawBling(false) end
+            if cd.SetDrawSwipe then cd:SetDrawSwipe(true) end
+            if cd.SetSwipeColor then
+                cd:SetSwipeColor(G.FLUG_FARBE[1], G.FLUG_FARBE[2], G.FLUG_FARBE[3], G.FLUG_ALPHA)
+            end
+            if cd.SetReverse then cd:SetReverse(true) end
+        end)
+        pcall(cd.Hide, cd)
+    end
+end
+G.flugRingFrame = flugRing
+
+-- G.flugRing(dauer)  dauer > 0: Wischer laeuft ueber diese Sekunden ab.  0 oder nil: aus.
+-- Laeuft der Wischer leer und der Flug geht weiter, steht er eben leer - und Lyra sagt dazu
+-- NICHTS. Ein "du muesstest laengst da sein" ist der Moment, in dem eine Komfortfunktion
+-- aergerlich wird (§3.2).
+function G.flugRing(dauer)
+    dauer = tonumber(dauer) or 0
+    if dauer <= 0 then
+        G.flugRingStand.an, G.flugRingStand.dauer, G.flugRingStand.seit = false, 0, 0
+        if flugRing then
+            pcall(function() if flugRing.Clear then flugRing:Clear() end end)
+            pcall(flugRing.Hide, flugRing)
+        end
+        return false
+    end
+    G.flugRingStand.an = true
+    G.flugRingStand.dauer = dauer
+    G.flugRingStand.seit = (GetTime and GetTime()) or 0
+    if not flugRing then return false end
+    local ok = pcall(function()
+        flugRing:SetCooldown(G.flugRingStand.seit, dauer)
+        flugRing:Show()
+    end)
+    return ok and true or false
+end
+
 -- DESIGN-V3 A-1: kein Masken-API mehr. Der runde Ausschnitt steckt in der Datei.
 -- bilder/rund/<miene>.png: 29 Stueck, 128 x 128, erzeugt und geprueft von tools/mach-rund-portraits.py
 -- (dort steht die Anker-Tabelle als einzige Quelle). Jede enthaelt fertig: weicher Aussenschatten,

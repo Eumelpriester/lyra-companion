@@ -372,4 +372,18 @@ ns.locales.enUS = {
     -- 13d (BagBrother)
     ["Stored elsewhere"] = "Mention what's on your other characters",
     ["Stored elsewhere tip"] = "Lyra reads BagBrother's saved bags (installed with Bagnon) and mentions, before a dungeon or when you pick up a trade good, that the thing you are missing is sitting on another of YOUR characters or in your own bank. The data is from that character's last logout, so she always says 'last time' and never claims it is there right now. Guild banks are never read - what's in them belongs to other players. Only your own characters on your own realms, at most one line per item and session, never in combat, never a second number. Without BagBrother she simply stays quiet and the travel check looks exactly as before.",
+    -- MERGE 0.17.0 (21.09.2026): wave 14 - appended only. One shared section in the fine tuning
+    -- page for the three checkboxes of the three build teams. The heading carries the wave
+    -- number by way of exception: the three have nothing in common but the release
+    -- (reasoning in UI/Settings.lua).
+    ["Wave 14"] = "Wave 14",
+    -- 14a (allies)
+    ["Ally info"] = "Ally info",
+    ["Ally info tip"] = "When you ask about a target you cannot attack, Lyra no longer tells you how strong it is but who it is: innkeeper, flight master, quartermaster, city guard - and whether that NPC has a quest for you or is waiting for a hand-in. The role comes from the tooltip, the quests from Questie; without Questie the role stays and the quest hint drops. Off means: one short line, no role, no quest. An ally never gets a combat assessment again.",
+    -- 14b (flight time)
+    ["Flight time"] = "Announce flight time",
+    ["Flight time tip"] = "Lyra measures how long a flight path takes and tells you at takeoff whether it's a short hop or a long haul - as a sentence, not a number. She wakes you a minute before landing and says something on the ground after a long flight. A quiet ring around her portrait shows the remainder without a digit. Times are stored account-wide, so your next character benefits too. If another flight-timer addon is installed, she stays quiet about the duration and keeps only the lines.",
+    -- 14e (mini-game "Remember?")
+    ["Ask me things"] = "Let Lyra ask me things",
+    ["Ask me things tip"] = "On a long flight or while resting at an inn, Lyra offers a game: she quizzes you about your own life - where you nearly died most often, who hit you hardest, how long your longest evening was. Five questions, four answers, all with the mouse. She only asks about what she witnessed herself, never about your fallen predecessor and never about other players. The window never opens by itself and closes instantly and silently the moment combat starts, you take damage, someone invites you or the gryphon lands. Your record stays on this machine. If she hasn't known you long enough yet, she says so - and asks again later.",
 }

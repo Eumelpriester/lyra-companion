@@ -1,6 +1,54 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.17.0 (2026-09-21)
+
+### Wave 14: Allies, flight time, Remember?
+
+Eight new moments where Lyra says something, one mini-game and one misjudgement less — 18 new
+lines per language. Three new checkboxes in the fine tuning page, section **"Wave 14"**, all on
+by default.
+
+**Allies**
+
+Lyra no longer sizes up anyone you cannot attack in the first place. When you ask about a
+friendly target she now tells you WHO is standing there instead of HOW STRONG they are:
+innkeeper, flight master, banker, auctioneer, quartermaster, stable master, trainer, merchant
+or city guard. If that NPC has a quest for you or is waiting for a hand-in, she says that too —
+in half a sentence, without quest names and without a list. If she knows nothing, one dry line
+is all you get. The role comes from the tooltip, the quests from Questie; without Questie only
+the quest hint drops. She still says nothing on her own — clicking an innkeeper is no reason to
+talk.
+
+**Flight time**
+
+Lyra remembers how long a flight path takes. The second time she tells you at takeoff where you
+stand — "Short hop. Hold on." or "This'll take a while. I'll doze off — I'll wake you." She
+wakes you a minute before landing and says something on the ground after a long flight. A quiet
+ring around her portrait shows how much is left, without a single digit. The measured times are
+stored account-wide, so your next character benefits too — which matters on Hardcore. If you
+already have a flight-timer add-on, Lyra stays quiet about the duration and keeps only the
+lines. Fixed along the way: a loading screen in mid-flight used to make Lyra think the flight
+was over.
+
+**Lyra's game "Remember?"**
+
+On a long flight and while resting at an inn Lyra now offers a game — and she does not ask
+about Azeroth, she asks about you. Five questions from your shared history: which area things
+went wrong in most often, who hit you hardest, what you killed the most of, how long your
+longest evening was. Four answers, all with the mouse, not a single new window.
+
+She only asks about what she witnessed herself. She never asks about your fallen predecessor,
+and never about other players. Early on she doesn't know you well enough yet and says so — after
+a few evenings the game gets better by itself. She keeps your best round and your longest streak
+and comes at you with your own record next time ("Last time you were already at four here.").
+Those numbers stay on your machine — there is no leaderboard and nothing is sent anywhere.
+
+The window never opens by itself. And it closes instantly and silently the moment combat starts,
+you take damage, someone invites you, you start moving or the gryphon lands. While the game is
+running anywhere but on the gryphon, the number keys stay out of it — the 2 belongs to your
+spell, not to answer button 2.
+
 ## 0.16.1 (2026-09-21)
 
 ### Hotfix after the first play test

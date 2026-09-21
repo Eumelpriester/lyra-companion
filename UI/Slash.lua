@@ -124,8 +124,13 @@ local function status()
     -- (Speicher, Rechenzeit, Client-Weiche). Alle vier haben ein eigenes status(), und alle
     -- vier sagen dort "fehlt" mit Namen, wenn ihre Quelle nicht da ist - das ist der halbe
     -- Zweck dieses Befehls.
+    -- MERGE 0.17.0 (21.09.2026): die drei Module der Welle 14 haengen hinter Welle13d und in der
+    -- Ladereihenfolge der TOC (14a, 14b, 14e). Welle6 bleibt die Letzte. 14a sagt "fehlt (kein
+    -- Tooltip moeglich)", 14b nennt den Knotenweg (C_TaxiMap / Globals / fehlt) - das ist der
+    -- Forever-Pruefpunkt der Welle.
     for _, mod in ipairs({ "Bedrohung", "Questie2", "Persoenlichkeit", "Welle4", "Karte2", "Welle8", "Welle9",
-                           "Welle13a", "Welle13b", "Welle13c", "Welle13d", "Welle6" }) do
+                           "Welle13a", "Welle13b", "Welle13c", "Welle13d",
+                           "Welle14a", "Welle14b", "Welle14e", "Welle6" }) do
         local m = ns[mod]
         if m and m.status then
             local ok, zeilen = pcall(m.status)

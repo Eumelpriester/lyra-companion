@@ -226,6 +226,45 @@ function D.aktionen.ziel()
     local klasse = UnitClassification and UnitClassification("target") or "normal"
     -- Die EIGENE Stufe ist nirgends secret, aber der Helfer pcallt und prueft den Typ.
     local eigen = ns.Compat.unitLevelLesbar and ns.Compat.unitLevelLesbar("player") or 0
+    -- WELLE 14a (21.09.2026, Spieltest-Befund Harald): Bis hierher rechnete diese Aktion Stufe
+    -- gegen Stufe, OHNE zu fragen, ob man das Ziel ueberhaupt angreifen kann. Ein
+    -- Orgrimmar-Waechter (65, Elite, freundlich) bekam damit "Zu stark, {Held|Heldin}" — eine
+    -- Kampfeinschaetzung fuer einen Kampf, den es nicht geben kann. UnitCanAttack steht jetzt
+    -- VOR dem Bestiarium (ein nicht angreifbarer NPC hat den Spieler nie getoetet) und fuehrt
+    -- zu einer Auskunft statt eines Urteils: Beruf und Quest, geliefert von Sinne/Welle14a.lua.
+    -- Fehlt der Sinn oder weiss er nichts, bleibt die trockene Zeile "verbuendet.sonst" —
+    -- niemals wieder ein Staerkevergleich. Alles andere unterhalb ist unveraendert.
+    local angreifbar = true
+    if UnitCanAttack then
+        local okA, darf = pcall(UnitCanAttack, "player", "target")
+        if okA then angreifbar = darf and true or false end
+    end
+    if not angreifbar then
+        local info
+        local V = ns.Welle14a
+        if V and type(V.verbuendet) == "function" then
+            local okV, t = pcall(V.verbuendet, "target")
+            if okV and type(t) == "table" then info = t end
+        end
+        info = info or {}
+        local rolle = info.rolle and fragment("verbuendet", "rolle_" .. tostring(info.rolle)) or nil
+        if rolle == "" then rolle = nil end
+        local quest = (info.quest == "gibt" or info.quest == "nimmt") and info.quest or nil
+        local schluessel
+        if rolle and quest then schluessel = "rolle_" .. quest
+        elseif rolle then schluessel = "rolle_nur"
+        elseif quest then schluessel = quest
+        else schluessel = "sonst" end
+        -- {rolle} wird HIER gefuellt: ns.fuelle laeuft in einem Durchgang und ersetzt nichts,
+        -- was es selbst eingesetzt hat (Core/Anrede.lua:41-44).
+        local satz = ns.fuelle(ns.Anrede(fragment("verbuendet", schluessel)), { name = name, rolle = rolle })
+        return "ziel_info", {
+            name = name,
+            level = (lvl and lvl > 0) and tostring(lvl) or "??",
+            art = fragment("art", klasse),
+            vergleich = satz,
+        }
+    end
     local n = bestiariumZahl(name)
     if n and n > 0 then return "ziel_bekannt", { name = name, n = n } end
     local vergleich
@@ -480,8 +519,36 @@ local function tastaturAn()
 end
 f:SetScript("OnKeyDown", function(self, key)
     local durch = true
+    -- W14E (Merge 0.17.0): waehrend eines laufenden Spiels ("Weisst du noch?", Sinne/Welle14e.lua)
+    -- greifen die Ziffern NUR auf dem Taxi. Ein Gespraech dauert Sekunden, ein Spiel Minuten - und
+    -- in diesen Minuten gehoert die "2" auf den Zauber und nicht auf Knopf 2. Auf dem Greifen ist
+    -- die Aktionsleiste ohnehin gesperrt, dort kostet das Abfangen nichts.
+    -- Der Riegel steht hier und nicht als Mantel um ns.Dialog.zeigeKnoten: der Mantel hat die
+    -- Tastatur des ganzen Fensters abgeschaltet (also auch ESC-Weiterreichung und jede spaetere
+    -- Nutzung), dieser hier laesst nur die vier Ziffern durchfallen. Die Abfrage steht vor
+    -- tonumber, damit sie auch dann greift, wenn eine spaetere Welle die Ziffernlogik aendert.
+    -- REVIEW17: Beide Fragen in pcall. Diese Funktion laeuft bei JEDEM Tastendruck, und wenn sie
+    -- vor der letzten Zeile abbricht, wird SetPropagateKeyboardInput NICHT mehr gerufen - dann
+    -- bleibt der Wert des vorigen Drucks stehen. War das ein geschluckter Antwort-Knopf (false),
+    -- frisst das Fenster ab da JEDE Taste, auch WASD. Weder ns.Welle14e noch UnitOnTaxi gehoeren
+    -- uns; ein Fremd-Addon darf beide zur Laufzeit ersetzen. Im Zweifel ist die Ziffer GESPERRT
+    -- (zifferOk = false), also faellt sie ans Spiel durch - das ist die sichere Seite.
+    local spiel = false
+    local W14 = ns.Welle14e
+    if W14 and type(W14.laeuft) == "function" then
+        local okS, laeuft = pcall(W14.laeuft)
+        spiel = (okS and laeuft) and true or false
+    end
+    local zifferOk = true
+    if spiel then
+        zifferOk = false
+        if type(UnitOnTaxi) == "function" then
+            local okT, aufTaxi = pcall(UnitOnTaxi, "player")
+            zifferOk = (okT and aufTaxi) and true or false
+        end
+    end
     local n = tonumber(key) or tonumber((key or ""):match("^NUMPAD(%d)$"))
-    if n and n >= 1 and n <= MAX_ANTWORTEN and knoepfe[n]:IsShown() then
+    if zifferOk and n and n >= 1 and n <= MAX_ANTWORTEN and knoepfe[n]:IsShown() then
         durch = false
         D.antwort(knoepfe[n].antwort)
     end
@@ -509,6 +576,27 @@ local function freitextZu()
     if ns.Freitext and ns.Freitext.frame then pcall(ns.Freitext.frame.Hide, ns.Freitext.frame) end
 end
 
+-- REVIEW17 (Welle 14e): WER DAS FENSTER SCHLIESST, BEENDET AUCH DAS MINISPIEL.
+-- Sinne/Welle14e.lua raeumt W.lauf nur in seinem eigenen W.zu() weg. Das Fenster geht aber auch
+-- an W.zu VORBEI zu - ESC ueber UISpecialFrames, der Rechtsklick auf die Gestalt (D.oeffne
+-- weiter unten), UI/Menue.lua M.oeffne und ns.Freitext.verstecke rufen alle D.schliesse bzw.
+-- Hide. Blieb W.lauf dabei stehen, war ns.Welle14e.laeuft() fuer den Rest der Sitzung wahr: die
+-- Ziffern 1-4 waren in jedem spaeteren Gespraech tot (OnKeyDown oben), und der Landungs-Riegel
+-- haette spaeter "Wir sind da. Spiel aus." zu einem laengst verlassenen Spiel gesagt.
+-- W.fensterZu() ist wortlos und schliesst nichts nach; der Aufruf steht in BEIDEN Wegen, weil
+-- der Prueftstand-Frame bei Hide() kein OnHide feuert und der echte Client bei ESC kein
+-- D.schliesse.
+local function spielBeenden()
+    local W14 = ns.Welle14e
+    if W14 and type(W14.fensterZu) == "function" then pcall(W14.fensterZu) end
+end
+local function spielLaeuft()
+    local W14 = ns.Welle14e
+    if not (W14 and type(W14.laeuft) == "function") then return false end
+    local ok, l = pcall(W14.laeuft)
+    return (ok and l) and true or false
+end
+
 function D.schliesse()
     if ticker then ticker:Cancel(); ticker = nil end
     stimmeStopp()    -- REVIEW7: wer das Fenster zumacht, will sie auch nicht weiterreden hoeren
@@ -516,6 +604,7 @@ function D.schliesse()
     D.loreLauf = 0   -- FIX2: neues Gespraech = wieder bis zu drei Lore-Zeilen
     kb(false)
     freitextZu()
+    spielBeenden()   -- REVIEW17
     f:Hide()
 end
 f:SetScript("OnHide", function()
@@ -524,6 +613,7 @@ f:SetScript("OnHide", function()
     D.loreLauf = 0   -- FIX2: auch bei ESC / Ausblenden
     kb(false)
     freitextZu()
+    spielBeenden()   -- REVIEW17: ESC beendet das Minispiel genauso wie jeder andere Weg
 end)
 
 -- Knoten anzeigen
@@ -595,8 +685,15 @@ function D.zeigeKnoten(id, vars)
     -- W9b: das Eingabefeld unter das Fenster haengen. OHNE Fokus - der kommt nur auf Klick.
     -- Das ist keine Bequemlichkeitsfrage: ein EditBox, das sich beim Oeffnen den Fokus nimmt,
     -- frisst die Ziffern 1-4 des Antwortmenues und im Ernstfall WASD.
+    -- REVIEW17: WAEHREND EINES MINISPIELS BLEIBT DAS FELD ZU. "Maus, nur Maus" (Recherche 19
+    -- §2.2, Punkt 1) war bisher nur fuer Sinne/Welle14e.lua und spiel_dialog.lua zugesagt - das
+    -- Gespraechsfenster haengte sein EditBox aber an JEDEN Knoten mit Knoepfen, also auch an
+    -- jede Quizfrage. Ein Gespraech dauert Sekunden, ein Spiel Minuten: in diesen Minuten steht
+    -- ein anklickbares Eingabefeld unter dem Fenster, und ein Klick hinein frisst WASD, bis der
+    -- Fokus faellt. Der Kampf-Riegel in UI/Freitext.lua raeumt den Fokus zwar weg, aber erst
+    -- NACH PLAYER_REGEN_DISABLED. Fuer ein Spiel ist das die falsche Reihenfolge.
     if ns.Freitext and ns.Freitext.zeige and not (k.ende or n == 0) then
-        pcall(ns.Freitext.zeige)
+        if spielLaeuft() then freitextZu() else pcall(ns.Freitext.zeige) end
     end
     return true
 end
@@ -617,8 +714,18 @@ function D.antwort(a)
     if a.aktion then
         local fn = D.aktionen[a.aktion]
         if fn then
-            local id, v = fn()
-            if id then ziel, vars = id, v end
+            -- REVIEW17: die Aktion in pcall. Sie lief bisher nackt - ein Fehler darin ist ein
+            -- roter Lua-Fehler mitten im Klick, und seit Welle 14e haengen acht Aktionen des
+            -- Minispiels daran, die auf einem Flug ueber Minuten immer wieder gerufen werden.
+            -- Hausregel des Projekts: Ausfall ist Schweigen, nie ein Fehler. Der Fehler geht
+            -- nicht verloren - er steht in /lyra debug -, und das Fenster faellt auf "weiter"
+            -- bzw. auf schliessen zurueck (ziel bleibt a.weiter).
+            local ok, id, v = pcall(fn)
+            if not ok then
+                ns.debug("Dialog: Aktion " .. tostring(a.aktion) .. " gestolpert: " .. tostring(id))
+            elseif id then
+                ziel, vars = id, v
+            end
         else
             ns.debug("Dialog: Aktion fehlt " .. tostring(a.aktion))
         end

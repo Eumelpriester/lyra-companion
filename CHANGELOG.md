@@ -1,5 +1,54 @@
 # Changelog
 
+## 0.17.0 (2026-09-21)
+
+### Welle 14: Verbündete, Flugzeit, Weißt du noch?
+
+Acht neue Momente, in denen Lyra etwas sagt, ein Minispiel und eine Fehleinschätzung weniger —
+18 neue Zeilen je Sprache. Drei neue Häkchen in der Feineinstellung, Abschnitt **„Welle 14"**,
+alle ab Werk an.
+
+**Verbündete**
+
+Lyra schätzt niemanden mehr als Gegner ein, den du gar nicht angreifen kannst. Fragst du nach
+einem freundlichen Ziel, sagt sie jetzt, WER da steht statt WIE STARK er ist: Gastwirt,
+Flugmeister, Bankier, Auktionator, Rüstmeister, Stallmeister, Lehrer, Händler oder Stadtwache.
+Hat der NPC eine Quest für dich oder wartet er auf eine Abgabe, sagt sie auch das — in einem
+halben Satz, ohne Questnamen und ohne Liste. Weiß sie nichts, bleibt eine trockene Zeile.
+Den Beruf liest sie aus dem Tooltip, die Quests aus Questie; ohne Questie fällt nur der
+Quest-Hinweis weg. Von selbst sagt sie dazu weiterhin nichts — einen Gastwirt anzuklicken ist
+kein Anlass zu reden.
+
+**Flugdauer**
+
+Lyra merkt sich, wie lange eine Flugroute dauert. Beim zweiten Mal sagt sie dir beim Abflug,
+woran du bist — „Kurzer Hüpfer. Halt dich fest." oder „Das dauert. Ich döse ein bisschen, ich
+weck dich." Eine Minute vor der Landung weckt sie dich, nach einem langen Flug sagt sie unten
+etwas. Ein stiller Ring am Porträt zeigt, wie viel noch fehlt, ohne eine einzige Ziffer. Die
+gemessenen Zeiten gelten für das ganze Konto, also auch für den nächsten Charakter — gerade auf
+Hardcore. Hast du bereits ein Flugzeit-Addon, schweigt Lyra zur Dauer und behält nur die Sätze.
+Nebenbei behoben: bei einem Ladebildschirm mitten im Flug hielt Lyra den Flug bisher für beendet.
+
+**Lyras Spiel „Weißt du noch?"**
+
+Auf einem langen Flug und beim Rasten im Gasthaus bietet Lyra ein Spiel an — und sie fragt dabei
+nicht nach Azeroth, sondern nach dir. Fünf Fragen aus eurer gemeinsamen Geschichte: in welcher
+Gegend es am häufigsten schiefgegangen ist, wer dich am härtesten erwischt hat, wovon du am
+meisten umgelegt hast, wie lang euer längster Abend war. Vier Antworten, alles mit der Maus,
+kein einziges neues Fenster.
+
+Sie fragt nur aus dem, was sie selbst mitbekommen hat. Über deinen gefallenen Vorgänger fragt
+sie nie, über andere Spieler auch nicht. Am Anfang kennt sie dich noch zu wenig und sagt das
+auch — nach ein paar Abenden wird das Spiel von allein besser. Sie führt deine beste Runde und
+deine längste Serie mit und tritt beim nächsten Mal mit deinem eigenen Rekord gegen dich an
+(„Beim letzten Mal hattest du hier schon vier."). Diese Zahlen bleiben auf deinem Rechner — es
+gibt keine Bestenliste und nichts wird verschickt.
+
+Das Fenster geht nie von selbst auf. Und es geht sofort und wortlos wieder zu, sobald ein Kampf
+beginnt, du Schaden nimmst, dich jemand einlädt, du losläufst oder der Greif landet. Solange
+das Spiel abseits des Greifen läuft, bleiben die Zifferntasten beim Spiel — die 2 gehört dann
+deinem Zauber und nicht Antwortknopf 2.
+
 ## 0.16.1 (2026-09-21)
 
 ### Hotfix nach dem ersten Spieltest

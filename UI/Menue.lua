@@ -153,7 +153,7 @@ local function eintraege()
     local L = ns.L
     local g = ns.Get("groesse") or "mittel"
     local gLabel = (g == "klein" and L["Size small"]) or (g == "gross" and L["Size large"]) or L["Size medium"]
-    return {
+    local liste = {
         { L["Say something"], function() if ns.melde then ns.melde("KLICK", { direkt = true }) end end },
         { L["Ask me"], function() if ns.Dialog and ns.Dialog.oeffne then ns.Dialog.oeffne() end end },
         { L["Repeat last"], M.wiederholen },
@@ -165,6 +165,21 @@ local function eintraege()
         { L["Hide"], function() setze("versteckt", true); ns.print(L["Hidden hint"]) end },
         { L["Settings"], function() if ns.oeffneSettings then ns.oeffneSettings() end end },
     }
+    -- W14E: das Minispiel "Weisst du noch?" (Sinne/Welle14e.lua). EIN Eintrag, und er haengt
+    -- HINTEN an - die Ziffern 1-9 der bestehenden neun Eintraege bleiben damit unveraendert.
+    -- menueEintrag() gibt nil zurueck, solange nicht gespielt werden darf (Haekchen aus, Kampf,
+    -- Instanz, unter 50 % Leben, tot) oder kein Anlass da ist (kein Taxi, keine Rast) - dann
+    -- steht hier gar nichts, und das Menue ist die ueblichen neun Zeilen lang. Ein Menuepunkt,
+    -- der beim Klick "nicht jetzt" sagt, waere ein Versprechen, das nicht gehalten wird.
+    -- Der zehnte Eintrag hat keine Taste; fuer ein Spiel, dessen erste Regel "Maus, nur Maus"
+    -- heisst, ist das kein Mangel (Recherche 19 §2.2, §2.6).
+    if ns.Welle14e and type(ns.Welle14e.menueEintrag) == "function" then
+        local ok, e = pcall(ns.Welle14e.menueEintrag)
+        if ok and type(e) == "table" and e[1] and type(e[2]) == "function" then
+            liste[#liste + 1] = e
+        end
+    end
+    return liste
 end
 
 -- Tasten 1-9 nur ausserhalb des Kampfes
@@ -242,7 +257,10 @@ function M.oeffne()
     local kampf = (InCombatLockdown and InCombatLockdown()) and true or false
     local fussH = 0
     if ns.Optik then
-        local ft = (ns.L["Keys hint"] or "1-%d"):format(#liste)
+        -- MERGE 0.17.0 (W14E §3g2): mit dem Eintrag des Minispiels kann die Liste zehn Zeilen
+        -- lang werden - eine Taste "10" gibt es aber nicht (Ziffern 1-9, siehe OnKeyDown unten).
+        -- Ohne den Deckel sagt die Fusszeile "1-10" und verspricht eine Taste, die es nie gab.
+        local ft = (ns.L["Keys hint"] or "1-%d"):format(math.min(#liste, 9))
         ns.Optik.setzeText(fuss, ft, math.max(9, size - 3), ns.Optik.farben().linie)
         fuss:ClearAllPoints()
         fuss:SetPoint("BOTTOMLEFT", RAND, RAND - 2)

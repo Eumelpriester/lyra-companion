@@ -649,6 +649,24 @@ local function baueNativ()
     checkbox(fein, "sammelAusdauer", "Farm persistence", "Farm persistence tip")
     checkbox(fein, "lagerAnderswo", "Stored elsewhere", "Stored elsewhere tip")
 
+    -- MERGE 0.17.0 (21.09.2026): EIN gemeinsamer Abschnitt fuer die Welle 14, genau wie bei
+    -- Welle 13 und aus demselben Grund: drei Teams haben drei Ueberschriften vorgeschlagen
+    -- ("Verbuendete und Umgebung", "Wartezeit"), und drei Zeilen Navigation fuer drei Kaestchen
+    -- sind keine Gliederung. Die drei Kaestchen haben untereinander nichts zu tun - sie teilen
+    -- nur die Auslieferung. Genau deshalb traegt die Ueberschrift hier ausnahmsweise die
+    -- Wellennummer (de "Welle 14", en "Wave 14"): ein beschreibender Name muesste etwas
+    -- behaupten, was die drei verbindet, und das gibt es nicht. Entscheidung des Koordinators.
+    -- Alle drei stehen ab Werk auf AN; die Voreinstellungen haengen in den drei Sinne-Dateien
+    -- an ns.DEFAULTS_ACCOUNT (verbuendetAuskunft, flugzeit, spielFragen), Core/Init.lua bleibt
+    -- unberuehrt. Die erste Seite bleibt unberuehrt (Design-Deckel B-5).
+    header(fein, "Wave 14")
+    -- 14a: die Auskunft ueber ein Ziel, das man gar nicht angreifen kann.
+    checkbox(fein, "verbuendetAuskunft", "Ally info", "Ally info tip")
+    -- 14b: benannt nach dem, was es TUT (die Flugdauer ansagen), nicht nach der Mechanik.
+    checkbox(fein, "flugzeit", "Flight time", "Flight time tip")
+    -- 14e: das Minispiel "Weisst du noch?".
+    checkbox(fein, "spielFragen", "Ask me things", "Ask me things tip")
+
     Settings.RegisterAddOnCategory(category)
 end
 

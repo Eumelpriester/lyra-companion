@@ -371,4 +371,18 @@ ns.locales.deDE = {
     -- 13d (BagBrother)
     ["Stored elsewhere"] = "Sagen, was bei den anderen Charakteren liegt",
     ["Stored elsewhere tip"] = "Lyra liest die gespeicherten Taschen von BagBrother (kommt mit Bagnon) und sagt vor einer Instanz oder beim Aufheben einer Handelsware, dass das Fehlende bei einem anderen DEINER Charaktere oder in deiner eigenen Bank liegt. Die Daten stammen vom letzten Abmelden dieses Charakters - deshalb sagt sie immer 'beim letzten Mal' und behauptet nie, es laege jetzt dort. Gildenbanken werden nie gelesen: was dort liegt, gehoert anderen Spielern. Nur eigene Charaktere auf eigenen Realms, hoechstens eine Zeile je Gegenstand und Sitzung, nie im Kampf, nie eine zweite Zahl. Ohne BagBrother bleibt sie einfach still und der Reisecheck sieht aus wie immer.",
+    -- MERGE 0.17.0 (21.09.2026): Welle 14 - NUR angehaengt. Ein gemeinsamer Abschnitt in der
+    -- Feineinstellung fuer die drei Kaestchen der drei Bauteams. Die Ueberschrift traegt hier
+    -- ausnahmsweise die Wellennummer: die drei Kaestchen haben untereinander nichts gemeinsam
+    -- ausser der Auslieferung (Begruendung in UI/Settings.lua).
+    ["Wave 14"] = "Welle 14",
+    -- 14a (Verbuendete)
+    ["Ally info"] = "Auskunft über Verbündete",
+    ["Ally info tip"] = "Fragst du nach einem Ziel, das du gar nicht angreifen kannst, sagt Lyra nicht mehr, wie stark es ist, sondern wer da steht: Gastwirt, Flugmeister, Rüstmeister, Stadtwache - und ob der NPC eine Quest für dich hat oder eine Abgabe von dir erwartet. Den Beruf liest sie aus dem Tooltip, die Quests aus Questie; fehlt Questie, bleibt die Rolle und der Quest-Hinweis fällt weg. Aus heißt: nur eine kurze Zeile ohne Beruf und ohne Quest. Eine Kampfeinschätzung bekommt ein Verbündeter in keinem Fall mehr.",
+    -- 14b (Flugzeit)
+    ["Flight time"] = "Flugdauer ansagen",
+    ["Flight time tip"] = "Lyra misst, wie lange eine Flugroute dauert, und sagt beim Abflug, ob es ein kurzer Hüpfer wird oder länger dauert — als Satz, nicht als Zahl. Eine Minute vor der Landung weckt sie dich, nach einem langen Flug sagt sie unten etwas. Ein stiller Ring am Porträt zeigt den Rest ohne Ziffer. Die Zeiten gelten für das ganze Konto, also auch für den nächsten Charakter. Ist ein anderes Flugzeit-Addon installiert, schweigt sie zur Dauer und behält nur die Sätze.",
+    -- 14e (Minispiel "Weisst du noch?")
+    ["Ask me things"] = "Lyra darf mir Fragen stellen",
+    ["Ask me things tip"] = "Auf einem langen Flug oder beim Rasten im Gasthaus bietet Lyra ein Spiel an: sie fragt dich über dein eigenes Leben ab - wo du am häufigsten fast gestorben bist, wer dich am härtesten erwischt hat, wie lang euer längster Abend war. Fünf Fragen, vier Antworten, alles mit der Maus. Sie fragt nur aus dem, was sie selbst mitbekommen hat, nie über deinen gefallenen Vorgänger und nie über andere Spieler. Das Fenster geht nie von selbst auf und schließt sich sofort und wortlos, sobald ein Kampf beginnt, du Schaden nimmst, jemand dich einlädt oder der Greif landet. Dein Rekord bleibt auf diesem Rechner. Kennt sie dich noch nicht lange genug, sagt sie das - und fragt später nochmal.",
 }

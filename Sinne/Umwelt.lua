@@ -221,6 +221,19 @@ function U.flugFlanken()
         if flug.ziel ~= "" then vars.ziel = flug.ziel end
         ns.melde("TAXI_START", vars)
     elseif not taxi and flug.drin then
+        -- W14B: Waehrend eines Ladebildschirms MITTEN IM FLUG (Kontinent-/Faehrgrenze) liefert
+        -- UnitOnTaxi("player") FALSCH, obwohl der Spieler fliegt - InFlight kommentiert genau
+        -- diese Stelle im eigenen Code mit "event bug fix". Bisher kostete uns das nur eine
+        -- stumme TAXI_ENDE-Meldung (null Zeilen) und fiel niemandem auf; mit der Messung aus
+        -- Sinne/Welle14b.lua daran waere daraus "Da waeren wir" mitten ueber dem Meer plus eine
+        -- kaputte Messung geworden (Recherche 19 §3.1).
+        -- Die Klammer PLAYER_LEAVING_WORLD/PLAYER_ENTERING_WORLD fuehrt Welle14b, nicht diese
+        -- Datei - fehlt sie, ist das Verhalten exakt wie vorher.
+        local W14 = ns.Welle14b
+        if W14 and type(W14.imLadebildschirm) == "function" then
+            local ok, drin = pcall(W14.imLadebildschirm)
+            if ok and drin then return end
+        end
         flug.drin = false
         flug.ziel = ""
         flug.seit = 0

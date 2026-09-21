@@ -221,6 +221,31 @@ LyraGestalt_Dialog = {
       schwer = { de = "Zu stark, {Held|Heldin}. Deine Zauber verfehlen, seine nicht.", en = "Too strong, hero. Your spells miss, his don't." },
       unbekannt = { de = "Die Stufe kann ich nicht lesen. Das ist selten ein gutes Zeichen.", en = "Can't read the level. That's rarely a good sign." },
     },
+    -- Welle 14a: Verbuendete. Diese Bausteine stehen im PLATZ VON {vergleich} in ziel_info -
+    -- Name, Stufe und Art sagt der Knoten weiter selbst, hier steht nur, was statt der
+    -- Staerke-Einschaetzung kommt. Rolle und Quest liefert Sinne/Welle14a.lua; {rolle} wird von
+    -- UI/Dialog.lua eingesetzt, bevor der Satz als {vergleich} weitergereicht wird.
+    -- Ton: eine Beobachtung, kein Ratschlag, kein "leider". Kein Anrede-Token - die Zeile steht
+    -- mitten in einem Satz, der den Namen des NPC schon getragen hat.
+    verbuendet = {
+      sonst       = { de = "Freundlich. Zu dem musst du nichts wissen.", en = "Friendly. Nothing you need to know about that one." },
+      gibt        = { de = "Der hat noch etwas für dich.", en = "That one still has something for you." },
+      nimmt       = { de = "Dem schuldest du eine Abgabe.", en = "You owe that one a hand-in." },
+      rolle_nur   = { de = "{rolle}. Mehr steckt da nicht drin.", en = "{rolle}. Nothing more to it." },
+      rolle_gibt  = { de = "{rolle}. Und hat noch etwas für dich.", en = "{rolle}. And still has something for you." },
+      rolle_nimmt = { de = "{rolle}. Und wartet auf eine Abgabe.", en = "{rolle}. And is waiting for a hand-in." },
+      -- Die Rollen selbst. Kurz, klein geschrieben passt nicht - sie stehen am Satzanfang.
+      rolle_haendler    = { de = "Händler", en = "Merchant" },
+      rolle_lehrer      = { de = "Lehrer", en = "Trainer" },
+      rolle_gastwirt    = { de = "Gastwirt", en = "Innkeeper" },
+      rolle_flugmeister = { de = "Flugmeister", en = "Flight master" },
+      rolle_bankier     = { de = "Bankier", en = "Banker" },
+      rolle_auktionator = { de = "Auktionator", en = "Auctioneer" },
+      rolle_ruestmeister= { de = "Rüstmeister", en = "Quartermaster" },
+      rolle_stallmeister= { de = "Stallmeister", en = "Stable master" },
+      rolle_reparatur   = { de = "Der repariert", en = "Repairs gear" },
+      rolle_waechter    = { de = "Stadtwache", en = "City guard" },
+    },
     kampf = {
       ja = { de = "Und du kämpfst gerade, falls es dir nicht aufgefallen ist.", en = "And you're fighting right now, in case you hadn't noticed." },
       nein = { de = "Kein Kampf. Gut so.", en = "No fighting. Good." },

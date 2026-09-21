@@ -36,7 +36,7 @@
 ## Notes: A companion who watches, shows and speaks - and never presses a key. No automation, no chat output, no data about other players.
 ## Notes-deDE: Eine Begleiterin, die wahrnimmt, zeigt und spricht - und nie eine Taste drueckt. Keine Automation, keine Chat-Ausgabe, keine Daten anderer Spieler.
 ## Author: Lyra & Harald
-## Version: 0.16.1
+## Version: 0.17.0
 ## SavedVariables: LyraGestaltDB
 ## X-Category: Companions
 ## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md
@@ -147,6 +147,12 @@ dialog.lua
 bruecken_dialog.lua
 rituale_dialog.lua
 welle2_dialog.lua
+
+# W14E: Knoten und ein Intent fuer das Minispiel "Weisst du noch?" (Welle 14e). NUR Daten, wie
+# die drei Dialog-Dateien darueber. Muss VOR UI/Dialog.lua stehen: die Datei baut ihren
+# Knoten-Index beim ersten Zeigen aus LyraGestalt_Dialog.knoten, spaeter angehaengte Knoten
+# waeren unsichtbar. Die Aktionen registriert Sinne/Welle14e.lua bei PLAYER_LOGIN.
+spiel_dialog.lua
 UI/Dialog.lua
 UI/Freitext.lua
 UI/Slash.lua
@@ -260,3 +266,53 @@ Sinne/Welle13c.lua
 # legt, der aussen liegen soll. Sie haengt EINEN Schluessel an ns.DEFAULTS_ACCOUNT
 # (lagerAnderswo) und legt EIN Ereignis an (LAGER_ANDERSWO).
 Sinne/Welle13d.lua
+
+# --------------------------------------------------------------------------------------------
+# MERGE 0.17.0 (21.09.2026): Welle 14, drei Bauteams. Alle drei wollten "ganz zuletzt, hinter
+# Sinne/Welle13d.lua". Untereinander sind sie frei - 14a wird nur aus UI/Dialog.lua gerufen,
+# 14b und 14e haengen an Ereignissen und legen ihre Maentel bei PLAYER_LOGIN. Die Reihenfolge
+# ist deshalb die des Auftrags (a, b, e) und damit dieselbe wie im Katalog-Merge und in
+# tests/pruefstand/lauf_alle.sh - wer einen roten Lauf sucht, liest ueberall dieselbe Folge.
+# 14e steht als LETZTE: sie legt einen Mantel um ns.stillSetzen und registriert Aktionen in
+# ns.Dialog.aktionen, ist also die aeusserste Schicht der Welle.
+# --------------------------------------------------------------------------------------------
+
+# W14A (21.09.2026): Welle 14a "Verbuendete" - Spieltest-Befund Harald: die Dialog-Aktion "ziel"
+# rechnete Stufe gegen Stufe, ohne zu fragen, ob man das Ziel angreifen kann, und nannte einen
+# freundlichen Orgrimmar-Waechter "zu stark". Diese Datei beantwortet fuer ein NICHT ANGREIFBARES
+# Ziel stattdessen WER da steht: Rolle (eigener Scan-Tooltip, Questie npcFlags, Lage) und Quest
+# (Questie gegen das eigene Questbuch). Sie meldet NICHTS an die Regie, haengt an KEINEM Ereignis
+# und wird nur aus UI/Dialog.lua gerufen - die Ladereihenfolge gegenueber UI/Dialog.lua ist
+# deshalb gleichgueltig (der Zugriff laeuft ueber ns.Welle14a zur Laufzeit). Sie steht hinter
+# Welle13d, weil sie ns.Compat.questLogEintrag liest und sonst nichts aus dem Addon braucht.
+# Ein Schluessel an ns.DEFAULTS_ACCOUNT (verbuendetAuskunft), kein Ereignis, kein Frame beim Laden.
+Sinne/Welle14a.lua
+
+# W14B (21.09.2026): Feature-Welle 14b "Flugzeit" (Recherche 19 §3). Misst Flugrouten selbst
+# (C_TaxiMap.GetAllTaxiNodes mit nodeIDs, Rueckfall auf NumTaxiNodes/TaxiNodeName), speichert je
+# Strecke den Median der letzten fuenf Messungen kontoweit und macht daraus KEINE Uhr, sondern
+# drei gesprochene Momente und einen stillen Ring ohne Ziffer.
+# GANZ ZULETZT, hinter Sinne/Welle13d.lua, aus drei Gruenden:
+#   * Sie liest ns.Compat.profil (Schluessel-Praefix era/forever), ns.Regie.dropLog und
+#     ns.Regie.abstandRest (Nachhol) und ns.Gestalt.flugRing - alle drei muessen stehen.
+#   * Der ns.melde-Mantel aus Sinne/Persoenlichkeit.lua soll auch um die sechs TAXI_-Ereignisse
+#     liegen.
+#   * Sinne/Umwelt.lua fragt zur LAUFZEIT ns.Welle14b.imLadebildschirm() ab; die Ladereihenfolge
+#     spielt dafuer keine Rolle, aber wer frueher steht, gewinnt nichts.
+# Sie haengt EINEN Schluessel an ns.DEFAULTS_ACCOUNT (flugzeit); Core/Init.lua bleibt unberuehrt.
+# Kein OnUpdate. Zwei Ticker, beide begrenzt: Anflug hoechstens 5 s, Flugticker hoechstens einen
+# Flug lang. Eine neue SavedVariable-Teiltabelle (LyraGestaltDB.account.flugzeiten), die erst
+# beim ersten gemessenen Flug entsteht.
+Sinne/Welle14b.lua
+
+# W14E: Feature-Welle 14e "Weisst du noch?" (Recherche 19 §1.1, §1b.1, §2). Das Quiz aus der
+# eigenen Chronik, gespielt im bestehenden Gespraechsfenster. GANZ ZULETZT, aus drei Gruenden:
+#   * Sie registriert Aktionen in ns.Dialog.aktionen - UI/Dialog.lua muss fertig sein. (Den
+#     Tastatur-Riegel traegt seit dem Merge 0.17.0 UI/Dialog.lua selbst im OnKeyDown; der
+#     Mantel um ns.Dialog.zeigeKnoten ist ersatzlos entfallen.)
+#   * Sie legt einen Mantel um ns.stillSetzen (UI/Menue.lua) - auch die muss fertig sein.
+#   * Sie liest ns.Regie (stufeVon, imKampf) und die Chronik; beide sollen stehen.
+# Sie haengt EINEN Schluessel an ns.DEFAULTS_ACCOUNT (spielFragen); Core/Init.lua bleibt
+# unberuehrt. Kein CreateFrame, kein OnUpdate, kein Ticker, keine neue SavedVariable ausser
+# ns.char.spiel (Rekord je Charakter).
+Sinne/Welle14e.lua

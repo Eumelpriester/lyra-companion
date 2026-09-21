@@ -335,4 +335,12 @@ ns.locales.enUS = {
     -- docs/phrasen-w11c.json): that one goes through the director, the tooltip does not.
     ["Fell here"] = "%s fell here. Level %d, %s.",
     ["Death spot"] = "Death spot",
+    -- W11D: wave 11d (two checkboxes) - appended only.
+    -- The two checkboxes in the "map" section of the fine tuning page (UI/Settings.lua). They
+    -- toggle the very same two keys as "/lyra karte sterbeort|sterbeortpin on|off":
+    -- "sterbeort" is the LINE, "pinSterbeort" is the PIN. One state, two ways to reach it.
+    ["Death spot line"] = "Say where a predecessor fell",
+    ["Death spot line tip"] = "When a new character reaches the spot where one of your own predecessors fell, Lyra says so exactly once - with name, level and date.",
+    ["Pin death spots"] = "Show death spots on the map",
+    ["Pin death spots tip"] = "Every death spot of one of your own predecessors gets a marker on the world map and the minimap, with name, level and date in the tooltip - your own characters only, never anybody else's.",
 }

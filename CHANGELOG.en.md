@@ -1,6 +1,14 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.15.2 (2026-09-21)
+
+**Death spots now have their own checkboxes.** Under "Fine tuning → Map" you will find two new
+options: one for the line Lyra says at a predecessor's death spot, one for the marker on the
+world map and the minimap. They toggle exactly what `/lyra karte sterbeort` and
+`/lyra karte sterbeortpin` already toggled — untick one and the pin is gone right away, no zone
+change needed.
+
 ## 0.15.1 (2026-09-21)
 
 **She remembers where it happened.** When you walk a new character onto the spot where one of

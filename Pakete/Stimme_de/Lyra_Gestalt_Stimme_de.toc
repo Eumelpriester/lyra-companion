@@ -14,7 +14,7 @@
 ## Title: Lyra Gestalt - Stimme (Deutsch)
 ## Notes: Voice pack for Lyra Gestalt. Loaded on demand by the core addon.
 ## Author: Lyra & Harald
-## Version: 0.15.1
+## Version: 0.15.2
 ## LoadOnDemand: 1
 ## Dependencies: Lyra_Gestalt
 ## X-License: MIT (code) / ARR (voice) - see Lyra_Gestalt/LICENSE and Lyra_Gestalt/LICENSE-ASSETS.md

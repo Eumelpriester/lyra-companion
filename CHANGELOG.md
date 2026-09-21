@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.2 (2026-09-21)
+
+**Die Sterbeorte stehen jetzt in den Einstellungen.** Unter „Feineinstellung → Karte" gibt es
+zwei neue Kästchen: eines für die Zeile, die Lyra am Sterbeort eines Vorgängers sagt, und eines
+für den Marker auf Welt- und Minikarte. Beide schalten genau das, was
+`/lyra karte sterbeort` bzw. `/lyra karte sterbeortpin` schon schalteten — wer den Haken
+entfernt, sieht den Pin sofort verschwinden, ohne die Zone zu wechseln.
+
 ## 0.15.1 (2026-09-21)
 
 **Sie erinnert sich, wo es passiert ist.** Wenn du mit einem neuen Charakter an die Stelle

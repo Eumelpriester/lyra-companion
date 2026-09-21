@@ -17,6 +17,11 @@
 --   als Notausgang stehen. ns.Compat.F.settingsApi haelt genau diese Pruefung fest.
 --   NEU in dieser Runde: zwei Eintraege fuer Text-to-Speech ("tts", "ttsStimme") in der
 --   Feineinstellung - das ist die einzige inhaltliche Aenderung an dieser Datei.
+-- W11D (21.09.2026): zwei Kaestchen mehr im Karten-Abschnitt der Feineinstellung -
+--   "sterbeort" (die Zeile am Sterbeort des Vorgaengers) und "pinSterbeort" (ihr Pin). Beide
+--   waren seit Welle 11c nur ueber "/lyra karte sterbeort|sterbeortpin" erreichbar. Sie haengen
+--   an DENSELBEN SavedVariables wie der Slash-Befehl - es gibt keinen zweiten Zustand -, und
+--   S.anwenden zieht die Karte danach einmal nach (siehe unten).
 local ADDON, ns = ...
 local S = {}
 ns.Settings = S
@@ -121,6 +126,17 @@ function S.anwenden(key, value)
         S.bewegungAnwenden(value)                       -- B-13
     elseif key == "schrift" then
         if ns.Optik and ns.Optik.neuZeichnen then ns.Optik.neuZeichnen() end   -- B-1
+    elseif key == "sterbeort" or key == "pinSterbeort" then
+        -- W11D: derselbe Nachlauf, den "/lyra karte sterbeort|sterbeortpin" schon hatte
+        -- (Sinne/Karte2.lua, K2.befehl). Ohne ihn verschwaende der Pin erst beim naechsten
+        -- Zeichenanlass - Zonenwechsel oder Oeffnen der Weltkarte -, und ein Haekchen, das
+        -- sichtbar nichts tut, sieht aus wie ein kaputtes Haekchen. Es wird die VORHANDENE
+        -- Funktion gerufen, keine zweite gebaut; pcall, weil ein Fehler beim Zeichnen die
+        -- Einstellung selbst nicht kippen darf - die ist an dieser Stelle schon gespeichert.
+        if ns.Karte2 and ns.Karte2.aktualisieren then
+            local ok, err = pcall(ns.Karte2.aktualisieren)
+            if not ok then ns.debug("Settings Karte2: " .. tostring(err)) end
+        end
     end
 end
 
@@ -543,6 +559,18 @@ local function baueNativ()
     checkbox(fein, "pinNotiz", "Pin notes", "Pin notes tip")
     checkbox(fein, "pinGefahr", "Danger overlay", "Danger overlay tip")
     checkbox(fein, "punktNah", "Waypoint proximity", "Waypoint proximity tip")
+    -- W11D (21.09.2026): die zwei Schalter aus Welle 11c, die bisher NUR ueber Slash erreichbar
+    -- waren (docs/welle11c-2026-09-20.md §7 Punkt 2). Sie stehen hier und nicht in einem eigenen
+    -- Abschnitt "Welle 11c": beide gehoeren zu Sinne/Karte2.lua, haengen wie die vier darueber am
+    -- Hauptschalter "karte" und werden in derselben Sekunde gesucht wie "Beinahe-Pins". Ein
+    -- eigener Abschnitt fuer zwei Kaestchen waere eine Ueberschrift mehr auf einer Seite, die der
+    -- Design-Deckel B-5 gerade erst kurz gemacht hat. Sechs Eintraege sind hier die Obergrenze -
+    -- wer eine siebte Karten-Feinheit baut, teilt den Abschnitt (so wie Welle 4 die
+    -- Datenquellen-Liste geteilt hat, statt sie auf acht anwachsen zu lassen).
+    -- Der Deckel selbst ist unberuehrt: die erste Seite behaelt ihre 14 Eintraege, beide
+    -- Kaestchen liegen zwei Klicks tief in der Feineinstellung.
+    checkbox(fein, "sterbeort", "Death spot line", "Death spot line tip")
+    checkbox(fein, "pinSterbeort", "Pin death spots", "Pin death spots tip")
 
     -- W6: Feature-Welle 6 (Sinne/Welle6.lua). Der Buendel-Schalter steht OBEN; hier stehen die
     -- drei Feinheiten, die man einmal entscheidet. Die GTFO-Stillhalte hat wie die von

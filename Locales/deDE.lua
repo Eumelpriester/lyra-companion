@@ -334,4 +334,12 @@ ns.locales.deDE = {
     -- (ERBE_STERBEORT, docs/phrasen-w11c.json): sie geht ueber die Regie, der Tooltip nicht.
     ["Fell here"] = "Hier ist %s gefallen. Stufe %d, %s.",
     ["Death spot"] = "Sterbeort",
+    -- W11D: Welle 11d (zwei Haekchen) - NUR angehaengt.
+    -- Die zwei Kaestchen im Abschnitt "Karte" der Feineinstellung (UI/Settings.lua). Sie
+    -- schalten dieselben zwei Schluessel wie "/lyra karte sterbeort|sterbeortpin an|aus":
+    -- "sterbeort" ist die ZEILE, "pinSterbeort" der PIN. Ein Zustand, zwei Wege dorthin.
+    ["Death spot line"] = "Sagen, wo ein Vorgänger gefallen ist",
+    ["Death spot line tip"] = "Kommt ein neuer Charakter an die Stelle, an der ein eigener Vorgänger gefallen ist, sagt Lyra das dort genau einmal – mit Name, Stufe und Tag.",
+    ["Pin death spots"] = "Sterbeorte auf der Karte anzeigen",
+    ["Pin death spots tip"] = "Jeder Sterbeort eines eigenen Vorgängers bekommt einen Marker auf Welt- und Minikarte, mit Name, Stufe und Tag im Tooltip – nur eigene Charaktere, nie fremde.",
 }

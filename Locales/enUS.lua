@@ -328,4 +328,11 @@ ns.locales.enUS = {
     ["Last words saved 3"] = "Written down and saved. Word for word, not roughly.",
     -- Hall of the fallen: second section in the chronicle window (Sinne/Erbe.lua E.halleZeilen).
     ["Hall of the fallen"] = "Hall of the fallen",
+    -- W11C: wave 11c (the line at the death spot) - appended only.
+    -- Tooltip of the death-spot pin on world map and minimap (Sinne/Karte2.lua). Three
+    -- substitutions in THIS order: name, level, day. Translators must not reorder them.
+    -- The LINE Lyra speaks there is not here but in the phrase catalogue (ERBE_STERBEORT,
+    -- docs/phrasen-w11c.json): that one goes through the director, the tooltip does not.
+    ["Fell here"] = "%s fell here. Level %d, %s.",
+    ["Death spot"] = "Death spot",
 }

@@ -362,8 +362,16 @@ function W.puls()
                     -- W.schwimmPruefen (TIEFES_WASSER) ist ausdruecklich NICHT gesperrt: dort ist
                     -- der Spieler schon drin und hat weniger als halbe Luft. Das ist keine
                     -- Statistik mehr, das ist die Lage.
+                    -- W11C: dieselbe Regel, eine Stufe hoeher. Hat Sinne/Karte2.lua gerade
+                    -- ERBE_STERBEORT gemeldet, schweigt die Vorwarnung ebenfalls - und zwar
+                    -- ausdruecklich auch dann, wenn Sinne/Umwelt.lua gar nicht geladen ist
+                    -- (dann ist U nil und die erste Frage faellt aus). Der eigene Sterbeort
+                    -- steht ueber dem eigenen Beinahe-Punkt und der ueber der Statistik;
+                    -- diese Zeile ist das untere Ende dieser Kette.
                     local U = ns.Sinne and ns.Sinne.Umwelt
-                    if U and U.eigenerVorrang and U.eigenerVorrang() then
+                    local K2 = ns.Karte2
+                    if (U and U.eigenerVorrang and U.eigenerVorrang())
+                       or (K2 and K2.sterbeortVorrang and K2.sterbeortVorrang()) then
                         return verwirf("eigener-punkt")
                     end
                     if tode and tode >= W.TODE_MIN then

@@ -1,6 +1,24 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.15.1 (2026-09-21)
+
+**She remembers where it happened.** When you walk a new character onto the spot where one of
+your predecessors fell, Lyra tells you — **once**, with name, level and date, and never again
+after that. If several of them lie there, she speaks of the most recent one and names the
+number. No blame, no advice, no cause of death: just the place. She has been writing those
+coordinates down since version 0.9, and until now nobody ever read them.
+**Your own gravestone beats any statistic.** On a spot where one of your predecessors lies,
+your own close-call marker, the foreign death statistics and your own "this place is safe"
+waypoint all keep quiet — one place, one line. Warnings about something that is about to
+happen are untouched; survival still has right of way.
+**On the map** every death spot now has its own marker, on the world map and the minimap, with
+name, level and date in the tooltip. Your own characters only, never anybody else's. To switch
+it off: `/lyra karte sterbeort aus` (the line) or `/lyra karte sterbeortpin aus` (the marker
+only).
+
+---
+
 ## 0.15.0 (2026-09-20)
 
 ### Wave 11a: Death gets a voice

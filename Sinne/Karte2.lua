@@ -10,12 +10,19 @@
 --                     (ns.Gefahren, gefuellt von Sinne/Gefahren_Daten.lua) — halbtransparente
 --                     Flaechen auf der Weltkarte der AKTUELLEN Zone, Farbe nach Art,
 --                     Deckkraft nach Zahl der Tode. Nur Era-Profile (ns.Compat.F.gefahrenkarte).
+--        (d) sterbeort  W11C: die Sterbeorte eigener VORGAENGER (ns.Erbe.sterbeorte(),
+--                       LyraGestaltDB.erbe, kontoweit) — eigener Totenkopf, Tooltip mit Name,
+--                       Stufe und Tag. Nur eigene Charaktere, nie fremde Daten.
 --   2. GEOFENCE fuer EIGENE PUNKTE (Ereignis PUNKT_NAH) — echte Yard-Entfernung ueber
 --      HBD:GetZoneDistance, Drossel 10 min je Ort (phrasen: "stelle-600"), nie im Kampf.
 --      Dazu die Yard-Korrektur fuer den BESTEHENDEN Beinahe-Geofence, siehe unten.
 --   3. TomTom: die Erweiterung liegt in Sinne/Bruecken.lua (dort die Zeilen mit "-- W5:"),
 --      weil dort schon die ganze TomTom-Bruecke steht. Hier nichts davon.
 --   4. /lyra karte — Uebersicht und Schalter. Verdrahtet in UI/Slash.lua.
+--   5. W11C (20.09.2026): DIE ZEILE AM STERBEORT (Ereignis ERBE_STERBEORT). Betritt ein
+--      Nachfolger den Ort, an dem ein eigener Vorgaenger gefallen ist, sagt Lyra das EINMAL —
+--      mit Vorrang vor dem selbstgesetzten "hier ist sicher" und vor der fremden
+--      Deathlog-Statistik. Die ausfuehrliche Begruendung steht unten am Abschnitt W11C.
 --
 -- WARUM ES HIER KEINEN ZWEITEN BEINAHE-GEOFENCE GIBT
 -- ---------------------------------------------------
@@ -54,12 +61,18 @@
 --
 -- SCHALTER (Account, UI/Settings.lua Abschnitt "Welle 5"):
 --   pinBeinahe (an), pinNotiz (an), pinGefahr (an), punktNah (an).
+--   W11C zusaetzlich: sterbeort (an) fuer die ZEILE, pinSterbeort (an) fuer den PIN. Beide
+--   haengen hier an ns.DEFAULTS_ACCOUNT und sind ueber /lyra karte sterbeort|sterbeortpin
+--   schaltbar; ein Haekchen in UI/Settings.lua fehlt noch (die Datei gehoert einem anderen
+--   Team — siehe docs/welle11c-2026-09-20.md, offene Punkte).
 --   Der alte Sammelschalter "karte" aus Welle 2 bleibt der HAUPTSCHALTER: ist er aus, liegt
 --   kein einziger Pin auf der Karte. Die drei neuen Kaestchen sind darunter.
 --
--- SPEICHER: keiner. Karte2 liest LyraGestaltDB.chronik[charKey].beinahe/.notizen (angelegt von
---   Sinne/Chronik.lua bzw. Sinne/Bruecken.lua) und loescht auf Zuruf einen Notiz-Eintrag.
---   Keine eigene Tabelle, kein eigenes Format.
+-- SPEICHER: fast keiner. Karte2 liest LyraGestaltDB.chronik[charKey].beinahe/.notizen (angelegt
+--   von Sinne/Chronik.lua bzw. Sinne/Bruecken.lua) und loescht auf Zuruf einen Notiz-Eintrag.
+--   W11C legt EINE eigene Tabelle an, und zwar je CHARAKTER: ns.char.sterbeortGesagt = { [key]
+--   = true } — die Sterbeorte, an denen dieser Charakter die Vorgaenger-Zeile schon gehoert
+--   hat. Sie steht bewusst nicht im Konto (siehe Abschnitt W11C).
 --
 -- LEISTUNG (der Grund, warum diese Datei so viele Deckel hat):
 --   * Deckel MAX_PINS (120) ueber ALLE Kategorien. Die Gefahrenkarte allein bringt in Elwynn
@@ -112,6 +125,11 @@ if type(ns.DEFAULTS_ACCOUNT) == "table" then
     if D.pinNotiz   == nil then D.pinNotiz   = true end
     if D.pinGefahr  == nil then D.pinGefahr  = true end
     if D.punktNah   == nil then D.punktNah   = true end
+    -- W11C (20.09.2026): die Zeile am Sterbeort des Vorgaengers und ihr Pin. Zwei Schalter,
+    -- weil es zwei Dinge sind: "sterbeort" ist die ZEILE (sie unterbricht), "pinSterbeort" ist
+    -- der PIN (er liegt nur da). Wer das eine nicht will, will das andere nicht automatisch mit.
+    if D.sterbeort    == nil then D.sterbeort    = true end
+    if D.pinSterbeort == nil then D.pinSterbeort = true end
 end
 
 K2.MAX_PINS     = 120   -- Deckel ueber ALLE Kategorien zusammen
@@ -123,9 +141,26 @@ K2.R_MAX        = 0.05  -- und Obergrenze (eine kaputte Zonengroesse soll nicht 
 K2.TAKT         = 2     -- s zwischen zwei Abstandspruefungen (Kontrakt: hoechstens 1x/s)
 K2.PIN_GROESSE  = 14
 K2.ZELL_GROESSE = 16
+-- W11C: Radius wie die Vorwarnung aus Sinne/Welle8.lua (20-40 yd, W.VOR_MIN_YD/VOR_MAX_YD) -
+-- die Mitte davon. Naeher waere zu spaet (man steht schon drauf), weiter waere kein Ort mehr.
+-- Echte Yard ueber HBD:GetZoneDistance, kein Kartenanteil: derselbe Fehler, den diese Datei
+-- am Beinahe-Radius behoben hat (siehe Dateikopf).
+K2.STERBEORT_YD = 30
+-- So lange treten fremde Zellen und der eigene Beinahe-Punkt zurueck, nachdem die Zeile kam.
+-- Gleiche Zahl wie Sinne/Umwelt.lua U.VORRANG_SEK (Welle 11b) - es ist dieselbe Regel, eine
+-- Stufe hoeher.
+K2.STERBEORT_VORRANG_SEK = 30
+-- Frueherer Versuch war nicht erfolglos, sondern von der Regie gedrosselt (Abstand, Budget,
+-- Still-Modus). Dann wird es spaeter noch einmal versucht - aber nicht alle zwei Sekunden.
+K2.STERBEORT_ERNEUT = 10
 
 local TEX_PIN   = ns.PFAD .. "bilder\\icon.png"
 local TEX_FLAECHE = "Interface\\Buttons\\WHITE8X8"
+-- W11C: der Sterbeort bekommt ein EIGENES Zeichen und nicht Lyras Kopf. Der Totenkopf aus dem
+-- Schlachtzugs-Zielsymbol-Satz liegt in jedem Client, auf allen fuenf Profilen, und er sagt in
+-- einem Bild, was dort passiert ist. Bewusst blass eingefaerbt: ein knallroter Schaedel auf der
+-- Karte waere eine Warnung; das hier ist ein Grabstein.
+local TEX_SCHAEDEL = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8"
 
 -- Farben je Kategorie/Art. r, g, b, a
 local FARBE = {
@@ -134,6 +169,7 @@ local FARBE = {
     sturz   = { 1.00, 0.65, 0.15, 1.00 },
     wasser  = { 0.35, 0.60, 1.00, 1.00 },
     mob     = { 1.00, 0.25, 0.25, 1.00 },
+    sterbeort = { 0.85, 0.85, 0.90, 0.95 },
 }
 -- Deckkraft nach Gefahrenstufe (1 = wenige Tode, 3 = viele).
 local ALPHA = { 0.22, 0.34, 0.48 }
@@ -267,6 +303,8 @@ local function holePin(art, groesse, text, text2)
     local farbe = FARBE[art] or FARBE.notiz
     if art == "sturz" or art == "wasser" or art == "mob" then
         f.tex:SetTexture(TEX_FLAECHE)
+    elseif art == "sterbeort" then
+        f.tex:SetTexture(TEX_SCHAEDEL)
     else
         f.tex:SetTexture(TEX_PIN)
     end
@@ -285,12 +323,46 @@ end
 -- ---------------------------------------------------------------------------------------------
 -- Zeichnen
 -- ---------------------------------------------------------------------------------------------
-K2.stand = { beinahe = 0, notiz = 0, gefahr = 0, gesamt = 0, zone = nil, zellenZone = 0, gedeckelt = false }
+K2.stand = { beinahe = 0, notiz = 0, gefahr = 0, sterbeort = 0, gesamt = 0, zone = nil,
+             zellenZone = 0, gedeckelt = false }
 
 local function tooltipBeinahe(b)
     local hp = tostring(b.hp or "?")
     local wer = b.gegner and (" - " .. tostring(b.gegner)) or ""
     return (de() and ("Hier war es knapp: %s%%%s") or ("Close call here: %s%%%s")):format(hp, wer)
+end
+
+-- W11C: Tag OHNE Uhrzeit. Die Uhrzeit eines Todes ist eine Angabe, die niemandem hilft und die
+-- in einem Screenshot mehr ueber den Spieler sagt als ueber den Ort. Numerisch in beiden
+-- Sprachen: ein Monatsname aus strftime haengt an der Locale des CLIENTS, nicht an ns.sprache().
+local function tagVon(t)
+    t = tonumber(t) or 0
+    if t <= 0 or type(date) ~= "function" then return "?" end
+    local ok, s = pcall(date, de() and "%d.%m.%Y" or "%Y-%m-%d", t)
+    return (ok and type(s) == "string" and s) or "?"
+end
+K2.tagVon = tagVon
+
+-- Der Tooltip des Sterbeort-Pins. Name, Stufe, Tag - und in der zweiten Zeile die Zone.
+-- KEIN Gegner: wer den Vorgaenger umgebracht hat, gehoert in die Halle der Gefallenen
+-- (Chronik-Fenster), nicht auf einen Kartenpin, den man im Vorbeifahren streift.
+local function tooltipSterbeort(o)
+    -- Aus den Locales und nicht aus einem de()-Dreisatz: das hier ist ein TEXT, und Texte
+    -- liegen in Locales/ (dieselbe Regel, die im Kopf von K2.hilfe steht, nur andersherum).
+    -- Faellt der Schluessel aus (Fremduebersetzung ohne ihn), gibt ns.L den Schluessel selbst
+    -- zurueck - dann fehlen die %s, und format() wuerde werfen. Darum der pcall-Rueckfall.
+    local muster = ns.L["Fell here"]
+    local kopf
+    if type(muster) == "string" and muster:find("%%s") then
+        local ok, s2 = pcall(string.format, muster,
+            tostring(o.name or "?"), tonumber(o.level) or 0, tagVon(o.t))
+        kopf = ok and s2 or nil
+    end
+    if not kopf then
+        kopf = ("%s (%d) - %s"):format(tostring(o.name or "?"), tonumber(o.level) or 0, tagVon(o.t))
+    end
+    local zweite = o.zone and tostring(o.zone) or nil
+    return kopf, zweite
 end
 
 local function tooltipZelle(art, n)
@@ -378,6 +450,7 @@ end
 function K2.aktualisieren()
     local _, hbdp = hbd()
     K2.stand.beinahe, K2.stand.notiz, K2.stand.gefahr = 0, 0, 0
+    K2.stand.sterbeort = 0
     K2.stand.gedeckelt = false
     if not hbdp then K2.stand.gesamt = 0; return 0 end
 
@@ -409,6 +482,36 @@ function K2.aktualisieren()
                     if mini then
                         mini.tex:SetAlpha(1)
                         if not pcall(hbdp.AddMinimapIconMap, hbdp, K2, mini, b.mapID, b.x, b.y, false, false) then
+                            benutzt = benutzt - 1; mini:Hide()
+                        end
+                    end
+                else
+                    benutzt = benutzt - 1; pin:Hide()
+                end
+            end
+        end
+    end
+
+    -- (a2) W11C: die Sterbeorte eigener Vorgaenger. Auf ALLEN Karten, wie die Beinahe-Orte und
+    -- aus demselben Grund: der Sinn ist, sie zu sehen, BEVOR man hinlaeuft. Es sind hoechstens
+    -- 20 (MAX_ERBE in Sinne/Erbe.lua), in aller Regel eine Handvoll.
+    -- Die Liste kommt fertig gefiltert aus ns.Erbe.sterbeorte(): nur quelle "selbst", nie der
+    -- gerade gespielte Charakter, nie ein Eintrag ohne Koordinaten. Dieses Modul prueft das
+    -- NICHT noch einmal - zwei Wahrheiten ueber dieselbe Frage sind schlimmer als eine.
+    if an("pinSterbeort") and ns.Erbe and ns.Erbe.sterbeorte then
+        local ok, orte = pcall(ns.Erbe.sterbeorte)
+        if ok and type(orte) == "table" then
+            for _, o in ipairs(orte) do
+                local txt, txt2 = tooltipSterbeort(o)
+                local pin = holePin("sterbeort", K2.PIN_GROESSE, txt, txt2)
+                if not pin then K2.stand.gedeckelt = true; break end
+                pin.tex:SetAlpha(1)
+                if pcall(hbdp.AddWorldMapIconMap, hbdp, K2, pin, o.mapID, o.x, o.y, 3) then
+                    K2.stand.sterbeort = K2.stand.sterbeort + 1
+                    local mini = holePin("sterbeort", K2.PIN_GROESSE, txt, txt2)
+                    if mini then
+                        mini.tex:SetAlpha(1)
+                        if not pcall(hbdp.AddMinimapIconMap, hbdp, K2, mini, o.mapID, o.x, o.y, false, false) then
                             benutzt = benutzt - 1; mini:Hide()
                         end
                     end
@@ -495,6 +598,194 @@ function K2.radienNachziehen()
     return n
 end
 
+-- =============================================================================================
+-- W11C: DIE ZEILE AM STERBEORT  (Ereignis ERBE_STERBEORT)
+-- =============================================================================================
+-- docs/abgleich-claudebuddy-2026-09-20.md §3 Nr. 7, zweite Haelfte, und Planpunkt W11-14.
+-- ClaudeBuddy speicherte den Sterbeort ausdruecklich AUF KONTOEBENE - "sonst sieht der
+-- Nachfolger ihn nie" - und gab beim Betreten EINMAL eine Vorgaenger-Zeile, die Vorrang vor
+-- einem selbstgesetzten "hier ist sicher" hatte. Lyra schreibt mapID/x/y seit 0.9 mit und hat
+-- sie bis heute nie gelesen.
+--
+-- WAS DIE ZEILE SAGT UND WAS SIE NICHT SAGT
+-- -----------------------------------------
+-- Sie sagt: hier ist <Name> gefallen, Stufe X, am <Tag>. Fakten aus dem eigenen Erbe-Eintrag,
+-- sonst nichts. Sie sagt NICHT, was er falsch gemacht hat, sie raet nicht "geh rechts vorbei",
+-- und sie nennt keinen Gegner. Das ist der Unterschied zwischen einem Gedenkstein und einer
+-- Obduktion - und der Grund, warum in den sechs Zeilen kein einziges "du haettest" steht.
+--
+-- WARUM klasse "plauder" UND NICHT "warn" STUFE 1
+-- ----------------------------------------------
+-- Der Auftrag liess beides zu und nannte als Begruendung fuer warn/1: "damit sie im Kampf
+-- nicht, aber in Gruppe kommt". Genau dieser Satz beschreibt PLAUDER mit gruppeOk, nicht warn:
+--   * Core/Regie.lua haelt plauder im Kampf zurueck (kampfNurWarnungen -> Warteliste) und laesst
+--     warn DURCH. Eine warn-Zeile kaeme also mitten im Kampf - das Gegenteil des Gewollten.
+--   * gruppeOk = true haengt ein Ereignis am Gruppen-Schweigen vorbei; das ist der Weg, den die
+--     Regie selbst anbietet (AGGRO, BOSS_PULL, und seit Welle 11a ERBE_NACHRUF).
+--   * warn Stufe 1 laege ausserdem im 15-s-Abstand und im Stundenbudget der Stufe-1-Hinweise
+--     (W11B-1) - dieselbe Warteschlange wie STURZ_VORAUS. Der staerkste Satz eines
+--     Hardcore-Begleiters gehoert nicht in die Schlange hinter eine Klippenwarnung.
+--   * Und inhaltlich: es ist keine Warnung. Es wird nichts abgewendet und nichts gefordert.
+-- Der Still-Modus gilt weiter - dieselbe Entscheidung wie beim Nachruf (Sinne/Erbe.lua): wer
+-- Ruhe bestellt hat, bekommt sie auch hier.
+--
+-- EINMAL JE STERBEORT UND NACHFOLGER-CHARAKTER, DANN NIE WIEDER
+-- ------------------------------------------------------------
+-- Die Liste der schon gesagten Orte liegt in den CHARAKTER-SavedVariables (ns.char), nicht im
+-- Konto: der zweite Nachfolger soll die Zeile ebenfalls einmal hoeren. Eingetragen wird ERST
+-- NACH ERFOLGREICHER MELDUNG (ns.melde gibt true) - haette der Abstand, das Budget oder der
+-- Still-Modus sie verschluckt, waere der einzige Moment, den dieses Feature hat, still
+-- verbraucht. Das ist derselbe Fehler, gegen den Core/Regie.lua die Drossel erst nach
+-- Gruppe/Abstand/Budget verbraucht (REVIEW-Kommentar dort), nur eine Ebene hoeher.
+--
+-- VORRANG, UND ZWAR IN DIESER REIHENFOLGE
+-- ---------------------------------------
+--   eigener Sterbeort  >  eigener Beinahe-Punkt  >  fremde Deathlog-Zelle
+-- Die zweite Haelfte dieser Kette ist Welle 11b (§4.3, Sinne/Umwelt.lua U.eigenerVorrang);
+-- diese Welle setzt die erste davor. Drei Hebel, alle additiv:
+--   1. PUNKT_NAH ("hier ist sicher") steht in DIESER Datei und wird unten im selben Puls
+--      uebersprungen, solange der Sterbeort-Vorrang laeuft.
+--   2. Die fremden Arten (GEOFENCE, GEOFENCE_WASSER, GEOFENCE_MOB) und die Vorwarnung aus
+--      Sinne/Welle8.lua fragen beide U.eigenerVorrang(). Der wird hier mit angehoben - nur
+--      angehoben, nie gesenkt, damit ein laufender Beinahe-Vorrang nicht verkuerzt wird.
+--   3. GEOFENCE_BEINAHE selbst entscheidet gefahrPuls in Sinne/Umwelt.lua. Dort stehen zwoelf
+--      Zeilen W11C, die vor dem Melden EINMAL K2.sterbeortJetzt() fragen - siehe den Absatz
+--      "WARUM HIER KEIN MANTEL UM ns.melde LIEGT" weiter unten. Die Flanke wird dabei bewusst
+--      VERBRAUCHT: sonst kaeme dieselbe Stelle drei Sekunden spaeter doch noch, und der Spieler
+--      bekaeme fuer EINEN Ort zwei Zeilen. Genau so hat es Welle 11b fuer die fremden Arten
+--      entschieden.
+--
+-- MEHRERE AN DERSELBEN STELLE: der juengste spricht, die Zahl wird genannt ({anzahl} steht nur
+-- dann in vars, also sind die beiden Zeilen mit {anzahl} nur dann ueberhaupt Kandidaten -
+-- Core/Regie.lua waehle() wirft Platzhalter-Zeilen ohne vars von selbst heraus). Alle Orte der
+-- Gruppe gelten danach als gesagt; sonst spraeche der zweite beim naechsten Vorbeikommen.
+--
+-- KEINE NAMEN IN /lyra debug. Die Debug-Zeilen dieses Abschnitts nennen Schluessel und Zahlen,
+-- nie einen Charakternamen.
+K2.sterbeortVorrangBis = 0
+local sterbeortVersuch = {}        -- [key] = Zeitpunkt des letzten (gedrosselten) Versuchs
+
+function K2.sterbeortVorrang()
+    return jetzt() < (K2.sterbeortVorrangBis or 0)
+end
+
+-- Die schon gesagten Orte DIESES Charakters. Lazy angelegt: Core/Init.lua ist in dieser Welle
+-- unantastbar, und ein Tabellen-Default in ns.DEFAULTS_CHAR waere ueber alle Charaktere
+-- dieselbe Referenz (defaults() kopiert Tabellen nicht tief).
+local function gesagteOrte()
+    local c = ns.char
+    if type(c) ~= "table" then return nil end
+    if type(c.sterbeortGesagt) ~= "table" then c.sterbeortGesagt = {} end
+    return c.sterbeortGesagt
+end
+K2.sterbeortGesagt = gesagteOrte
+
+local function inInstanz()
+    if type(IsInInstance) ~= "function" then return false end
+    local ok, drin = pcall(IsInInstance)
+    return (ok and drin) and true or false
+end
+
+-- Ein Durchlauf. Gibt true zurueck, wenn die Zeile gerade gekommen ist.
+-- mapID/px/py kommen vom Aufrufer (K2.nahPuls), damit die Position je Takt EINMAL geholt wird.
+function K2.sterbeortPuls(mapID, px, py)
+    if not an("sterbeort") then return false end
+    if not (ns.Erbe and ns.Erbe.sterbeorte) then return false end
+    if inInstanz() then return false end            -- nur Aussenwelt-Karten
+    local gesagt = gesagteOrte()
+    if not gesagt then return false end             -- vor ns.initDB(): nichts merken, nichts sagen
+
+    local ok, orte = pcall(ns.Erbe.sterbeorte, mapID)
+    if not ok or type(orte) ~= "table" or #orte == 0 then return false end
+
+    -- Alle Orte in Reichweite einsammeln. orte ist nach Alter sortiert (juengster zuerst),
+    -- also ist der erste Treffer zugleich der juengste.
+    local treffer = {}
+    for _, o in ipairs(orte) do
+        if not gesagt[o.key] then
+            local d = abstandYd(mapID, px, py, o.mapID, o.x, o.y)
+            if d and d <= K2.STERBEORT_YD then treffer[#treffer + 1] = o end
+        end
+    end
+    if #treffer == 0 then return false end
+
+    local o = treffer[1]
+    local t = jetzt()
+    if t - (sterbeortVersuch[o.key] or -math.huge) < K2.STERBEORT_ERNEUT then return false end
+    sterbeortVersuch[o.key] = t
+
+    local zone = o.zone
+    if not zone then
+        local h = hbd()
+        if h and h.GetLocalizedMap then
+            local ok2, nm = pcall(h.GetLocalizedMap, h, o.mapID)
+            if ok2 and type(nm) == "string" and nm ~= "" then zone = nm end
+        end
+    end
+    if not zone then zone = (GetRealZoneText and GetRealZoneText()) or "?" end
+    if zone == "" then zone = "?" end
+
+    local vars = {
+        key        = o.key,
+        vorgaenger = tostring(o.name),
+        stufe      = tonumber(o.level) or 0,
+        datum      = tagVon(o.t),
+        zone       = tostring(zone),
+    }
+    -- {anzahl} NUR, wenn es wirklich mehrere sind. Sonst waere "1 von dir liegt hier" eine
+    -- Zeile, die der Katalog ziehen darf - und sie waere falsch.
+    if #treffer > 1 then vars.anzahl = #treffer end
+
+    if not (ns.melde and ns.melde("ERBE_STERBEORT", vars)) then
+        ns.debug("Sterbeort: Regie hat verworfen, spaeter erneut (" .. tostring(o.key) .. ")")
+        return false
+    end
+
+    -- Erst jetzt gilt der Ort als gesagt - und zwar die ganze Gruppe.
+    for _, g in ipairs(treffer) do gesagt[g.key] = true end
+    K2.sterbeortVorrangBis = t + K2.STERBEORT_VORRANG_SEK
+    -- Fremde Arten und die Vorwarnung aus Welle 8 treten zurueck. Nur ANHEBEN: ein laufender
+    -- Beinahe-Vorrang aus Sinne/Umwelt.lua darf dadurch nicht kuerzer werden.
+    local U = ns.Sinne and ns.Sinne.Umwelt
+    if U then
+        U.vorrangBis = math.max(tonumber(U.vorrangBis) or 0, K2.sterbeortVorrangBis)
+    end
+    ns.debug(("Sterbeort: Zeile gesagt (%s, %d an dieser Stelle)"):format(tostring(o.key), #treffer))
+    return true
+end
+
+-- Ein Durchlauf, ohne dass der Aufrufer die Position kennen muss. Der Mantel unten braucht das.
+local imPuls = false
+function K2.sterbeortJetzt()
+    if imPuls then return false end                 -- kein Wiedereintritt aus dem eigenen Mantel
+    local mapID, px, py = spielerOrt()
+    if not mapID then return false end
+    imPuls = true
+    local ok, kam = pcall(K2.sterbeortPuls, mapID, px, py)
+    imPuls = false
+    if not ok then ns.debug("Karte2 sterbeortJetzt: " .. tostring(kam)); return false end
+    return kam and true or false
+end
+
+-- WARUM HIER KEIN MANTEL UM ns.melde LIEGT (und einer lag, bis der Pruefstand ihn fing)
+-- -------------------------------------------------------------------------------------
+-- Der erste Bau dieser Welle hat GEOFENCE_BEINAHE ueber einen Mantel um ns.melde verworfen -
+-- dasselbe Muster, mit dem Sinne/Erbe.lua ns.Dialog.frage umwickelt. Drei Pruefstaende sind
+-- daraufhin rot geworden (review4, review5-wrapper, bruecken), und zwar zu Recht:
+--
+--     "ns.melde genau 2x gewrappt: Persoenlichkeit aussen, Rituale innen ...
+--      Geprueft wird die Folge, nicht bloss die Zahl - eine dritte, unbeabsichtigte
+--      Schicht faellt damit weiter auf."   (tests/pruefstand/review4.lua:795-814)
+--
+-- Jede Schicht um ns.melde ist eine Stelle, an der eine Zeile still verschwinden kann, und die
+-- Zahl der Schichten ist eine ausdrueckliche Zusage des Addons an sich selbst. Eine vierte
+-- dafuer einzufuehren, dass eine einzige ID in dreissig Sekunden schweigt, ist der falsche
+-- Handel. Der Vorrang gegen GEOFENCE_BEINAHE steht deshalb dort, wo die Entscheidung ohnehin
+-- faellt: in gefahrPuls in Sinne/Umwelt.lua, in derselben Schleife, in der Welle 11b den
+-- Vorrang des eigenen Punktes gegen die fremde Zelle entschieden hat. Zwoelf Zeilen dort statt
+-- einer Schicht hier - und ohne Rennen zwischen drei Tickern, weil es dieselbe Entscheidung
+-- im selben Durchlauf ist.
+
 -- ---------------------------------------------------------------------------------------------
 -- Geofence auf die EIGENEN Punkte (Ereignis PUNKT_NAH)
 -- ---------------------------------------------------------------------------------------------
@@ -508,8 +799,14 @@ local function notizKey(z)
 end
 
 -- Eine Runde Abstandspruefung. Oeffentlich, damit der Pruefstand sie ohne Ticker fahren kann.
+--
+-- W11C: die Riegel, die fuer BEIDE Abstandsfragen gelten, stehen seitdem VORNE - vorher hing
+-- der ganze Puls am Schalter "punktNah". Wer den eigenen Nah-Hinweis abgeschaltet hat, haette
+-- damit auch die Sterbeort-Zeile mit abgeschaltet, ohne das je gewollt zu haben.
+-- Der Kampf-Riegel gilt weiter fuer beide, und beim Sterbeort ist er die halbe Zusage: die
+-- Zeile ist plauder (siehe Begruendung oben), aber sie wird im Kampf gar nicht erst VERSUCHT -
+-- so landet sie auch nicht auf der Warteliste der Regie und kommt nicht als Nachklapp.
 function K2.nahPuls()
-    if not an("punktNah") then return end
     if Get("karte") == false then return end
     -- Nie im Kampf: eine Zeile ueber einen Wegpunkt waehrend eines Kampfes ist Laerm.
     if UnitAffectingCombat then
@@ -524,6 +821,17 @@ function K2.nahPuls()
     if not mapID then return end
     K2.pruefungen = K2.pruefungen + 1
     K2.letztePruefung = jetzt()
+
+    -- W11C: der eigene Sterbeort zuerst. Kam er gerade, ist dieser Takt zu Ende - ein
+    -- "hier ist sicher" unmittelbar hinter "hier ist dein Vorgaenger gefallen" waere der
+    -- Widerspruch, gegen den §4.3 geschrieben wurde.
+    local ok1, kam = pcall(K2.sterbeortPuls, mapID, px, py)
+    if not ok1 then ns.debug("Karte2 sterbeortPuls: " .. tostring(kam)) end
+    if ok1 and kam then return end
+
+    if not an("punktNah") then return end
+    -- Und auch ohne frischen Treffer: solange der Vorrang laeuft, schweigt der eigene Punkt.
+    if K2.sterbeortVorrang() then return end
     for _, z in ipairs(notizListe()) do
         if type(z) == "table" and z.mapID and z.x and z.y then
             local d = abstandYd(mapID, px, py, z.mapID, z.x, z.y)
@@ -609,14 +917,27 @@ function K2.status()
     end
     local s = K2.stand
     local zone = s.zone and h.GetLocalizedMap and select(2, pcall(h.GetLocalizedMap, h, s.zone)) or nil
-    out[#out + 1] = (d and "Karte: %d Pins (Beinahe %d, Notizen %d, Gefahr %d von %d Zellen%s)."
-                       or  "Map: %d pins (close calls %d, notes %d, danger %d of %d cells%s)."):format(
-        s.gesamt or 0, s.beinahe or 0, s.notiz or 0, s.gefahr or 0, s.zellenZone or 0,
+    out[#out + 1] = (d and "Karte: %d Pins (Beinahe %d, Notizen %d, Sterbeorte %d, Gefahr %d von %d Zellen%s)."
+                       or  "Map: %d pins (close calls %d, notes %d, death spots %d, danger %d of %d cells%s)."):format(
+        s.gesamt or 0, s.beinahe or 0, s.notiz or 0, s.sterbeort or 0, s.gefahr or 0, s.zellenZone or 0,
         s.gedeckelt and (d and ", Deckel erreicht" or ", cap reached") or "")
     out[#out + 1] = (d and "  Zone: %s - Overlay: %s, Beinahe: %s, Notizen: %s, Nah-Hinweis: %s."
                        or  "  Zone: %s - overlay: %s, close calls: %s, notes: %s, proximity: %s."):format(
         tostring(zone or s.zone or "?"), anAus(an("pinGefahr")), anAus(an("pinBeinahe")),
         anAus(an("pinNotiz")), anAus(an("punktNah")))
+    -- W11C: Zahlen, keine Namen. Wie viele Sterbeorte es gibt und wie viele davon dieser
+    -- Charakter schon gehoert hat - wer dort liegt, steht im Tooltip und in der Halle der
+    -- Gefallenen, nicht in einer Statuszeile, die jemand in ein Ticket kopiert.
+    if ns.Erbe and ns.Erbe.sterbeorte then
+        local okO, orte = pcall(ns.Erbe.sterbeorte)
+        local gesagt = K2.sterbeortGesagt and K2.sterbeortGesagt() or nil
+        local nGesagt = 0
+        for _ in pairs(gesagt or {}) do nGesagt = nGesagt + 1 end
+        out[#out + 1] = (d and "  Sterbeorte: %s, %d bekannt, %d davon schon gesagt (Pins: %s)."
+                           or "  Death spots: %s, %d known, %d already spoken (pins: %s)."):format(
+            anAus(an("sterbeort")), (okO and type(orte) == "table") and #orte or 0, nGesagt,
+            anAus(an("pinSterbeort")))
+    end
     local C = ns.Compat
     if C and C.F and C.F.gefahrenkarte == false then
         out[#out + 1] = (d and "  Overlay: auf diesem Client (%s) aus - die Zellen sind Classic-Era-Tode."
@@ -631,13 +952,13 @@ function K2.hilfe()
     if de() then
         return {
             "/lyra karte - Pins und Gefahrenkarte: Uebersicht",
-            "/lyra karte overlay|beinahe|notizen|nah [an|aus] - Kategorie schalten",
+            "/lyra karte overlay|beinahe|notizen|nah|sterbeort [an|aus] - Kategorie schalten",
             "/lyra punkt weg [n] - Punkt loeschen (ohne Zahl den zuletzt gesetzten)",
         }
     end
     return {
         "/lyra karte - pins and danger map: overview",
-        "/lyra karte overlay|beinahe|notizen|nah [on|off] - toggle a category",
+        "/lyra karte overlay|beinahe|notizen|nah|sterbeort [on|off] - toggle a category",
         "/lyra punkt weg [n] - remove a waypoint (the last one without a number)",
     }
 end
@@ -651,6 +972,9 @@ function K2.befehl(rest)
         beinahe = "pinBeinahe", close = "pinBeinahe",
         notizen = "pinNotiz", notiz = "pinNotiz", notes = "pinNotiz", punkte = "pinNotiz",
         nah = "punktNah", proximity = "punktNah",
+        -- W11C: "sterbeort" schaltet die ZEILE, "sterbeortpin" nur den Pin.
+        sterbeort = "sterbeort", deathspot = "sterbeort",
+        sterbeortpin = "pinSterbeort", deathpin = "pinSterbeort",
     }
     local key = wort and SCHLUESSEL[wort] or nil
     if key then

@@ -256,6 +256,10 @@ end)
 -- stumm verbraucht (ihre Flanke ist weg, sie schreien also nicht drei Sekunden spaeter nach).
 -- Zusaetzlich schweigen die fremden Arten 30 s lang, ueber alle Arten hinweg. Umgekehrt gilt
 -- das NICHT: eine fremde Zelle hindert den eigenen Punkt an gar nichts.
+--
+-- W11C (20.09.2026) setzt eine Stufe darueber: den eigenen STERBEORT. Die zwoelf Zeilen dafuer
+-- stehen unten in gefahrPuls, ausfuehrlich begruendet. U.vorrangBis wird von Sinne/Karte2.lua
+-- dabei mit ANGEHOBEN (nie gesenkt) - die Sperre gilt dann fuer die fremden Arten genauso.
 U.VORRANG_SEK = 30
 U.vorrangBis = 0                -- absoluter Zeitpunkt, bis zu dem fremde Arten schweigen
 
@@ -333,6 +337,42 @@ local function gefahrPuls()
         if jetztT - (geofenceZuletzt[art] or 0) >= pause then
             geofenceZuletzt[art] = jetztT
             ns.melde(id, { key = k, art = art })
+        end
+    end
+
+    -- =========================================================================================
+    -- W11C: UND UEBER DEM EIGENEN PUNKT STEHT DER EIGENE STERBEORT.
+    -- =========================================================================================
+    -- docs/abgleich-claudebuddy-2026-09-20.md §3 Nr. 7 (zweite Haelfte), Planpunkt W11-14:
+    -- liegt an dieser Stelle ein eigener VORGAENGER, hat seine Zeile Vorrang vor allem hier -
+    -- auch vor dem eigenen Beinahe-Punkt. Die Kette ist damit vollstaendig:
+    --     eigener Sterbeort  >  eigener Beinahe-Punkt  >  fremde Deathlog-Zelle.
+    --
+    -- Gefragt wird HIER und nicht im eigenen Takt von Sinne/Karte2.lua, und das ist der ganze
+    -- Punkt dieser zwoelf Zeilen: drei Ticker sehen dieselbe Gegend (Welle8 1 s, dieser 3 s,
+    -- Karte2 2 s). Wer zuerst drankommt, wenn der Spieler um die Ecke biegt, ist Zufall - und
+    -- "meistens der richtige" ist bei einem Satz, den ein Spieler ein einziges Mal hoert, keine
+    -- Zusage. K2.sterbeortJetzt() fuehrt den Sterbeort-Puls sofort aus und gibt true zurueck,
+    -- wenn die Vorgaenger-Zeile GERADE gekommen ist (sie kommt hoechstens einmal je Ort und
+    -- Charakter - danach ist die Antwort fuer immer false und diese Abfrage kostet einen
+    -- Tabellenzugriff). Ohne Sinne/Karte2.lua antwortet sie gar nicht, und alles bleibt wie
+    -- vor Welle 11c.
+    --
+    -- Die Flanken werden verbraucht wie beim Vorrang des eigenen Punktes darunter: EIN Ort,
+    -- EINE Zeile. Sie sollen nicht drei Sekunden spaeter nachtragen, was gerade bewusst
+    -- zurueckgestellt wurde.
+    if eigener or #treffer > 0 then
+        local K2 = ns.Karte2
+        if K2 and K2.sterbeortJetzt and K2.sterbeortJetzt() then
+            if eigener then
+                gefahrArmed[eigener.k] = false
+                ns.debug("Geofence: beinahe weicht dem eigenen Sterbeort")
+            end
+            for _, tr in ipairs(treffer) do
+                gefahrArmed[tr.k] = false
+                ns.debug("Geofence: " .. tr.art .. " weicht dem eigenen Sterbeort")
+            end
+            return
         end
     end
 

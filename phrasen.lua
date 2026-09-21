@@ -935,5 +935,13 @@ LyraGestalt_Phrasen = {
       { de = "Du bist zu weit draußen. Dreh um, solange du es noch kannst.", en = "You're too far out. Turn around while you still can.", stimme = "erschoepfung-3", wenn = nil },
       { de = "Erschöpfung. Die kennt kein Luftholen. Umkehren, {Held|Heldin}.", en = "Exhaustion. It doesn't care about air. Turn back, hero.", stimme = "erschoepfung-4", wenn = nil },
     } },
+    ERBE_STERBEORT = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "sad", pose = nil, halte = 20, cue = nil, drossel = "einmal", texte = {
+      { de = "Hier ist {vorgaenger} gefallen. Stufe {stufe}, am {datum}.", en = "{vorgaenger} fell here. Level {stufe}, on {datum}.", stimme = nil, wenn = nil },
+      { de = "{vorgaenger}, Stufe {stufe}, am {datum}. Genau hier. Ich sage es einmal und dann nicht wieder.", en = "{vorgaenger}, level {stufe}, on {datum}. Right here. I'll say it once and then not again.", stimme = nil, wenn = nil },
+      { de = "Du stehst auf der Stelle, an der {vorgaenger} geblieben ist. Stufe {stufe}. Geh ruhig weiter, {mein Lieber|meine Liebe}.", en = "You're standing where {vorgaenger} stayed behind. Level {stufe}. Walk on, my dear.", stimme = nil, wenn = nil },
+      { de = "{zone}. Hier war für {vorgaenger} Schluss, Stufe {stufe}. Kein Vorwurf – nur der Ort.", en = "{zone}. This is where it ended for {vorgaenger}, level {stufe}. No blame – just the place.", stimme = nil, wenn = nil },
+      { de = "{anzahl} von dir liegen hier. Zuletzt {vorgaenger}, Stufe {stufe}, am {datum}.", en = "{anzahl} of yours lie here. Most recently {vorgaenger}, level {stufe}, on {datum}.", stimme = nil, wenn = nil },
+      { de = "An dieser Stelle sind {anzahl} deiner Vorgänger geblieben, {Held|Heldin}. {vorgaenger} war der letzte, Stufe {stufe}.", en = "{anzahl} of your predecessors stayed on this spot, hero. {vorgaenger} was the last, level {stufe}.", stimme = nil, wenn = nil },
+    } },
   },
 }

@@ -326,4 +326,12 @@ ns.locales.deDE = {
     ["Last words saved 3"] = "Aufgeschrieben und gespeichert. Wortwörtlich, nicht sinngemäß.",
     -- Halle der Gefallenen: zweiter Abschnitt im Chronik-Fenster (Sinne/Erbe.lua E.halleZeilen).
     ["Hall of the fallen"] = "Halle der Gefallenen",
+    -- W11C: Welle 11c (Die Zeile am Sterbeort) - NUR angehaengt.
+    -- Der Tooltip des Sterbeort-Pins auf Welt- und Minikarte (Sinne/Karte2.lua). Drei
+    -- Einsetzungen in DIESER Reihenfolge: Name, Stufe, Tag. Wer uebersetzt, darf die
+    -- Reihenfolge nicht drehen - %s/%d/%s werden der Reihe nach gefuellt.
+    -- Die ZEILE, die Lyra dort sagt, steht NICHT hier, sondern im Phrasen-Katalog
+    -- (ERBE_STERBEORT, docs/phrasen-w11c.json): sie geht ueber die Regie, der Tooltip nicht.
+    ["Fell here"] = "Hier ist %s gefallen. Stufe %d, %s.",
+    ["Death spot"] = "Sterbeort",
 }

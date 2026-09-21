@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.15.1 (2026-09-21)
+
+**Sie erinnert sich, wo es passiert ist.** Wenn du mit einem neuen Charakter an die Stelle
+kommst, an der ein Vorgänger von dir gefallen ist, sagt Lyra es dir — **einmal**, mit Namen,
+Stufe und Tag, und danach nie wieder. Liegen mehrere dort, spricht sie vom jüngsten und nennt
+die Zahl. Kein Vorwurf, kein Ratschlag, keine Todesursache: nur der Ort. Die Koordinaten dafür
+schreibt sie seit Version 0.9 mit, gelesen hat sie bis heute niemand.
+**Dein eigener Grabstein schlägt jede Statistik.** An einer Stelle, an der ein eigener
+Vorgänger liegt, schweigen dein eigener Beinahe-Punkt, die fremde Todesstatistik und dein
+selbstgesetztes „hier ist sicher" — einen Ort, eine Zeile. Warnungen vor etwas, das gleich
+passiert, bleiben davon unberührt; Überleben hat weiter Vorfahrt.
+**Auf der Karte** liegt jetzt ein eigener Marker für jeden Sterbeort, auf Weltkarte und
+Minikarte, mit Name, Stufe und Tag im Tooltip. Nur deine eigenen Charaktere, nie fremde.
+Abschalten: `/lyra karte sterbeort aus` (die Zeile) bzw. `/lyra karte sterbeortpin aus`
+(nur der Marker).
+
 ## 0.15.0 (2026-09-20)
 
 ### Welle 11a: Der Tod bekommt eine Stimme

@@ -1,6 +1,9 @@
 -- Sinne/Erbe.lua — Vorgaenger-Erbe (account-weit) und Sitzungs-Debrief. Doku: Sinne/EXTRA.md.
 -- Ereignisse: ERBE_TOD (still), ERBE_VORGAENGER, ERBE_WORTE, DEBRIEF,
 --   W11A: ERBE_NACHRUF, ERBE_NACHRUF_WORTE (der Nachruf NACH dem 60-s-Riegel).
+-- W11C: E.sterbeorte() gibt die Sterbeorte eigener Vorgaenger heraus (gefiltert, juengster
+--   zuerst). Gemeldet wird ERBE_STERBEORT NICHT hier, sondern in Sinne/Karte2.lua - dort liegt
+--   die Abstandsrechnung in Yard und der Vorrang gegen Beinahe-Punkt und Deathlog-Zelle.
 -- Daten: LyraGestaltDB.erbe = Liste (max 20) eigener gefallener Charaktere dieses Accounts:
 --   { name, realm, level, zone, mapID, x, y, gegner, npcID, t, klasse, worte, vorgestellt, quelle }.
 --
@@ -523,6 +526,69 @@ local function halleWrappen()
     end
 end
 E.halleWrappen = halleWrappen
+
+-- ---------------------------------------------------------------- W11C: die Zeile am Sterbeort
+-- docs/abgleich-claudebuddy-2026-09-20.md §3 Nr. 7 (zweite Haelfte) und Planpunkt W11-14:
+-- "Sinne/Erbe.lua schreibt mapID, x und y seit 0.9 mit (Zeile 287) - und KEIN EINZIGER KONSUMENT
+-- LIEST SIE." Das ist ab hier nicht mehr wahr. Diese Datei LIEST die Sterbeorte nur; wer sie
+-- benutzt (Abstand, Vorrang, Pin, Zeile), ist Sinne/Karte2.lua.
+--
+-- WARUM DIE LISTE KONTOWEIT LIEGT UND DAS SO BLEIBEN MUSS: ClaudeBuddy hat es woertlich
+-- aufgeschrieben - "sonst sieht der Nachfolger ihn nie". LyraGestaltDB.erbe haengt seit 0.9 am
+-- Konto und nicht am Charakter; genau deshalb kann der NACHFOLGER den Ort des VORGAENGERS
+-- ueberhaupt kennen. Was dagegen je Charakter liegt, ist die Liste der schon gesagten Orte
+-- (ns.char, Sinne/Karte2.lua) - sonst bekaeme der zweite Nachfolger die Zeile nie zu hoeren.
+--
+-- DREI FILTER, UND JEDER EINZELNE IST EINE ZUSAGE:
+--   1. quelle: nur "selbst" (oder gar kein Feld = vor Welle 11a geschrieben, also ebenfalls
+--      eigen). Ein untergeschobener Deathlog-Eintrag kommt hier nicht durch. Dieselbe Pruefung
+--      wie in E.halleZeilen, und aus demselben Grund.
+--   2. Der GERADE GESPIELTE Charakter faellt heraus (Name-Realm wie in vorgaengerFinden).
+--      "Hier bist du gefallen" ist keine Vorgaenger-Zeile, und in Hardcore kommt der Fall
+--      ohnehin nur ueber /lyra erbeImmer vor.
+--   3. Ohne Koordinaten kein Ort. Eintraege von vor 0.9 (und jeder Tod in einer Instanz, in der
+--      C_Map nichts lieferte) tragen kein mapID/x/y - sie werden UEBERSPRUNGEN, nicht geraten.
+-- Rueckgabe: juengster zuerst, und zwar NACH ZEITSTEMPEL sortiert und nicht nach Listenplatz.
+-- Die Liste wird zwar angehaengt und ist damit normalerweise schon zeitlich geordnet - aber
+-- "normalerweise" ist keine Zusage: MAX_ERBE schneidet vorne ab, und eine von Hand editierte
+-- SavedVariables-Datei kann jede Reihenfolge haben. Karte2 waehlt daraus den juengsten, wenn
+-- an einer Stelle mehrere liegen; das darf nicht vom Listenplatz abhaengen.
+local function sterbeortKey(e)
+    return ("s%s_%d_%d_%d"):format(tostring(e.mapID),
+        math.floor((e.x or 0) * 1000 + 0.5), math.floor((e.y or 0) * 1000 + 0.5),
+        math.floor(tonumber(e.t) or 0))
+end
+E.sterbeortKey = sterbeortKey
+
+function E.sterbeorte(mapID)
+    local out = {}
+    local liste = erbeListe()
+    if type(liste) ~= "table" then return out end
+    local eigen = ns.charKey or ((UnitName and UnitName("player") or "?") .. "-"
+                                 .. ((GetRealmName and GetRealmName()) or "?"))
+    for i = #liste, 1, -1 do                       -- juengster zuerst
+        local e = liste[i]
+        if type(e) == "table" and e.name and e.name ~= ""
+           and (e.quelle == nil or e.quelle == "selbst")
+           and (tostring(e.name) .. "-" .. tostring(e.realm or "?")) ~= eigen
+           and type(e.mapID) == "number" and type(e.x) == "number" and type(e.y) == "number"
+           and (mapID == nil or e.mapID == mapID) then
+            out[#out + 1] = {
+                name  = e.name,
+                level = tonumber(e.level) or 0,
+                zone  = (e.zone and e.zone ~= "") and e.zone or nil,
+                mapID = e.mapID, x = e.x, y = e.y,
+                t     = tonumber(e.t) or 0,
+                key   = sterbeortKey(e),
+            }
+        end
+    end
+    table.sort(out, function(a, b)
+        if a.t ~= b.t then return a.t > b.t end
+        return tostring(a.key) < tostring(b.key)   -- stabil bei gleichem Zeitstempel
+    end)
+    return out
+end
 
 function E.stand()
     return letzterEintrag, ns.erbeWarteAufWorte, worteBis, gewrappt, halleGewrappt

@@ -183,6 +183,15 @@ local VERBAND_IDS = {
     [1251] = true, [2581] = true, [3530] = true, [3531] = true, [6450] = true, [6451] = true,
     [8544] = true, [8545] = true, [14529] = true, [14530] = true,
 }
+-- MERGE 0.16.0 (21.09.2026, Welle 13d §5 Punkt 1): die zwei Listen werden herausgereicht.
+-- Sinne/Welle13d.lua fuehrte sie bis zum Merge als Abschrift, weil Extra.lua einem anderen
+-- Team gehoerte - und eine Abschrift driftet, sobald jemand hier eine Item-ID nachtraegt.
+-- Herausgereicht werden NUR die IDs. Die SCHWELLEN ("ab wann fehlt etwas") bleiben hier und
+-- kommen weiterhin allein aus X.reisecheckFehlt(); wer woanders nachschlaegt, darf wissen
+-- WONACH, aber nicht selbst entscheiden, ob etwas fehlt.
+-- Die Tabellen sind Mengen ([id] = true), nicht Listen - wer sie durchlaeuft, nimmt pairs().
+X.TRANK_IDS   = TRANK_IDS
+X.VERBAND_IDS = VERBAND_IDS
 local RUNE_TELEPORT = 17031
 local C = ns.Compat.Container
 
@@ -443,6 +452,38 @@ local BEISPIEL = {
     -- pruefen wollte, nie. Dasselbe fuer {titel} (PUNKT_GESETZT, PUNKT_OHNE_TOMTOM,
     -- QUEST_GEBER_GEFUNDEN) und {sek} (BOSS_ENRAGE_BALD, NOTFALL_CD).
     quest = "Die Todesminen", titel = "Hier war es knapp", sek = 20,
+    -- MERGE 0.16.0 (21.09.2026, Welle 13c Baustein 3g): drei Werte, ohne die /lyra test die
+    -- Platzhalter-Zeilen der neuen Ereignisse NICHT zeigen wuerde - dieselbe Falle wie bei
+    -- REVIEW5 (GEDENKEN) und REVIEW8 ({quest}/{titel}/{sek}).
+    --   schlaege  TOD_HERGANG, Fall "schnell" ("Zwei Schlaege. Mehr war es nicht.")
+    --   versuche  SAMMEL_AUSDAUER (die MARKE, nicht der Zaehlerstand - darum 250 und nicht 263)
+    --   gegner    TOD_HERGANG, Fall "letzter" - und ERBE_NACHRUF, wo der Platzhalter seit
+    --             Welle 11a existiert und hier fehlte. {n} steht schon oben (n = 3) und passt
+    --             auf "{n} auf einmal".
+    schlaege = 2, versuche = 250, gegner = "Defias Trapper",
+    -- REVIEW13 (0.16.0): SIEBEN weitere Platzhalter der Welle 13, die beim Merge fehlten - und
+    -- damit ZUM VIERTEN MAL dieselbe Falle (REVIEW5: GEDENKEN, REVIEW8: {quest}/{titel}/{sek},
+    -- MERGE 0.16.0: {schlaege}/{versuche}/{gegner}). Ohne sie waere der Spieltest heute Abend
+    -- blind gewesen, im schlimmsten Fall der ganzen Liste:
+    --   mechanik   GEGNER_MECHANIK - ALLE FUENF Zeilen tragen ihn. Ohne den Wert hat
+    --              Core/Regie.lua waehle() KEINEN Kandidaten, gibt nil zurueck, und
+    --              ausgebenKern() macht dann nur die Miene: "/lyra test GEGNER_MECHANIK" haette
+    --              geguckt und geschwiegen. Kein Lua-Fehler, also auch kein Hinweis darauf.
+    --   schritt    QUEST_ABGABE_NAH, die beiden NEUEN Zeilen. Ohne sie zeigt der Test nur die
+    --   richtung   drei alten - also genau nicht das, was man pruefen will (REVIEW8-Muster).
+    --   gold       GOLD_MEILENSTEIN. Als STRING, weil Sinne/Welle13a.lua stufe.name meldet
+    --              ("100"/"1000") und nicht den Kontostand.
+    --   charakter  LAGER_ANDERSWO. "Testheld" und kein erfundener Name: in diesem Projekt
+    --   anzahl     heisst die Testfigur so. {anzahl} fehlte ausserdem SEIT WELLE 5 auch
+    --              ERBE_STERBEORT und GM2_KNOTEN - die beiden zeigen ab jetzt ebenfalls ihre
+    --              Platzhalter-Zeilen.
+    --   lager      REISECHECK, die beiden neuen Zeilen. Der Wortlaut ist derselbe, den
+    --              Sinne/Welle13d.lua im Spiel einsetzt (T("bank")).
+    -- Wie die ganze Tabelle sind die Werte deutsch; auf einem englischen Client sieht der Test
+    -- damit einen deutschen Platzhalter in einem englischen Satz. Das ist seit Welle 1 so
+    -- (zone = "Westfall", beruf = "Kochkunst") und hier bewusst nicht anders gemacht.
+    mechanik = "Betäubt", schritt = "zweihundert", richtung = "Norden", gold = "100",
+    charakter = "Testheld", anzahl = 12, lager = "Deine Bank",
 }
 
 local function sperrenLoesen(id)

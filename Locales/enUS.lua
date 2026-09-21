@@ -346,4 +346,29 @@ ns.locales.enUS = {
     ["Death spot line tip"] = "When a new character reaches the spot where one of your own predecessors fell, Lyra says so exactly once - with name, level and date.",
     ["Pin death spots"] = "Show death spots on the map",
     ["Pin death spots tip"] = "Every death spot of one of your own predecessors gets a marker on the world map and the minimap, with name, level and date in the tooltip - your own characters only, never anybody else's.",
+    -- MERGE 0.16.0 (21.09.2026): wave 13 "docking points" - appended only.
+    -- One shared section in the fine tuning page (UI/Settings.lua) for the eight checkboxes of
+    -- the four build teams. The section is NOT called "Data sources": that heading already
+    -- exists further up, and the same wording twice on one page is not a structure.
+    ["Wave 13"] = "Further data sources",
+    -- 13a (native, no third-party addon at all)
+    ["Quest pile"] = "Count finished quests",
+    ["Quest pile tip"] = "When three or more quests in your log are ready to turn in, Lyra says something once — at most every 30 minutes, never in combat, never in an instance, and not in the first minute after logging in. She names the count, never the titles. No Questie required.",
+    ["Profession rank native"] = "Profession rank without the window",
+    ["Profession rank native tip"] = "Until now the trainer-ceiling line (75/150/225/300) only appeared with the crafting window open. Now Lyra notices it while you're out mining, too. If the profession sits collapsed in your skill book she stays quiet — she never expands it for you. At most once per profession and ceiling per session.",
+    ["Milestones"] = "First mount and a hundred gold",
+    ["Milestones tip"] = "Two lines a character hears once each: the first time you're in the saddle, and the first time you have a hundred gold (and once more at a thousand). If you're already past them when you log in, you hear nothing — Lyra doesn't tell these after the fact.",
+    -- 13b (Questie + HereBeDragons, NpcAbilities)
+    ["Turn-in way"] = "Way to the turn-in",
+    ["Turn-in way tip"] = "When you have a finished quest in the log and the one who takes it is in the same zone, Lyra says once how far away and in which direction - roughly, in paces and in words ('two hundred paces to the north'), never an exact number and never a waypoint. Beyond four hundred paces she stays quiet. Needs Questie and HereBeDragons; without either, the old line 'the quest giver is around' remains.",
+    ["Enemy mechanic"] = "Mechanic before the pull",
+    ["Enemy mechanic tip"] = "When you target an enemy out of combat that has an ability rated dangerous, Lyra names exactly ONE of them - once per enemy type and session, and never the whole list, which is in the tooltip anyway. Needs the NpcAbilities addon; without it she stays quiet.",
+    -- 13c (Details!, Rarity)
+    ["Death course"] = "Your last seconds",
+    ["Death course tip"] = "After you die, Lyra makes one observation about how it happened – no numbers, no blame. Needs the Details! addon. Without it she stays quiet.",
+    ["Farm persistence"] = "Persistence while farming",
+    ["Farm persistence tip"] = "At 100, 250 and 500 attempts on the same item Lyra says something about it – never a drop chance, Rarity shows that itself. Needs the Rarity addon.",
+    -- 13d (BagBrother)
+    ["Stored elsewhere"] = "Mention what's on your other characters",
+    ["Stored elsewhere tip"] = "Lyra reads BagBrother's saved bags (installed with Bagnon) and mentions, before a dungeon or when you pick up a trade good, that the thing you are missing is sitting on another of YOUR characters or in your own bank. The data is from that character's last logout, so she always says 'last time' and never claims it is there right now. Guild banks are never read - what's in them belongs to other players. Only your own characters on your own realms, at most one line per item and session, never in combat, never a second number. Without BagBrother she simply stays quiet and the travel check looks exactly as before.",
 }

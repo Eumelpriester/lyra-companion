@@ -609,6 +609,44 @@ local function baueNativ()
         if ns.CMDS_gehoert then ns.CMDS_gehoert() end
     end, "Recently heard button tip")
 
+    -- MERGE 0.16.0 (21.09.2026): Welle 13 "Andockstellen" — EIN Abschnitt fuer alle acht
+    -- Kaestchen der vier Bauteams, nicht vier.
+    --
+    -- Jedes der vier Teams hat einen eigenen Abschnitt vorgeschlagen ("Wave 13a", "Wave 13",
+    -- "Wave 13c"), und 13d wollte sein einzelnes Kaestchen unter "Data sources" zu "karte"
+    -- stellen. Beides ist hier abgelehnt, und zwar aus derselben Richtung, aus der Welle 4
+    -- seinerzeit die Datenquellen-Liste geteilt hat: entschieden wird nach der Zahl der
+    -- Ueberschriften, die ein Spieler ueberfliegen muss.
+    --   * Vier Ueberschriften fuer EINE Welle waeren vier Zeilen Navigation fuer acht Kaestchen.
+    --     Die Wellen-Nummer ist ausserdem eine Bau-Information; fuer den Spieler ist "13a" von
+    --     "13c" nicht unterscheidbar. Genau die Begruendung, mit der W11D zwei Kaestchen NICHT
+    --     in einen Abschnitt "Welle 11c" gesteckt hat.
+    --   * "lagerAnderswo" oben unter "Data sources" waere das neunte Kaestchen in einem
+    --     Abschnitt, der bei sechs schon voll war — und es haette das eine Kaestchen der Welle
+    --     von den anderen sieben getrennt, die dieselbe Frage stellen: welche fremde Quelle
+    --     darf Lyra lesen? Genau das ist der gemeinsame Abschnitt.
+    -- Der Name folgt der Reihe der bestehenden Abschnitte (Locale-Schluessel "Wave NN", Text
+    -- beschreibend): de "Andockstellen", en "Further data sources". NICHT "Data sources" - die
+    -- Ueberschrift gibt es oben schon einmal, zweimal derselbe Wortlaut auf einer Seite ist
+    -- keine Gliederung.
+    -- Alle acht stehen ab Werk auf AN; die Voreinstellungen haengen in den vier Sinne-Dateien
+    -- an ns.DEFAULTS_ACCOUNT, Core/Init.lua bleibt unberuehrt.
+    -- Die erste Seite bleibt unberuehrt (Design-Deckel B-5): acht Kaestchen, zwei Klicks tief.
+    header(fein, "Wave 13")
+    -- 13a: vier Bauteile, drei Kaestchen. "Reittier" und "hundert Gold" sind derselbe Gedanke
+    -- (der eine Meilenstein, den ein Charakter genau einmal erreicht) und teilen eins.
+    checkbox(fein, "questStapel", "Quest pile", "Quest pile tip")
+    checkbox(fein, "berufRangNativ", "Profession rank native", "Profession rank native tip")
+    checkbox(fein, "meilensteine", "Milestones", "Milestones tip")
+    -- 13b, 13c, 13d: benannt nach dem, was sie TUN, nicht nach dem Fremd-Addon (Recherche 18
+    -- §3) - wer Questie, NpcAbilities, Details, Rarity oder BagBrother deinstalliert, soll hier
+    -- keine tote Zeile suchen muessen.
+    checkbox(fein, "abgabeweg", "Turn-in way", "Turn-in way tip")
+    checkbox(fein, "gegnerMechanik", "Enemy mechanic", "Enemy mechanic tip")
+    checkbox(fein, "todHergang", "Death course", "Death course tip")
+    checkbox(fein, "sammelAusdauer", "Farm persistence", "Farm persistence tip")
+    checkbox(fein, "lagerAnderswo", "Stored elsewhere", "Stored elsewhere tip")
+
     Settings.RegisterAddOnCategory(category)
 end
 

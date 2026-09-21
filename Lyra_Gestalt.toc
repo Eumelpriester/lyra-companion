@@ -36,7 +36,7 @@
 ## Notes: A companion who watches, shows and speaks - and never presses a key. No automation, no chat output, no data about other players.
 ## Notes-deDE: Eine Begleiterin, die wahrnimmt, zeigt und spricht - und nie eine Taste drueckt. Keine Automation, keine Chat-Ausgabe, keine Daten anderer Spieler.
 ## Author: Lyra & Harald
-## Version: 0.15.3
+## Version: 0.16.0
 ## SavedVariables: LyraGestaltDB
 ## X-Category: Companions
 ## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md
@@ -198,3 +198,65 @@ Sinne/Welle8.lua
 # Sie haengt KEINEN Schluessel an ns.DEFAULTS_ACCOUNT und legt kein Ereignis an. Ein Frame
 # (das Kopierfenster) entsteht erst beim ersten /lyra profil export.
 Sinne/Welle9.lua
+
+# ---------------------------------------------------------------------------------------------
+# MERGE 0.16.0 (21.09.2026): die vier Dateien der Welle 13 "Andockstellen". Alle vier Teams
+# haben "ganz ans Ende, hinter Sinne/Welle9.lua" verlangt; der Merge legt die Reihenfolge
+# untereinander fest: 13a, 13b, 13c, 13d.
+#   * 13b VOR 13a waere falsch - Sinne/Welle13b.lua liest ns.Welle13a.fertigeQuests() (mit
+#     Existenzpruefung, aber der native Zaehler soll da sein, nicht der Rueckfall).
+#   * 13c und 13d legen beide einen Mantel um ns.melde, 13d ausserdem erst bei PLAYER_LOGIN.
+#     Geprueft: 13c legt GAR KEINEN ns.melde-Mantel (sie meldet nur selbst), 13d legt einen,
+#     der ausschliesslich bei id == "REISECHECK" ein vars.lager nachlegt und den Aufruf
+#     unveraendert weitergibt. Die beiden koennen einander also nicht in die Quere kommen -
+#     die Reihenfolge 13c vor 13d ist damit frei gewaehlt (alphabetisch).
+# ---------------------------------------------------------------------------------------------
+
+# W13A: Feature-Welle 13a "Nativ" (0.16.0). Die vier Bauteile der Welle "Andockstellen", die
+# ohne ein einziges Fremd-Addon auskommen: fertige Quests zaehlen (QUEST_FERTIG_MEHRERE),
+# Berufsrang ohne offenes Fenster (erweitert BERUF_GRENZE), erstes Reittier (REITTIER_ERSTES)
+# und der Gold-Meilenstein (GOLD_MEILENSTEIN). GANZ ZULETZT, hinter Sinne/Welle9.lua, aus drei
+# Gruenden:
+#   * Sie liest ns.Compat (Questlog-Shim aus Welle 2) und ns.Regie (abstandRest, dropLog) fuer
+#     den Nachhol - beide muessen fertig sein.
+#   * Sie haengt sich mit ns.nachAusgabe an die AUSGABE-Kette, um QUEST_FERTIG mitzuhoeren
+#     (dasselbe Muster wie Sinne/Welle4.lua bei SKILL). Diese Kette soll vollstaendig sein.
+#   * Der ns.melde-Mantel aus Sinne/Persoenlichkeit.lua und der {erinnerung}-Mantel aus
+#     Sinne/Rituale.lua sollen auch um ihre vier Ereignisse liegen.
+# Sie haengt DREI Schluessel an ns.DEFAULTS_ACCOUNT (questStapel, berufRangNativ, meilensteine);
+# Core/Init.lua bleibt unberuehrt. Kein OnUpdate, kein Ticker, kein eigener SavedVariables-Zweig -
+# die beiden Charakter-Flaggen (reittierErstes, goldMeilenstein) liegen in ns.char.
+Sinne/Welle13a.lua
+
+# W13B: Welle 13b "Andockstellen" (0.16.0). Zwei Bruecken: der Abgabeort in Schritten
+# (Questie + HereBeDragons) und EINE Mechanik vor dem Pull (NpcAbilities). GANZ ZULETZT,
+# hinter Sinne/Welle13a.lua, aus drei Gruenden:
+#   * Sie liest ns.Karte2 (die einzige HereBeDragons-Anbindung des Addons) und ns.Compat -
+#     beide muessen fertig sein.
+#   * Sie liest ns.Welle13a.fertigeQuests(), wenn es das gibt (mit Existenzpruefung; ohne
+#     Welle 13a zaehlt sie selbst ueber ns.Compat). Erst die Zaehlung, dann der Ort.
+#   * Der ns.melde-Mantel aus Sinne/Persoenlichkeit.lua soll auch um GEGNER_MECHANIK liegen.
+# Sie haengt ZWEI Schluessel an ns.DEFAULTS_ACCOUNT (abgabeweg, gegnerMechanik); Core/Init.lua
+# bleibt unberuehrt. Kein Ticker, kein OnUpdate, keine neue SavedVariable.
+Sinne/Welle13b.lua
+
+# W13C (21.09.2026): "die letzten Sekunden" (Details!) und "Ausdauer beim Sammeln" (Rarity).
+# GANZ ZULETZT, hinter Sinne/Welle13b.lua, aus drei Gruenden:
+#   * Ihr PLAYER_DEAD-Handler muss NACH denen von Sinne/Chronik.lua und Sinne/Erbe.lua laufen -
+#     Erbe legt den Eintrag bei +0,5 s an, und in genau den schreibt diese Datei bei +2,5 s.
+#   * Sie liest ns.Erbe.liste() und das Chronik-Bestiarium: beide Quellen muessen fertig sein.
+#   * Der ns.melde-Wrapper aus Sinne/Persoenlichkeit.lua soll auch um TOD_HERGANG liegen.
+# Die Datei haengt ZWEI Schluessel an ns.DEFAULTS_ACCOUNT (todHergang, sammelAusdauer);
+# Core/Init.lua bleibt unberuehrt. Ein Frame entsteht nicht.
+Sinne/Welle13c.lua
+
+# W13D: Feature-Welle 13d "Was woanders liegt" (Recherche 18 §2.6, §4.1 Nr. 6). Liest die
+# SavedVariable BrotherBags von BagBrother (Syndicator wird bewusst NICHT angebunden) und sagt
+# beim Reisecheck bzw. beim Aufheben einer Handelsware, was bei einem anderen EIGENEN Charakter
+# oder in der eigenen Bank liegt - immer mit dem Zusatz "beim letzten Mal", weil BagBrother erst
+# beim Logout des jeweiligen Charakters schreibt. Die Gildenbank wird nie gelesen (Besitzer-id
+# endet auf "*"). Steht ZULETZT, weil sie Sinne/Extra.lua liest (X.reisecheckFehlt, seit dem
+# Merge 0.16.0 auch X.TRANK_IDS/X.VERBAND_IDS) und bei PLAYER_LOGIN einen Mantel um ns.melde
+# legt, der aussen liegen soll. Sie haengt EINEN Schluessel an ns.DEFAULTS_ACCOUNT
+# (lagerAnderswo) und legt EIN Ereignis an (LAGER_ANDERSWO).
+Sinne/Welle13d.lua

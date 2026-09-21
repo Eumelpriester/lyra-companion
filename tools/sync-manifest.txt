@@ -100,6 +100,7 @@ Pakete/Stimme_de/stimme/beinahe_nachwirkung-7.ogg
 Pakete/Stimme_de/stimme/beruf_erster-1.ogg
 Pakete/Stimme_de/stimme/beruf_erster-2.ogg
 Pakete/Stimme_de/stimme/beruf_grenze-1.ogg
+Pakete/Stimme_de/stimme/beruf_grenze-2.ogg
 Pakete/Stimme_de/stimme/bestiarium-1.ogg
 Pakete/Stimme_de/stimme/bestiarium-2.ogg
 Pakete/Stimme_de/stimme/bestiarium-3.ogg
@@ -312,6 +313,8 @@ Pakete/Stimme_de/stimme/geofence_wasser-6.ogg
 Pakete/Stimme_de/stimme/geofence_wasser-7.ogg
 Pakete/Stimme_de/stimme/gm2_knoten-1.ogg
 Pakete/Stimme_de/stimme/gm2_knoten-2.ogg
+Pakete/Stimme_de/stimme/gold_meilenstein-1.ogg
+Pakete/Stimme_de/stimme/gold_meilenstein-2.ogg
 Pakete/Stimme_de/stimme/hc_modus_an-1.ogg
 Pakete/Stimme_de/stimme/hc_modus_an-2.ogg
 Pakete/Stimme_de/stimme/hc_modus_an-3.ogg
@@ -394,6 +397,8 @@ Pakete/Stimme_de/stimme/klick-6-m.ogg
 Pakete/Stimme_de/stimme/klick-7.ogg
 Pakete/Stimme_de/stimme/klick-8.ogg
 Pakete/Stimme_de/stimme/klick-9.ogg
+Pakete/Stimme_de/stimme/lager_anderswo-1.ogg
+Pakete/Stimme_de/stimme/lager_anderswo-2.ogg
 Pakete/Stimme_de/stimme/lagerfeuer-1.ogg
 Pakete/Stimme_de/stimme/lagerfeuer-2.ogg
 Pakete/Stimme_de/stimme/lagerfeuer-3.ogg
@@ -502,12 +507,15 @@ Pakete/Stimme_de/stimme/punkt_ohne_tomtom-1.ogg
 Pakete/Stimme_de/stimme/punkt_ohne_tomtom-2.ogg
 Pakete/Stimme_de/stimme/quest_abgabe_nah-1.ogg
 Pakete/Stimme_de/stimme/quest_abgabe_nah-2.ogg
+Pakete/Stimme_de/stimme/quest_abgabe_nah-3.ogg
 Pakete/Stimme_de/stimme/quest_fast-1.ogg
 Pakete/Stimme_de/stimme/quest_fast-2.ogg
 Pakete/Stimme_de/stimme/quest_fast-3.ogg
 Pakete/Stimme_de/stimme/quest_fertig-1.ogg
 Pakete/Stimme_de/stimme/quest_fertig-2.ogg
 Pakete/Stimme_de/stimme/quest_fertig-3.ogg
+Pakete/Stimme_de/stimme/quest_fertig_mehrere-1.ogg
+Pakete/Stimme_de/stimme/quest_fertig_mehrere-2.ogg
 Pakete/Stimme_de/stimme/quest_geber_gefunden-1.ogg
 Pakete/Stimme_de/stimme/quest_kette_weiter-1.ogg
 Pakete/Stimme_de/stimme/quest_ziel_fertig-1.ogg
@@ -539,6 +547,10 @@ Pakete/Stimme_de/stimme/rast_an-7.ogg
 Pakete/Stimme_de/stimme/rast_an-8.ogg
 Pakete/Stimme_de/stimme/rast_an-9.ogg
 Pakete/Stimme_de/stimme/reisecheck-1.ogg
+Pakete/Stimme_de/stimme/reittier_erstes-1.ogg
+Pakete/Stimme_de/stimme/reittier_erstes-2.ogg
+Pakete/Stimme_de/stimme/reittier_erstes-3.ogg
+Pakete/Stimme_de/stimme/reittier_erstes-4.ogg
 Pakete/Stimme_de/stimme/rueckkehr-1.ogg
 Pakete/Stimme_de/stimme/rueckkehr-2.ogg
 Pakete/Stimme_de/stimme/rueckkehr-3.ogg
@@ -555,6 +567,8 @@ Pakete/Stimme_de/stimme/runner-5-f.ogg
 Pakete/Stimme_de/stimme/runner-5-m.ogg
 Pakete/Stimme_de/stimme/runner-6.ogg
 Pakete/Stimme_de/stimme/runner_bekannt-1.ogg
+Pakete/Stimme_de/stimme/sammel_ausdauer-1.ogg
+Pakete/Stimme_de/stimme/sammel_ausdauer-2.ogg
 Pakete/Stimme_de/stimme/schaden_erlitten_hoch-1.ogg
 Pakete/Stimme_de/stimme/schaden_erlitten_hoch-2.ogg
 Pakete/Stimme_de/stimme/schaden_erlitten_hoch-3.ogg
@@ -629,6 +643,9 @@ Pakete/Stimme_de/stimme/taxi_start-5.ogg
 Pakete/Stimme_de/stimme/test-1.ogg
 Pakete/Stimme_de/stimme/tiefes_wasser-1.ogg
 Pakete/Stimme_de/stimme/tiefes_wasser-2.ogg
+Pakete/Stimme_de/stimme/tod_hergang-1.ogg
+Pakete/Stimme_de/stimme/tod_hergang-2.ogg
+Pakete/Stimme_de/stimme/tod_hergang-3.ogg
 Pakete/Stimme_de/stimme/trank-1.ogg
 Pakete/Stimme_de/stimme/trank-2.ogg
 Pakete/Stimme_de/stimme/trank-3.ogg
@@ -752,6 +769,7 @@ Pakete/Stimme_en/stimme/beinahe_nachwirkung-7.ogg
 Pakete/Stimme_en/stimme/beruf_erster-1.ogg
 Pakete/Stimme_en/stimme/beruf_erster-2.ogg
 Pakete/Stimme_en/stimme/beruf_grenze-1.ogg
+Pakete/Stimme_en/stimme/beruf_grenze-2.ogg
 Pakete/Stimme_en/stimme/bestiarium-1.ogg
 Pakete/Stimme_en/stimme/bestiarium-2.ogg
 Pakete/Stimme_en/stimme/bestiarium-3.ogg
@@ -929,6 +947,8 @@ Pakete/Stimme_en/stimme/geofence_wasser-6.ogg
 Pakete/Stimme_en/stimme/geofence_wasser-7.ogg
 Pakete/Stimme_en/stimme/gm2_knoten-1.ogg
 Pakete/Stimme_en/stimme/gm2_knoten-2.ogg
+Pakete/Stimme_en/stimme/gold_meilenstein-1.ogg
+Pakete/Stimme_en/stimme/gold_meilenstein-2.ogg
 Pakete/Stimme_en/stimme/hc_modus_an-1.ogg
 Pakete/Stimme_en/stimme/hc_modus_an-2.ogg
 Pakete/Stimme_en/stimme/hc_modus_an-3.ogg
@@ -1000,6 +1020,8 @@ Pakete/Stimme_en/stimme/klick-6.ogg
 Pakete/Stimme_en/stimme/klick-7.ogg
 Pakete/Stimme_en/stimme/klick-8.ogg
 Pakete/Stimme_en/stimme/klick-9.ogg
+Pakete/Stimme_en/stimme/lager_anderswo-1.ogg
+Pakete/Stimme_en/stimme/lager_anderswo-2.ogg
 Pakete/Stimme_en/stimme/lagerfeuer-1.ogg
 Pakete/Stimme_en/stimme/lagerfeuer-2.ogg
 Pakete/Stimme_en/stimme/lagerfeuer-3.ogg
@@ -1096,12 +1118,15 @@ Pakete/Stimme_en/stimme/punkt_ohne_tomtom-1.ogg
 Pakete/Stimme_en/stimme/punkt_ohne_tomtom-2.ogg
 Pakete/Stimme_en/stimme/quest_abgabe_nah-1.ogg
 Pakete/Stimme_en/stimme/quest_abgabe_nah-2.ogg
+Pakete/Stimme_en/stimme/quest_abgabe_nah-3.ogg
 Pakete/Stimme_en/stimme/quest_fast-1.ogg
 Pakete/Stimme_en/stimme/quest_fast-2.ogg
 Pakete/Stimme_en/stimme/quest_fast-3.ogg
 Pakete/Stimme_en/stimme/quest_fertig-1.ogg
 Pakete/Stimme_en/stimme/quest_fertig-2.ogg
 Pakete/Stimme_en/stimme/quest_fertig-3.ogg
+Pakete/Stimme_en/stimme/quest_fertig_mehrere-1.ogg
+Pakete/Stimme_en/stimme/quest_fertig_mehrere-2.ogg
 Pakete/Stimme_en/stimme/quest_geber_gefunden-1.ogg
 Pakete/Stimme_en/stimme/quest_kette_weiter-1.ogg
 Pakete/Stimme_en/stimme/quest_ziel_fertig-1.ogg
@@ -1129,6 +1154,10 @@ Pakete/Stimme_en/stimme/rast_an-7.ogg
 Pakete/Stimme_en/stimme/rast_an-8.ogg
 Pakete/Stimme_en/stimme/rast_an-9.ogg
 Pakete/Stimme_en/stimme/reisecheck-1.ogg
+Pakete/Stimme_en/stimme/reittier_erstes-1.ogg
+Pakete/Stimme_en/stimme/reittier_erstes-2.ogg
+Pakete/Stimme_en/stimme/reittier_erstes-3.ogg
+Pakete/Stimme_en/stimme/reittier_erstes-4.ogg
 Pakete/Stimme_en/stimme/rueckkehr-1.ogg
 Pakete/Stimme_en/stimme/rueckkehr-2.ogg
 Pakete/Stimme_en/stimme/rueckkehr-3.ogg
@@ -1143,6 +1172,8 @@ Pakete/Stimme_en/stimme/runner-4.ogg
 Pakete/Stimme_en/stimme/runner-5.ogg
 Pakete/Stimme_en/stimme/runner-6.ogg
 Pakete/Stimme_en/stimme/runner_bekannt-1.ogg
+Pakete/Stimme_en/stimme/sammel_ausdauer-1.ogg
+Pakete/Stimme_en/stimme/sammel_ausdauer-2.ogg
 Pakete/Stimme_en/stimme/schaden_erlitten_hoch-1.ogg
 Pakete/Stimme_en/stimme/schaden_erlitten_hoch-2.ogg
 Pakete/Stimme_en/stimme/schaden_erlitten_hoch-3.ogg
@@ -1204,6 +1235,9 @@ Pakete/Stimme_en/stimme/taxi_start-5.ogg
 Pakete/Stimme_en/stimme/test-1.ogg
 Pakete/Stimme_en/stimme/tiefes_wasser-1.ogg
 Pakete/Stimme_en/stimme/tiefes_wasser-2.ogg
+Pakete/Stimme_en/stimme/tod_hergang-1.ogg
+Pakete/Stimme_en/stimme/tod_hergang-2.ogg
+Pakete/Stimme_en/stimme/tod_hergang-3.ogg
 Pakete/Stimme_en/stimme/trank-1.ogg
 Pakete/Stimme_en/stimme/trank-2.ogg
 Pakete/Stimme_en/stimme/trank-3.ogg
@@ -1276,6 +1310,10 @@ Sinne/Questie2.lua
 Sinne/Quests.lua
 Sinne/Rituale.lua
 Sinne/Umwelt.lua
+Sinne/Welle13a.lua
+Sinne/Welle13b.lua
+Sinne/Welle13c.lua
+Sinne/Welle13d.lua
 Sinne/Welle4.lua
 Sinne/Welle6.lua
 Sinne/Welle8.lua

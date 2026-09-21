@@ -1,5 +1,66 @@
 # Changelog
 
+## 0.16.0 (2026-09-21)
+
+### Welle 13: Andockstellen
+
+Sieben neue Momente, in denen Lyra etwas sagt, und drei bestehende, die mehr sagen als
+vorher — 41 neue Zeilen je Sprache. Vier der neuen Momente braucht Lyra kein einziges fremdes
+Addon für; die anderen lesen mit, was du ohnehin installiert hast, und bleiben ohne es still.
+Acht neue Häkchen in der Feineinstellung, Abschnitt **„Andockstellen"**, alle ab Werk an.
+
+**Ohne ein einziges Fremd-Addon**
+
+- **Dein Buch wird schwer.** Sammeln sich drei oder mehr abgabebereite Quests im Buch, sagt
+  Lyra einmal etwas dazu. Sie nennt die Zahl, nie die Titel. Höchstens alle 30 Minuten, nie im
+  Kampf, nie in einer Instanz, nicht in der ersten Minute nach dem Einloggen und nicht direkt
+  nach einer einzelnen Fertig-Meldung. Ohne Questie, ohne irgendein anderes Addon.
+- **Der Satz zur Lehrer-Grenze kommt jetzt auch ohne offenes Handwerksfenster.** Bisher hat
+  Lyra die Grenze bei 75/150/225/300 nur gesehen, wenn du das Fenster offen hattest — wer im
+  Laufen Erz abgebaut hat, hat den Satz nie gehört. Jetzt liest sie den Rang direkt aus dem
+  Fertigkeitenbuch. Steht der Beruf dort eingeklappt, schweigt sie: sie klappt nichts auf.
+  Drei neue Zeilen dazu.
+- **Das erste Mal im Sattel** bekommt einen eigenen Satz — vier Zeilen, alle mit Stimme,
+  einmal je Charakter. Wer beim Einloggen schon aufgesessen ist, hört nichts: Lyra erzählt so
+  etwas nicht nachträglich. Die Reisegestalt des Druiden zählt nicht mit.
+- **Die ersten hundert Gold** (und noch einmal tausend), einmal je Charakter, eine Zahl und
+  sonst nichts. Wer beim Einloggen schon darüber liegt, hört nichts.
+
+**Was sie liest, wenn du es hast**
+
+- **Der Weg zum Abgeber.** Hast du eine fertige Quest im Buch und derjenige, der sie abnimmt,
+  steht in derselben Zone, sagt Lyra jetzt nicht mehr nur „der ist hier irgendwo", sondern wie
+  weit und wohin: „Der Abgeber steht zweihundert Schritt nach Norden." Grob, in Schritten, als
+  Wort — keine Nachkommastelle, kein Wegpunkt, keine zweite Zeile hinterher. Weiter als
+  vierhundert Schritt sagt sie gar nichts. Dafür liest sie Questie und HereBeDragons mit; hast
+  du die nicht, bleibt alles wie bisher.
+- **Eine Mechanik, bevor du pullst.** Visierst du außerhalb des Kampfes einen Gegner an, der
+  eine als gefährlich eingestufte Fähigkeit hat, nennt Lyra genau eine davon — „Der macht
+  Betäubt. Nicht am Abgrund kämpfen." Einmal je Gegnerart und Sitzung, nie die ganze Liste
+  (die steht im Tooltip), nie im Kampf, nie während eine andere Warnung läuft. Braucht
+  **NpcAbilities**.
+- **Die letzten Sekunden.** Wenn du stirbst, sagt Lyra eine Minute später einen Satz darüber,
+  *wie* es dazu kam — nicht als Tabelle, sondern so, wie es jemand sagen würde, der
+  danebengesessen hat: „Das kam nicht plötzlich. Das kam langsam." Sie nennt keine
+  Zahlenreihe, keinen Schadenswert und niemals den Namen eines anderen Spielers. Der Satz
+  kommt **vor** dem Nachruf — erst was passiert ist, dann wer du warst — und wird im Erbe
+  mitgeschrieben. Braucht **Details!**.
+- **Ausdauer beim Sammeln.** Wer mit **Rarity** dasselbe Stück jagt, hört bei 100, 250 und 500
+  Versuchen einen kurzen Satz dazu — einmal je Marke und Gegenstand, nie im Kampf, nie in der
+  Gruppe. Die Droprate sagt sie **nicht**; die zeigt Rarity selbst und besser. Sie sagt, was
+  die Zahl mit einem macht: „Du gibst nicht auf, hm."
+- **Was woanders liegt.** Mit Bagnon bzw. **BagBrother** sagt der Reisecheck vor einer Instanz
+  nicht nur, dass dir Tränke oder Verbände fehlen, sondern auch, dass welche bei einem deiner
+  anderen Charaktere oder in deiner eigenen Bank liegen. Und wenn du eine Handelsware oder ein
+  Rezept aufhebst, von dem woanders schon ein Stapel herumliegt, sagt sie das einmal — und
+  dann für diesen Gegenstand nie wieder. Weil die gespeicherten Taschen vom letzten Abmelden
+  des jeweiligen Charakters stammen, sagt sie immer dazu, dass es der Stand von damals ist;
+  sie behauptet nie, es läge jetzt dort. **Gildenbanken liest sie nicht** — was dort liegt,
+  gehört anderen Spielern.
+
+**Überall gleich:** fehlt ein Addon, bleibt Lyra still, macht keinen Fehler, und
+`/lyra status` sagt, was fehlt — mit Namen.
+
 ## 0.15.3 (2026-09-21)
 
 ### WoW: Forever vorbereitet

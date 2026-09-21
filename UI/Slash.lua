@@ -116,7 +116,13 @@ local function status()
     -- dann die Auswertung. Welle6 bleibt Letzte (Speicher, Rechenzeit, Client-Weiche).
     -- W9: Welle9 (Leiste, Profil-Export, Questie-Meldeweg, Aussprache) steht hinter Welle8 und
     -- vor Welle6 - Welle6 bleibt die Letzte (Speicher, Rechenzeit, Client-Weiche).
-    for _, mod in ipairs({ "Bedrohung", "Questie2", "Persoenlichkeit", "Welle4", "Karte2", "Welle8", "Welle9", "Welle6" }) do
+    -- MERGE 0.16.0 (21.09.2026): die vier Module der Welle 13 "Andockstellen" haengen hinter
+    -- Welle9 und in der Ladereihenfolge der TOC (13a, 13b, 13c, 13d). Welle6 bleibt die Letzte
+    -- (Speicher, Rechenzeit, Client-Weiche). Alle vier haben ein eigenes status(), und alle
+    -- vier sagen dort "fehlt" mit Namen, wenn ihre Quelle nicht da ist - das ist der halbe
+    -- Zweck dieses Befehls.
+    for _, mod in ipairs({ "Bedrohung", "Questie2", "Persoenlichkeit", "Welle4", "Karte2", "Welle8", "Welle9",
+                           "Welle13a", "Welle13b", "Welle13c", "Welle13d", "Welle6" }) do
         local m = ns[mod]
         if m and m.status then
             local ok, zeilen = pcall(m.status)

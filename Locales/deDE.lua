@@ -345,4 +345,29 @@ ns.locales.deDE = {
     ["Death spot line tip"] = "Kommt ein neuer Charakter an die Stelle, an der ein eigener Vorgänger gefallen ist, sagt Lyra das dort genau einmal – mit Name, Stufe und Tag.",
     ["Pin death spots"] = "Sterbeorte auf der Karte anzeigen",
     ["Pin death spots tip"] = "Jeder Sterbeort eines eigenen Vorgängers bekommt einen Marker auf Welt- und Minikarte, mit Name, Stufe und Tag im Tooltip – nur eigene Charaktere, nie fremde.",
+    -- MERGE 0.16.0 (21.09.2026): Welle 13 "Andockstellen" - NUR angehaengt.
+    -- Ein gemeinsamer Abschnitt in der Feineinstellung (UI/Settings.lua) fuer die acht
+    -- Kaestchen der vier Bauteams. Der Abschnittsname heisst NICHT "Datenquellen" - die
+    -- Ueberschrift gibt es weiter oben schon einmal.
+    ["Wave 13"] = "Andockstellen",
+    -- 13a (nativ, ohne jedes Fremd-Addon)
+    ["Quest pile"] = "Fertige Quests zählen",
+    ["Quest pile tip"] = "Sammeln sich drei oder mehr abgabebereite Quests im Buch, sagt Lyra einmal etwas dazu — höchstens alle 30 Minuten, nie im Kampf, nie in einer Instanz und nicht in der ersten Minute nach dem Einloggen. Sie nennt die Zahl, nie die Titel. Dafür wird kein Questie gebraucht.",
+    ["Profession rank native"] = "Berufsrang ohne offenes Fenster",
+    ["Profession rank native tip"] = "Bisher kam der Satz zur Lehrer-Grenze (75/150/225/300) nur, wenn das Handwerksfenster offen war. Jetzt merkt Lyra es auch beim Erzabbauen im Laufen. Steht der Beruf eingeklappt im Buch, schweigt sie — sie klappt nichts auf. Höchstens einmal je Beruf und Grenze pro Sitzung.",
+    ["Milestones"] = "Erstes Reittier und hundert Gold",
+    ["Milestones tip"] = "Zwei Sätze, die ein Charakter je einmal hört: beim ersten Aufsitzen und beim ersten Mal hundert Gold (und noch einmal bei tausend). Wer beim Einloggen schon darüber liegt, hört nichts — nachträglich erzählt Lyra so etwas nicht.",
+    -- 13b (Questie + HereBeDragons, NpcAbilities)
+    ["Turn-in way"] = "Weg zum Abgeber",
+    ["Turn-in way tip"] = "Hast du eine fertige Quest im Buch und der Abgeber steht in derselben Zone, sagt Lyra einmal, wie weit und in welche Richtung er ist - grob, in Schritten und als Wort ('zweihundert Schritt nach Norden'), nie als genaue Zahl und nie mit Wegpunkt. Weiter als vierhundert Schritt schweigt sie. Braucht Questie und HereBeDragons; fehlt eines von beiden, bleibt die alte Zeile 'der Questgeber ist in dieser Gegend'.",
+    ["Enemy mechanic"] = "Mechanik vor dem Pull",
+    ["Enemy mechanic tip"] = "Visierst du ausserhalb des Kampfes einen Gegner an, der eine als gefaehrlich eingestufte Faehigkeit hat, nennt Lyra genau EINE davon - einmal je Gegnerart und Sitzung, und nie die ganze Liste, die im Tooltip ohnehin steht. Braucht das Addon NpcAbilities; ohne es bleibt sie still.",
+    -- 13c (Details!, Rarity)
+    ["Death course"] = "Die letzten Sekunden",
+    ["Death course tip"] = "Nach deinem Tod sagt Lyra eine Beobachtung dazu, wie es dazu kam – keine Zahlen, keine Schuld. Braucht das Addon Details!. Ohne Details! bleibt sie still.",
+    ["Farm persistence"] = "Ausdauer beim Sammeln",
+    ["Farm persistence tip"] = "Bei 100, 250 und 500 Versuchen auf dasselbe Stück sagt Lyra etwas dazu – nie eine Chance, die zeigt Rarity selbst. Braucht das Addon Rarity.",
+    -- 13d (BagBrother)
+    ["Stored elsewhere"] = "Sagen, was bei den anderen Charakteren liegt",
+    ["Stored elsewhere tip"] = "Lyra liest die gespeicherten Taschen von BagBrother (kommt mit Bagnon) und sagt vor einer Instanz oder beim Aufheben einer Handelsware, dass das Fehlende bei einem anderen DEINER Charaktere oder in deiner eigenen Bank liegt. Die Daten stammen vom letzten Abmelden dieses Charakters - deshalb sagt sie immer 'beim letzten Mal' und behauptet nie, es laege jetzt dort. Gildenbanken werden nie gelesen: was dort liegt, gehoert anderen Spielern. Nur eigene Charaktere auf eigenen Realms, hoechstens eine Zeile je Gegenstand und Sitzung, nie im Kampf, nie eine zweite Zahl. Ohne BagBrother bleibt sie einfach still und der Reisecheck sieht aus wie immer.",
 }

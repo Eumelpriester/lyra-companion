@@ -1,6 +1,64 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.16.0 (2026-09-21)
+
+### Wave 13: Docking points
+
+Seven new moments where Lyra says something, and three existing ones that now say more than
+they did — 41 new lines per language. Four of the new moments need no third-party add-on at
+all; the rest read along with what you have installed anyway, and stay quiet without it.
+Eight new checkboxes in the fine tuning page, section **"Further data sources"**, all on by
+default.
+
+**Without a single third-party add-on**
+
+- **Your log is getting heavy.** When three or more quests in your log are ready to turn in,
+  Lyra says something once. She names the count, never the titles. At most every 30 minutes,
+  never in combat, never in an instance, not in the first minute after logging in and not
+  right after a single "quest complete" line. No Questie, no other add-on.
+- **The trainer-ceiling line now comes without the crafting window open.** Until now Lyra only
+  noticed the ceiling at 75/150/225/300 with the window open — anyone mining on the move never
+  heard the line. She now reads the rank straight from the skill book. If the profession sits
+  collapsed there she stays quiet: she never expands it for you. Three new lines to go with it.
+- **The first time in the saddle** gets a line of its own — four of them, all voiced, once per
+  character. If you are already mounted when you log in, you hear nothing: Lyra does not tell
+  these after the fact. A druid's travel form does not count.
+- **The first hundred gold** (and once more at a thousand), once per character, one number and
+  nothing else. If you are already past it when you log in, you hear nothing.
+
+**What she reads, if you have it**
+
+- **The way to the turn-in.** When you have a finished quest in the log and the one who takes
+  it is in the same zone, Lyra no longer just says "they're around here somewhere" but how far
+  and which way: "The one who takes it is two hundred paces to the north." Roughly, in paces,
+  in words — no decimal place, no waypoint, no follow-up line. Beyond four hundred paces she
+  says nothing at all. For this she reads Questie and HereBeDragons; without them everything
+  stays as it was.
+- **One mechanic, before you pull.** When you target an enemy out of combat that has an
+  ability rated dangerous, Lyra names exactly one of them — "That one stuns. Don't fight it by
+  the cliff." Once per enemy type and session, never the whole list (that is in the tooltip),
+  never in combat, never while another warning is running. Needs **NpcAbilities**.
+- **Your last seconds.** When you die, Lyra says a line a minute later about *how* it
+  happened — not as a table, but the way someone sitting next to you would put it: "That
+  didn't come suddenly. That came slowly." No rows of numbers, no damage figures and never
+  another player's name. The line comes **before** the eulogy — first what happened, then who
+  you were — and it is written into your legacy. Needs **Details!**.
+- **Persistence while farming.** If you hunt the same item with **Rarity**, you get a short
+  line at 100, 250 and 500 attempts — once per mark and item, never in combat, never in a
+  group. She does **not** say the drop chance; Rarity shows that itself, and better. She says
+  what the number does to a person: "You don't give up, hm."
+- **What's stored elsewhere.** With Bagnon (or **BagBrother**) the travel check before a
+  dungeon no longer only tells you that you are short on potions or bandages, but also that
+  some are sitting on another of your characters or in your own bank. And when you pick up a
+  trade good or a recipe that you already have a pile of somewhere else, she says so once —
+  and then never again for that item. Because the saved bags are from each character's last
+  logout, she always says so; she never claims the stuff is there right now. **She never reads
+  guild banks** — what is in them belongs to other players.
+
+**The same everywhere:** if an add-on is missing, Lyra stays quiet, throws no error, and
+`/lyra status` says what is missing, by name.
+
 ## 0.15.3 (2026-09-21)
 
 ### Ready for WoW: Forever

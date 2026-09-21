@@ -81,7 +81,8 @@ end
 ns.on("PLAYER_LOGIN", function()
     ns.Compat.After(12, function() pcall(K.aktualisieren) end)
     if ns.nachAusgabe then
-        ns.nachAusgabe(function(id)
+        ns.nachAusgabe(function(id, _, vars)
+            if vars and vars.test then return end
             if id == "HP20" or id == "PUNKT_GESETZT" then ns.Compat.After(35, function() pcall(K.aktualisieren) end) end
         end)
     end

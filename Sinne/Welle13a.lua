@@ -316,14 +316,32 @@ local function berufeLesen()
     if n <= 0 then return {} end
     if n > W.SKILL_MAX then n = W.SKILL_MAX end
     local out = {}
+    -- HOTFIX 0.16.1 (21.09.2026, Spieltest Harald): NUR Zeilen unter den Kopfzeilen "Berufe" und
+    -- "Sekundaere Fertigkeiten". Das Fertigkeitenbuch fuehrt daneben Waffen-, Ruestungs- und
+    -- Klassenfertigkeiten, und deren Deckel ist 5 x Stufe - auf Stufe 60 also genau 300, und 300
+    -- steht in W.GRENZEN. Ohne diesen Filter meldete der erste Login mit Stufe 60 vierzehn Mal
+    -- BERUF_GRENZE ("Schwerter 300", "Verteidigung 300", ...); der Ladebildschirm-Riegel hat es
+    -- verschluckt, der naechste Skill-up haette es nicht. Die Kopfzeilen-Namen sind lokalisiert;
+    -- der Client haelt sie in TRADE_SKILLS / SECONDARY_SKILLS (Blizzard-Globals, von
+    -- SkillFrame benutzt). Fehlen die Globals, greift die Liste der bekannten Schreibweisen.
+    local berufKopf = {
+        [_G.TRADE_SKILLS or "Professions"] = true, [_G.SECONDARY_SKILLS or "Secondary Skills"] = true,
+        ["Professions"] = true, ["Secondary Skills"] = true, ["Berufe"] = true,
+        ["Sekund\195\164re Fertigkeiten"] = true,
+    }
+    local unterBerufKopf = false
     for i = 1, n do
         -- GetSkillLineInfo(i) -> name, isHeader, isExpanded, rank, numTempPoints, modifier, maxRank, ...
         local ok2, name, isHeader, _, rank, _, _, maxRank = pcall(_G.GetSkillLineInfo, i)
-        if ok2 and type(name) == "string" and name ~= "" and not isHeader then
-            local r, m = tonumber(rank), tonumber(maxRank)
-            -- Muell-Riegel: negative Raenge, Rang ueber dem Deckel und maxRank 0 gibt es nicht.
-            if r and m and m > 0 and r >= 0 and r <= m then
-                out[#out + 1] = { name = name, rank = r, max = m }
+        if ok2 and type(name) == "string" and name ~= "" then
+            if isHeader then
+                unterBerufKopf = berufKopf[name] == true
+            elseif unterBerufKopf then
+                local r, m = tonumber(rank), tonumber(maxRank)
+                -- Muell-Riegel: negative Raenge, Rang ueber dem Deckel und maxRank 0 gibt es nicht.
+                if r and m and m > 0 and r >= 0 and r <= m then
+                    out[#out + 1] = { name = name, rank = r, max = m }
+                end
             end
         end
     end
@@ -339,8 +357,14 @@ local function berufBlick()
     if not an("berufRangNativ") then return end
     if imKampf() then return end            -- plauder landete sonst auf der Warteliste
     for _, b in ipairs(liste) do
+        -- HOTFIX 0.16.1: eine Grenze ist eine FLANKE. Gemeldet wird nur, wenn dieser Beruf in
+        -- dieser Sitzung schon einmal UNTER dem Deckel gesehen wurde. Der erste Blick nach dem
+        -- Login (SKILL_LINES_CHANGED kommt dort von selbst) legt damit nur die Basislinie an:
+        -- wer mit Kochen 300/300 einloggt, hat die Grenze vor Wochen erreicht und hoert nichts -
+        -- dieselbe Regel wie beim Reittier und beim Gold ("nie nachtraeglich erzaehlen").
+        local vorher = berufStand[b.name]
         berufStand[b.name] = b.rank
-        if W.GRENZEN[b.max] and b.rank >= b.max then
+        if W.GRENZEN[b.max] and b.rank >= b.max and vorher ~= nil and vorher < b.max then
             -- Derselbe key wie in Sinne/Welle4.lua:196. Das ist die ganze Doppelungs-Sperre.
             meldeNachhol("BERUF_GRENZE", { beruf = b.name, wert = b.rank,
                                            key = b.name .. ":" .. b.rank },

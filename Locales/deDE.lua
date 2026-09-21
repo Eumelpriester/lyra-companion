@@ -8,6 +8,7 @@ ns.locales.deDE = {
     ["Language"] = "Sprache", ["Auto"] = "Automatisch", ["German"] = "Deutsch", ["English"] = "Englisch",
     ["Address"] = "Wie Lyra dich anspricht", ["By character"] = "Nach Charakter", ["Male"] = "Männlich", ["Female"] = "Weiblich", ["No address"] = "Keine Anrede",
     ["Voice"] = "Stimme", ["Voice enabled"] = "Stimme an", ["Sound channel"] = "Tonkanal", ["Subtitles"] = "Text immer zeigen",
+    ["Chatter off note"] = "Plaudern ist AUS, nur Warnungen. Zurück mit /lyra normal.",
     ["Talkativeness"] = "Gesprächigkeit", ["Silent"] = "Still", ["Little"] = "Wenig", ["Normal"] = "Normal", ["Chatty"] = "Gesprächig",
     ["Combat: warnings only"] = "Im Kampf nur Warnungen", ["Quiet in groups"] = "In Gruppe und Schlachtzug schweigen",
     ["Cheeky humor"] = "Frecher Humor", ["Bubble duration"] = "Sprechblasen-Dauer (s)", ["Font size"] = "Schriftgröße", ["High contrast"] = "Hoher Kontrast",

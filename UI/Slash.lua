@@ -65,7 +65,10 @@ local function status()
     end
     ns.print(L("Language") .. ": " .. tostring(sp) .. (sp == "auto" and (" (" .. eff .. ")") or ""))
     ns.print(L("Address") .. ": " .. tostring(ns.Get("anrede")) .. " (" .. tostring(ns.geschlecht and ns.geschlecht() or "?") .. ")")
-    ns.print(L("Talkativeness") .. ": " .. tostring(ns.Get("gespraechig")))
+    -- HOTFIX 0.16.1: bei "still" steht der Grund fuer die Stille gleich daneben - sonst sucht
+    -- man (wie Harald am 21.09.) eine halbe Stunde nach einem Fehler, der eine Einstellung ist.
+    ns.print(L("Talkativeness") .. ": " .. tostring(ns.Get("gespraechig"))
+        .. (ns.Get("gespraechig") == "still" and (" - " .. L("Chatter off note")) or ""))
     ns.print(L("Voice enabled") .. ": " .. anAus(ns.Get("stimme")) .. " - " .. L("Voice pack") .. " " .. eff .. ": "
         .. (geladen == nil and L("not loaded") or anAus(geladen)))
     ns.print(L("Combat") .. ": " .. anAus(R.imKampf) .. " - " .. L("Group") .. ": " .. anAus(R.inGruppe))

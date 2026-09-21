@@ -82,6 +82,8 @@ W.MAX_YD       = 400    -- weiter weg: das ist kein "um die Ecke" mehr, Lyra sch
 W.NAH_YD       = 35     -- naeher: keine Zahl, "ein paar Schritt"
 W.ZONE_VERZUG  = 12     -- s nach ZONE_CHANGED_NEW_AREA (VOR den 20 s aus Sinne/Quests.lua)
 W.LOG_VERZUG   = 3      -- s nach QUEST_LOG_UPDATE (das Log ist dann fertig)
+W.LOGIN_RUHE   = 60     -- s nach dem Ladebildschirm: LOGIN-Gruss und Welle-13a-Ruhe haben Vorfahrt (HOTFIX 0.16.1)
+local abgabeRuheBis = 0
 W.EIGEN_ABSTAND = 45    -- s zwischen zwei eigenen Abgabe-Pruefungen (Rechenzeit)
 W.ZIEL_VERZUG  = 1.5    -- s zwischen Zielwechsel und Mechanik-Zeile
 W.MAX_ABGEBER  = 4      -- so viele Abgeber-NPCs je Quest werden angesehen
@@ -407,6 +409,11 @@ function W.abgabePruefe()
     if not an("abgabeweg") then W.abgabeStand.grund = "abgeschaltet"; return false end
     if imKampf() or tot() or aufTaxi() then return false end
     local t = jetzt()
+    -- HOTFIX 0.16.1 (21.09.2026, Spieltest Harald): QUEST_LOG_UPDATE kommt beim Login von selbst,
+    -- drei Sekunden spaeter stand der Abgabeort in Orgrimmar fest - und die LOGIN-Begruessung
+    -- (Core/Start.lua, +6 s) fiel mit "abstand" durch, zweimal hintereinander. Der Gruss hat
+    -- Vorfahrt; dieselbe Login-Ruhe wie in Sinne/Welle13a.lua (QUEST_LOGIN_RUHE = 60 s).
+    if t < abgabeRuheBis then W.abgabeStand.grund = "Login-Ruhe"; return false end
     if t - W.letztePruefung < W.EIGEN_ABSTAND then return false end
     W.letztePruefung = t
     local qid, schritt, richtung = W.abgabeSuche()
@@ -623,6 +630,7 @@ end)
 -- Sitzung, nicht dem Charakter — genau wie die Regie-Drossel "npc-session".
 ns.on("PLAYER_ENTERING_WORLD", function()
     W.letztePruefung = 0
+    abgabeRuheBis = jetzt() + W.LOGIN_RUHE   -- HOTFIX 0.16.1: der Gruss hat Vorfahrt
 end)
 
 -- =============================================================================================

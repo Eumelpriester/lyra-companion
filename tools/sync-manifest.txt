@@ -1399,6 +1399,7 @@ bilder/whatever.png
 bilder/wonder.png
 bruecken_dialog.lua
 dialog.lua
+laute/__selbsttest.ogg
 laute/autsch.ogg
 laute/gaehn.ogg
 laute/hihi.ogg

@@ -1,6 +1,34 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.16.1 (2026-09-21)
+
+### Hotfix after the first play test
+
+Six fixes, all from the play test on the evening of 21 September. No new lines, no new
+recordings.
+
+- **The voice plays again.** Since 0.14.0 Lyra probed the sound output at login with a file
+  that deliberately did not exist and expected a "no". The client answers a missing file with
+  nothing at all, the probe failed, and Lyra dutifully fell back to text. She now probes with a
+  real, 50-millisecond silent file that is stopped right away. If the probe fails now, sound
+  really is off in the client.
+- **No more error window on load.** Lyra's settings page registered Blizzard's dialog volume
+  slider under the same name as Blizzard's own audio page. That slider is gone; Lyra's own
+  volume slider above it stays.
+- **Profession cap only for professions.** The new rank reader from 0.16.0 also counted weapon
+  and armor skills and would have announced old caps at login. Only lines under "Professions"
+  and "Secondary Skills" count now, and only a crossing Lyra saw herself in this session.
+- **The greeting is back.** The turn-in sense spoke three seconds after login and took the
+  greeting's slot. It now keeps a minute of quiet after the loading screen.
+- **Talkativeness "silent" is not a fault.** `/lyra warum` listed every chatter line as a loss
+  in that mode. It now says "still-preset" as intended, and `/lyra status` prints the way
+  back next to "still": `/lyra normal`.
+- **Probes leave no trace.** `/lyra test HP20` used to write a real "close call" entry with
+  100 % health into the chronicle, pin included, and put Lyra in a worried mood for twenty
+  minutes. Probes now bypass chronicle, mood and profile. A close call with more than 35 %
+  health is never recorded any more.
+
 ## 0.16.0 (2026-09-21)
 
 ### Wave 13: Docking points

@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.16.1 (2026-09-21)
+
+### Hotfix nach dem ersten Spieltest
+
+Sechs Korrekturen, alle aus dem Spieltest vom Abend des 21. September. Keine neuen Zeilen,
+keine neuen Aufnahmen.
+
+- **Die Stimme spielt wieder.** Seit 0.14.0 prüfte Lyra beim Login die Ton-Ausgabe mit einer
+  Datei, die es absichtlich nicht gab, und erwartete ein „nein". Der Client antwortet auf eine
+  fehlende Datei aber mit gar nichts, die Prüfung fiel durch, und Lyra schaltete brav auf Text.
+  Jetzt probt sie mit einer echten, 50 Millisekunden stillen Datei, die sofort wieder gestoppt
+  wird. Fällt die Probe jetzt durch, ist der Ton im Client wirklich aus.
+- **Kein Fehlerfenster mehr beim Laden.** Lyras Einstellungsseite meldete Blizzards
+  Dialog-Regler unter demselben Namen an wie Blizzards eigene Ton-Seite. Der Regler ist raus;
+  Lyras eigener Regler darüber bleibt.
+- **Berufsgrenze nur für Berufe.** Der neue Rang-Leser aus 0.16.0 zählte auch Waffen- und
+  Rüstungsfertigkeiten und hätte alte Grenzen beim Login gemeldet. Jetzt zählen nur Zeilen
+  unter „Berufe" und „Sekundäre Fertigkeiten", und gemeldet wird nur ein Überschreiten, das
+  Lyra in dieser Sitzung selbst gesehen hat.
+- **Die Begrüßung kommt wieder.** Der Abgabeort-Sinn sprach drei Sekunden nach dem Login und
+  nahm der Begrüßung den Platz. Er hält jetzt eine Minute Ruhe nach dem Ladebildschirm.
+- **Gesprächigkeit „still" ist keine Panne.** `/lyra warum` führte in dieser Stufe jede
+  Plauder-Zeile als Verlust. Jetzt steht dort „still-preset" als gewollt, und `/lyra status`
+  schreibt hinter „still" den Weg zurück: `/lyra normal`.
+- **Proben hinterlassen keine Spuren.** `/lyra test HP20` schrieb bisher einen echten
+  „hier war es knapp"-Eintrag mit 100 % Leben in die Chronik, samt Pin auf der Karte, und
+  verstimmte Lyra für zwanzig Minuten. Proben gehen jetzt an Chronik, Laune und Profil vorbei.
+  Ein Beinahe-Eintrag mit mehr als 35 % Leben wird grundsätzlich nicht mehr angelegt.
+
 ## 0.16.0 (2026-09-21)
 
 ### Welle 13: Andockstellen

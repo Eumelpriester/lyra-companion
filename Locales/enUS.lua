@@ -13,6 +13,7 @@ ns.locales.enUS = {
     ["Language"] = "Language", ["Auto"] = "Auto", ["German"] = "German", ["English"] = "English",
     ["Address"] = "How Lyra addresses you", ["By character"] = "By character", ["Male"] = "Male", ["Female"] = "Female", ["No address"] = "No address",
     ["Voice"] = "Voice", ["Voice enabled"] = "Voice enabled", ["Sound channel"] = "Sound channel", ["Subtitles"] = "Always show text",
+    ["Chatter off note"] = "Chatter is OFF, warnings only. Back with /lyra normal.",
     ["Talkativeness"] = "Talkativeness", ["Silent"] = "Silent", ["Little"] = "Little", ["Normal"] = "Normal", ["Chatty"] = "Chatty",
     ["Combat: warnings only"] = "In combat: warnings only", ["Quiet in groups"] = "Quiet in groups and raids",
     ["Cheeky humor"] = "Cheeky humor", ["Bubble duration"] = "Speech bubble duration (s)", ["Font size"] = "Font size", ["High contrast"] = "High contrast",

@@ -60,7 +60,8 @@ ns.on("PLAYER_UPDATE_RESTING", function()
 end)
 ns.on("PLAYER_LOGIN", function()
     if ns.nachAusgabe then
-        ns.nachAusgabe(function(id)
+        ns.nachAusgabe(function(id, _, vars)
+            if vars and vars.test then return end   -- HOTFIX 0.16.1: Proben lernen nichts
             if id == "HP35" then hp35Zeit = GetTime(); local sp = speicher(); if sp then sp.hp35 = sp.hp35 + 1 end end
         end)
     end

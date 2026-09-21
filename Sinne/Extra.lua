@@ -369,7 +369,8 @@ local function foto(pose)
 end
 X.foto = foto
 
-ns.nachAusgabe(function(id)
+ns.nachAusgabe(function(id, _, vars)
+    if vars and vars.test then return end   -- HOTFIX 0.16.1: keine Foto- und Kampf-Marke aus Proben
     if id == "HP20" then hp20ImKampf = true end
     if id == "STUFE_MEILENSTEIN" then foto(nil) end   -- Miene kommt schon von der Meilenstein-Zeile
 end)
@@ -518,6 +519,12 @@ function X.test(id)
     -- war der Testbefehl stumm ("budget"). Eine Probe ist eine Frage des Spielers; sie geht wie
     -- Klick und "Sag was" direkt (Core/Regie.lua: nur Lade- und Tod-Riegel gelten weiter).
     vars.direkt = true
+    -- HOTFIX 0.16.1 (21.09.2026, Spieltest Harald): eine Probe ist KEIN Erlebnis. Bis 0.16.0 lief
+    -- /lyra test HP20 durch dieselben ns.nachAusgabe-Haken wie ein echter Beinahe-Tod: die
+    -- Chronik schrieb "hier war es knapp: 100 %" mit Pin auf die Minimap, die Laune wurde fuer
+    -- zwanzig Minuten "besorgt", das Profil zaehlte mit. Die lernenden Haken pruefen jetzt
+    -- vars.test und lassen Proben durch, ohne sich etwas zu merken.
+    vars.test = true
     local ok = ns.melde(id, vars)
     if not ok then
         local d = ns.Regie and ns.Regie.dropLog and ns.Regie.dropLog[1]

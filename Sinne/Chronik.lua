@@ -486,9 +486,14 @@ local function beinaheTod(hp)
 end
 
 -- Hook hinter jeder Regie-Ausgabe: HP20 gemeldet, oder STURZ mit Stand unter 35 %.
-ns.nachAusgabe(function(id)
+ns.nachAusgabe(function(id, _, vars)
+    if vars and vars.test then return end   -- HOTFIX 0.16.1: Proben schreiben keine Chronik
     if id == "HP20" then
-        beinaheTod(ns.Sinne and ns.Sinne.Leben and ns.Sinne.Leben.pct or 20)
+        -- HOTFIX 0.16.1: ein "Beinahe" mit mehr als 35 % Leben gibt es nicht (Muell-Riegel,
+        -- derselbe Deckel wie beim Sturz) - lieber kein Eintrag als ein falscher Pin.
+        local pct = ns.Sinne and ns.Sinne.Leben and ns.Sinne.Leben.pct or 20
+        if pct >= STURZ_BEINAHE_PCT then return end
+        beinaheTod(pct)
     elseif id == "STURZ" then
         local pct = ns.Sinne and ns.Sinne.Leben and ns.Sinne.Leben.pct
         if pct and pct < STURZ_BEINAHE_PCT then beinaheTod(pct) end

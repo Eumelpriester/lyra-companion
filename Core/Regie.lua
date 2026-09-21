@@ -235,6 +235,7 @@ R.NORMALBETRIEB = {
     ["ruhe"] = true,              -- Andacht/GTFO-Stillhalte: gewollt
     ["tod-ruhe"] = true,          -- 60 s Schweigen nach dem Tod: gewollt
     ["ladebildschirm"] = true,    -- der 5-s-Riegel
+    ["still-preset"] = true,      -- HOTFIX 0.16.1: Gespraechigkeit "still" - Plaudern ist AUS, gewollt
 }
 R.dropZaehler = { normal = 0, verlust = 0 }
 
@@ -496,6 +497,10 @@ function R.melde(id, vars)
         ns.debug("Regie wartet: " .. id)
         return true
     end
+    -- HOTFIX 0.16.1 (21.09.2026, Spieltest Harald): mit Gespraechigkeit "still" (Abstand 999999)
+    -- fiel JEDE Plauder-Zeile als "abstand" durch, und /lyra warum zaehlte Begruessung, Zone und
+    -- Rast als VERLUST - dabei ist es genau die Einstellung. Eigener Grund, eigene Einordnung.
+    if p.abstand >= 999999 then drop("still-preset", id); return false end
     if t - R.zuletztPlauder < p.abstand then drop("abstand", id); return false end
     if not budgetOk() then drop("budget", id); return false end
     if not drossel(e, id, key) then drop("drossel", id); return false end

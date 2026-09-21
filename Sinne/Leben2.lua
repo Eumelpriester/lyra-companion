@@ -169,7 +169,8 @@ local GUT_IDS = { LEVELUP = true, LOOT = true, SKILL = true, STUFE_MEILENSTEIN =
                   QUEST_AB = true, FOTO = true, BOSS_KILL = true }
 local BEINAHE_IDS = { HP20 = true, STURZ = true }
 
-ns.nachAusgabe(function(id)
+ns.nachAusgabe(function(id, _, vars)
+    if vars and vars.test then return end   -- HOTFIX 0.16.1: Proben aendern die Laune nicht
     if GUT_IDS[id] then
         gutBis = jetzt() + GUT_FRIST
     elseif BEINAHE_IDS[id] then

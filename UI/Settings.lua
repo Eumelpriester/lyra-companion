@@ -465,12 +465,14 @@ local function baueNativ()
     -- (Gestalt/Stimme.lua, Block W11B-6). Alarme der Stufe 3 bleiben voll laut - das steht im
     -- Hinweistext, denn ein Regler, der bei einem Wert heimlich nicht gilt, ist eine Falle.
     slider(fein, "lautstaerke", "Lyra volume", 0, 100, 5, ganz, "Lyra volume tip", { default = 100 })
-    if Settings.RegisterCVarSetting then
-        local ok, cv = pcall(Settings.RegisterCVarSetting, fein, "Sound_DialogVolume", VT.Number, "Dialog volume")
-        if ok and cv then
-            Settings.CreateSlider(fein, cv, sliderOptionen(0, 1, 0.05, prozent), "Dialog volume tip")
-        end
-    end
+    -- HOTFIX 0.16.1 (21.09.2026, Spieltest Harald): Bis 0.16.0 stand hier zusaetzlich Blizzards
+    -- Dialog-Regler, angemeldet ueber Settings.RegisterCVarSetting(fein, "Sound_DialogVolume").
+    -- Blizzards eigene Audio-Seite meldet DIESELBE Variable an, und der Settings-Registrar
+    -- erlaubt jeden Variablennamen nur einmal: 13x "Setting variable 'Sound_DialogVolume' was
+    -- previously registered" (Blizzard_SettingsPanel.lua:711) beim Login, rotes Fehlerfenster.
+    -- Seit W11B-6 hat Lyra ihren eigenen Regler darueber; der Blizzard-Regler ist ueberfluessig
+    -- und faellt weg. Wer den Dialog-Kanal insgesamt leiser will, findet ihn bei Blizzard unter
+    -- Ton, und der Hinweistext des Kanal-Dropdowns sagt das.
     -- PORT (0.9.0): Text-to-Speech. Standard "aus" — die Stimmen kommen vom Betriebssystem, und
     -- unter Linux/Wine ist die Liste voraussichtlich leer. Die Stimmen-Auswahl steht NUR da, wenn
     -- der Client ueberhaupt eine Stimme meldet; sonst waere es ein Dropdown mit einem Eintrag,

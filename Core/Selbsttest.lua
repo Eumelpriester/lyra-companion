@@ -213,8 +213,17 @@ ST.FLAECHEN = {
     --   ZWEI Dinge daran: StopSound (Gestalt/Stimme.lua S.handle) und den Riegel, der den
     --   TTS-Rueckfall stumm haelt, waehrend eine Aufnahme laeuft (S.letzterErfolgT). Ein Client,
     --   der nichts zurueckgibt, laesst Lyra doppelt sprechen - das war am 20.09. im Pruefstand
-    --   zu sehen, damals als Attrappen-Fehler. Geprobt wird mit einem Pfad, den es NICHT gibt:
-    --   der Client antwortet mit willPlay = false und spielt garantiert nichts.
+    --   zu sehen, damals als Attrappen-Fehler.
+    --   HOTFIX 0.16.1 (21.09.2026, Spieltest Harald): Bis 0.16.0 wurde mit einem Pfad geprobt,
+    --   den es NICHT gibt - in der Annahme, der Client antworte mit willPlay = false. Der echte
+    --   Era-Client antwortet auf eine fehlende Datei mit NICHTS (nil), die Probe fiel durch,
+    --   und Gestalt/Stimme.lua spielte seit 0.14.0 keine einzige Aufnahme mehr ("gedaempfter
+    --   Betrieb"), ohne dass es jemand gemerkt haette - der Pruefstand-Stub gab fuer jeden Pfad
+    --   true zurueck. Geprobt wird jetzt mit einer ECHTEN Datei: laute/__selbsttest.ogg ist
+    --   50 ms Stille (ffmpeg anullsrc). willPlay = true -> sofort StopSound, nichts zu hoeren.
+    --   willPlay = false heisst jetzt: Ton im Client aus (Hauptregler 0 oder "Enable Sound"
+    --   abgewaehlt) - dann kann auch keine Aufnahme spielen, und Text-only ist die richtige
+    --   Antwort. nil bleibt der blinde Client.
     { key = "ton", phase = "login", hart = true, pruef = function()
         if type(PlaySoundFile) ~= "function" then return false, "PlaySoundFile fehlt" end
         local pfad = (ns.PFAD or "Interface\\AddOns\\Lyra_Gestalt\\") .. "laute\\__selbsttest.ogg"
@@ -225,6 +234,9 @@ ST.FLAECHEN = {
             return false, "PlaySoundFile gibt nichts zurueck - StopSound und TTS-Riegel blind"
         end
         if will and handle and StopSound then pcall(StopSound, handle) end
+        if not will then
+            return false, "PlaySoundFile spielt die Probe nicht (Ton im Client aus?)"
+        end
         return true, "willPlay=" .. tostring(will)
     end },
 

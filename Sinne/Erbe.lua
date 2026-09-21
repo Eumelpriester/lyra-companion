@@ -1,7 +1,34 @@
 -- Sinne/Erbe.lua — Vorgaenger-Erbe (account-weit) und Sitzungs-Debrief. Doku: Sinne/EXTRA.md.
--- Ereignisse: ERBE_TOD (still), ERBE_VORGAENGER, ERBE_WORTE, DEBRIEF.
+-- Ereignisse: ERBE_TOD (still), ERBE_VORGAENGER, ERBE_WORTE, DEBRIEF,
+--   W11A: ERBE_NACHRUF, ERBE_NACHRUF_WORTE (der Nachruf NACH dem 60-s-Riegel).
 -- Daten: LyraGestaltDB.erbe = Liste (max 20) eigener gefallener Charaktere dieses Accounts:
---   { name, realm, level, zone, mapID, x, y, gegner, npcID, t, klasse, worte, vorgestellt }.
+--   { name, realm, level, zone, mapID, x, y, gegner, npcID, t, klasse, worte, vorgestellt, quelle }.
+--
+-- ---------------------------------------------------------------------------------------------
+-- W11A (20.09.2026) — DER TOD BEKOMMT EINE STIMME
+-- ---------------------------------------------------------------------------------------------
+-- Befund docs/review-bindung-2026-09-20.md §2.5: der emotionalste Moment, den dieses Spiel kennt,
+-- wurde von einer Begleiterin begleitet, die dabei drei fest verdrahtete Saetze kennt und dann
+-- eine Minute schweigt. GEFALLEN und ERBE_TOD haben null Zeilen.
+--
+-- DIE MINUTE SCHWEIGEN BLEIBT. Core/Regie.lua setzt bei PLAYER_DEAD R.todRiegelBis = jetzt() + 60
+-- und laesst nur noch klasse "still" durch. Das ist richtig und wird hier nicht angefasst:
+-- direkt nach dem Tod hat niemand Lust auf einen Kommentar. GEFALLEN und ERBE_TOD bleiben darum
+-- "still" und bleiben ohne Zeilen (Begruendung ausfuehrlich in docs/phrasen-w11a.json).
+--
+-- GESPROCHEN WIRD DANACH. NACHRUF_AB Sekunden nach dem Tod - also sicher hinter dem Riegel -
+-- meldet dieses Modul ERBE_NACHRUF mit den Fakten, die im Erbe-Eintrag und in der Chronik ohnehin
+-- schon stehen: Name, Stufe, Zone, Toeter, gespielte Stunden, Beinahe-Tode, aergster Rivale.
+-- Nichts davon wird neu erhoben und nichts davon wird gedeutet - es ist die Zahl, nicht ihr Grund.
+-- Gibt es LETZTE WORTE, und zwar nur, wenn der Spieler sie SELBST eingegeben hat, folgt
+-- NACHRUF_WORTE_AB Sekunden spaeter ERBE_NACHRUF_WORTE. Lyra erfindet nie letzte Worte.
+--
+-- Warum die zwei Ereignisse trotz klasse "plauder" durchkommen, wo der Spieler gerade als Geist
+-- dasteht: gruppeOk = true in phrasen.json haengt sie am Gruppen-Schweigen vorbei (dieselbe
+-- Loesung, die AGGRO und BOSS_PULL benutzen), im Kampf ist ein Geist nicht, und der Plauder-
+-- Abstand ist nach einer Minute Totenstille ohnehin abgelaufen. Der Still-Modus (/lyra still)
+-- gilt weiter, und das ist Absicht: wer Ruhe bestellt hat, bekommt auch hier Ruhe.
+-- Es braucht dafuer KEINE Aenderung an Core/Regie.lua.
 -- HARTE REGEL: Quelle ist NUR der eigene Charakter (UnitName("player")) bei PLAYER_DEAD. Nie Deathlog,
 --   nie Daten anderer Spieler, nie ein Spielername als "gegner" (UnitIsPlayer-Sperre, Chronik-Bestiarium
 --   enthaelt nur Creature-GUIDs).
@@ -29,6 +56,11 @@ local function loginSlot(ab)
     return ab
 end
 local NACHHOL = 35
+-- W11A: der Nachruf. 65 > 60 (Core/Regie.lua todRiegelBis) mit fuenf Sekunden Luft, damit er
+-- nicht auf der Kante liegt; die zweite Zeile noch einmal so weit dahinter, wie der Plauder-
+-- Abstand bei Preset "normal" breit ist.
+local NACHRUF_AB = 65
+local NACHRUF_WORTE_AB = 34
 local GEGNER_FRIST = 30            -- s: Bestiarium-Tod / Beinahe zaehlt als Toeter nur so lange
 local SITZUNG_FRISCH = 120         -- s: aelterer Sitzungsstart beim Login = fortgesetzte Sitzung (/reload)
 
@@ -132,16 +164,99 @@ local todGemerkt = false
 local worteBis = 0
 local letzterEintrag = nil
 
+-- W11A: die Frage nach den letzten Worten hatte genau EINEN Wortlaut (Locales/deDE.lua:102),
+-- und das an der Stelle, an der ein Spieler in seinem ganzen Hardcore-Leben vielleicht fuenfmal
+-- hinhoert. Jetzt sind es vier, die Bestaetigung hat drei.
+-- Sie bleiben ausdruecklich in den LOCALES und nicht im Katalog: der Quelltext von Core/Regie.lua
+-- sagt selbst, dass diese zwei Saetze absichtlich NICHT ueber die Regie laufen, weil der
+-- Tod-Riegel sie sonst verschlucken wuerde. Ein Katalogtext waere genau dieser Weg.
+local FRAGE_SCHLUESSEL = { "Last words prompt", "Last words prompt 2",
+                           "Last words prompt 3", "Last words prompt 4" }
+local DANK_SCHLUESSEL  = { "Last words saved", "Last words saved 2", "Last words saved 3" }
+
+-- Nimmt den Schluessel, wenn die Locale ihn kennt; sonst den ersten. Eine Sprache, die nur die
+-- alten Schluessel hat (eine Fremduebersetzung), faellt damit sauber auf den alten Satz zurueck.
+local function locVariante(liste)
+    local frei = {}
+    for _, k in ipairs(liste) do
+        local s = ns.L[k]
+        if type(s) == "string" and s ~= "" and s ~= k then frei[#frei + 1] = s end
+    end
+    if #frei == 0 then return ns.L[liste[1]] end
+    return frei[math.random(#frei)]
+end
+
 local function worteFrage()
-    local L = ns.L
     ns.erbeWarteAufWorte = true
     worteBis = jetzt() + WORTE_FRIST
+    local satz = locVariante(FRAGE_SCHLUESSEL)
     if ns.Blase and ns.Blase.zeige and not ns.Get("versteckt") then
-        ns.Blase.zeige(L["Last words prompt"], WORTE_BLASE, "plauder")
+        ns.Blase.zeige(satz, WORTE_BLASE, "plauder")
     end
-    ns.print(L["Last words prompt"])
+    ns.print(satz)
     ns.Compat.After(WORTE_FRIST, function()
         if jetzt() >= worteBis then ns.erbeWarteAufWorte = nil end
+    end)
+end
+
+-- ---------------------------------------------------------------- W11A: der Nachruf
+-- Alle Zutaten liegen seit 0.9 da und wurden nie benutzt (review-bindung §2.5, letzter Absatz).
+-- Gerechnet wird ausschliesslich aus dem Erbe-Eintrag und aus der Chronik DIESES Charakters.
+-- Kein Platzhalter wird geraten: was nicht da ist, steht nicht in vars, und Core/Regie.lua
+-- waehle() wirft die Zeilen, die ihn brauchen, dann von selbst aus der Auswahl.
+local function stundenGespielt()
+    local c = chronikDB()
+    if not (c and type(c.sitzungen) == "table") then return nil end
+    local sek = 0
+    for _, s in ipairs(c.sitzungen) do
+        local a, b = tonumber(s.start) or 0, tonumber(s.ende) or 0
+        if b > a then sek = sek + (b - a) end
+    end
+    if sek < 600 then return nil end            -- unter zehn Minuten ist "0,1 Stunden" keine Aussage
+    return string.format("%.1f", sek / 3600)
+end
+
+local function beinaheZahl()
+    local c = chronikDB()
+    if not (c and type(c.beinahe) == "table") then return nil end
+    local n = #c.beinahe
+    if n <= 0 then return nil end               -- "0 Mal knapp" waere eine Floskel, keine Zahl
+    return n
+end
+
+-- Der aergste Gegner: Rang wie im Bestiarium (erst beinahe + tode, dann Schaden). Es ist ein
+-- NPC-Name - das Bestiarium enthaelt ausschliesslich Creature-GUIDs (Sinne/Chronik.lua).
+local function aergsterGegner()
+    local c = chronikDB()
+    if not (c and type(c.bestiarium) == "table") then return nil end
+    local best, rangBest = nil, 0
+    for _, e in pairs(c.bestiarium) do
+        if type(e) == "table" and e.name and e.name ~= "" then
+            local rang = (tonumber(e.beinahe) or 0) + (tonumber(e.tode) or 0)
+            if rang > rangBest then best, rangBest = e.name, rang end
+        end
+    end
+    if rangBest < 1 then return nil end
+    return best
+end
+
+local function nachrufPlanen(e)
+    if not (e and e.name) then return end
+    local vars = { name = e.name, level = tonumber(e.level) or 0,
+                   zone = (e.zone and e.zone ~= "") and e.zone or nil }
+    if e.gegner and e.gegner ~= "" then vars.gegner = e.gegner end
+    local std = stundenGespielt();      if std then vars.stunden = std end
+    local bn  = beinaheZahl();          if bn  then vars.beinahe = bn end
+    local ag  = aergsterGegner();       if ag  then vars.aergster = ag end
+    -- gilt(): der Eintrag muss noch der letzte sein. Wer in der Minute dazwischen /reload macht
+    -- oder ein zweites Mal stirbt (Geist-Tod auf manchen Servern), bekommt keinen doppelten.
+    local gilt = function() return letzterEintrag == e end
+    meldeNachhol("ERBE_NACHRUF", vars, NACHRUF_AB, gilt, function()
+        -- Letzte Worte nur, wenn der SPIELER sie selbst eingegeben hat. Es gibt keinen Weg,
+        -- auf dem hier etwas anderes stehen koennte: E.worte() ist die einzige Schreibstelle.
+        if not (e.worte and e.worte ~= "") then return end
+        meldeNachhol("ERBE_NACHRUF_WORTE", { name = e.name, worte = e.worte },
+            NACHRUF_WORTE_AB, gilt)
     end)
 end
 
@@ -160,6 +275,13 @@ local function todEintragen()
         t = unix(),
         klasse = klasse,
         vorgestellt = false,
+        -- W11A: Herkunftsmarke. Die Liste kennt seit 0.9 nur EINE Quelle - UnitName("player")
+        -- bei PLAYER_DEAD - und das soll so bleiben ("Erbe aus Deathlog-Daten: nie",
+        -- Sinne/EXTRA.md:107). Seit die Halle der Gefallenen die Liste ANZEIGT, ist das keine
+        -- Doku-Zusage mehr, sondern eine Anzeigefrage: was hier auf dem Bildschirm steht, geht
+        -- unter Umstaenden als Screenshot ins Netz. Die Halle zeigt darum nur Eintraege mit
+        -- quelle == "selbst" (und, fuer Eintraege von vor Welle 11a, ohne quelle).
+        quelle = "selbst",
     }
     local karte, x, y = position()
     if karte and x and y then e.mapID, e.x, e.y = karte, rund3(x), rund3(y) end
@@ -170,6 +292,7 @@ local function todEintragen()
     letzterEintrag = e
     ns.melde("ERBE_TOD")
     worteFrage()
+    nachrufPlanen(e)
 end
 
 ns.on("PLAYER_DEAD", function()
@@ -201,10 +324,11 @@ function E.worte(text)
     e.worte = text
     ns.erbeWarteAufWorte = nil
     worteBis = 0
+    local dank = locVariante(DANK_SCHLUESSEL)
     if ns.Blase and ns.Blase.zeige and not ns.Get("versteckt") then
-        ns.Blase.zeige(ns.L["Last words saved"], 8, "plauder")
+        ns.Blase.zeige(dank, 8, "plauder")
     end
-    ns.print(ns.L["Last words saved"])
+    ns.print(dank)
     if ns.Gestalt and ns.Gestalt.miene then ns.Gestalt.miene("touched", 10) end
     return true
 end
@@ -288,6 +412,12 @@ end
 local ersterPEW = true
 ns.on("PLAYER_LOGIN", function()
     dialogWrappen()
+    -- W11A: UI/Dialog.lua steht in der TOC HINTER Sinne/Erbe.lua - beim Laden gibt es
+    -- ns.Dialog.chronikZeilen noch nicht. Beim Login gibt es sie. Gleiches Muster wie oben.
+    -- Ueber E. und nicht ueber den lokalen Namen: die Halle steht weiter unten in dieser Datei,
+    -- der lokale Upvalue waere hier oben noch nil (im Harness reproduziert - der Fehler fiel
+    -- still in den pcall des Ereignisrahmens und verschluckte gleich noch erbeListe()).
+    if E.halleWrappen then E.halleWrappen() end
     erbeListe()
 end)
 ns.on("PLAYER_ENTERING_WORLD", function()
@@ -317,6 +447,83 @@ function E.status()
     return out
 end
 
+-- ---------------------------------------------------------------- W11A: Halle der Gefallenen
+-- docs/abgleich-claudebuddy-2026-09-20.md §3 Nr. 7 und §5 W11-11: "Lyra hat die Daten bereits
+-- vollstaendig ... Was fehlt, ist der Ort." Der Ort ist ein weiterer Abschnitt im Chronik-Fenster.
+--
+-- UI/Dialog.lua WIRD DAFUER NICHT ANGEFASST. Sie gehoert in Welle 11 einem anderen Team, und sie
+-- muss auch gar nicht: D.chronikZeilen() gibt eine reine Datenliste { {art, text}, ... } zurueck,
+-- die das Fenster generisch zeichnet. Dieses Modul legt - nach demselben Muster, mit dem es seit
+-- 0.9 ns.Dialog.frage umwickelt - einen Wrapper darum und haengt seinen Abschnitt ans Ende.
+-- Faellt der Wrapper aus (kein UI/Dialog.lua, Fehler beim Wrappen), sieht das Fenster aus wie
+-- vorher; die Halle ist ein Zusatz, kein Umbau.
+--
+-- NUR EIGENE CHARAKTERE. LyraGestaltDB.erbe wird ausschliesslich aus UnitName("player") bei
+-- PLAYER_DEAD geschrieben. Die Halle verlaesst sich nicht darauf, sondern prueft zweimal:
+--   1. quelle: Eintraege mit einer anderen Herkunft als "selbst" fallen heraus. Eintraege ganz
+--      ohne Feld sind von vor Welle 11a und damit ebenfalls eigene.
+--   2. ns.Dialog.chronikSicher: streicht Charakter-, Realm- und Gildennamen des AKTUELLEN
+--      Charakters aus jeder Zeile, bevor sie gesetzt wird - dieselbe Behandlung wie fuer Zonen
+--      und Bestiarium. Ein Screenshot soll nicht sagen, wer ihn gemacht hat.
+-- Die letzten Worte stehen darunter, eingerueckt und in Anfuehrungszeichen: sie sind das, was in
+-- der Hardcore-Szene am meisten gelobt wird, und sie sind das Einzige an diesem Fenster, das ein
+-- Mensch geschrieben hat.
+E.HALLE_MAX = 6
+
+function E.halleZeilen()
+    local z = {}
+    local liste = erbeListe()
+    if type(liste) ~= "table" or #liste == 0 then return z end
+    local sicher = (ns.Dialog and ns.Dialog.chronikSicher) or function(s) return tostring(s or "") end
+    local L = ns.L
+    local eigene = {}
+    for i = #liste, 1, -1 do
+        local e = liste[i]
+        if type(e) == "table" and e.name and e.name ~= ""
+           and (e.quelle == nil or e.quelle == "selbst") then
+            eigene[#eigene + 1] = e
+        end
+    end
+    if #eigene == 0 then return z end
+    z[#z + 1] = { art = "kopf", text = sicher(L["Hall of the fallen"] .. " (" .. #eigene .. ")") }
+    for i = 1, math.min(E.HALLE_MAX, #eigene) do
+        local e = eigene[i]
+        local zeile = ("%s (%d)  -  %s  -  %s"):format(
+            tostring(e.name), tonumber(e.level) or 0,
+            tostring((e.zone and e.zone ~= "") and e.zone or "?"),
+            date("%d.%m.%Y", e.t or 0))
+        if e.gegner and e.gegner ~= "" then zeile = zeile .. "  -  " .. tostring(e.gegner) end
+        z[#z + 1] = { art = "zeile", text = sicher(zeile) }
+        if e.worte and e.worte ~= "" then
+            z[#z + 1] = { art = "zeile", text = sicher("\"" .. e.worte .. "\"") }
+        end
+    end
+    if #eigene > E.HALLE_MAX then
+        local mehr = L["Chronicle more"]
+        z[#z + 1] = { art = "zeile", text = sicher(
+            (type(mehr) == "string" and mehr:find("%%d")) and mehr:format(#eigene - E.HALLE_MAX)
+            or ("+" .. (#eigene - E.HALLE_MAX))) }
+    end
+    return z
+end
+
+local halleGewrappt = false
+local function halleWrappen()
+    if halleGewrappt or not (ns.Dialog and type(ns.Dialog.chronikZeilen) == "function") then return end
+    halleGewrappt = true
+    local original = ns.Dialog.chronikZeilen
+    ns.Dialog.chronikZeilen = function(...)
+        local z = original(...)
+        if type(z) ~= "table" then return z end
+        local ok, halle = pcall(E.halleZeilen)
+        if ok and type(halle) == "table" then
+            for _, eintrag in ipairs(halle) do z[#z + 1] = eintrag end
+        end
+        return z
+    end
+end
+E.halleWrappen = halleWrappen
+
 function E.stand()
-    return letzterEintrag, ns.erbeWarteAufWorte, worteBis, gewrappt
+    return letzterEintrag, ns.erbeWarteAufWorte, worteBis, gewrappt, halleGewrappt
 end

@@ -1,6 +1,52 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.15.0 (2026-09-20)
+
+### Wave 11a: Death gets a voice
+**Death gets a voice.** After a hardcore character falls, Lyra still keeps quiet for a minute —
+that stays. After that she speaks an obituary built from the facts already in your chronicle:
+level, zone, hours played, close calls, worst enemy. If you gave her last words she carries them
+on — and only then; she never invents any. The last-words prompt now has four wordings instead
+of one, and your predecessor six lines instead of two. The chronicle window has a new section:
+the **Hall of the Fallen**, with every character of yours who fell, their level, their zone and
+their last words. Yours only, never anybody else's.
+**She remembers you.** 48 new lines only unlock once you have been travelling together for a
+while — the focus is on the first ten hours, where the whole catalogue used to hold four lines.
+Plus 15 rare lines you may never hear.
+**The recap moved to the goodbye.** Type `/camp` and she tells you something from *this*
+session during the countdown, instead of telling you about the last one at your next login.
+**Bigger pools.** The runner warning had two sentences and now has six; `LEVELUP` twelve instead
+of six, clicking Lyra twenty instead of eleven, emotes sixteen instead of nine.
+
+### Safety
+- **Fatigue in open water now says the right thing.** Until now the fatigue bar produced a
+  chatty line about the inn - and that line was held back in combat, dropped in a group and
+  swallowed in silent mode. It is now a level 2 warning, it comes through in all three
+  situations, and it says what actually helps: turn back. Surfacing does not help against
+  fatigue.
+- **Your own close call beats someone else's statistic.** Where your own close call and a
+  foreign death cell sit on the same spot, only yours is spoken - and the foreign ones stay
+  quiet there for 30 seconds.
+
+### Quiet and pacing
+- **Level 1 hints** (cliffs, deep water, potions, bestiary, runners ...) now keep 15 seconds
+  apart and at most ten per hour. Warnings and alarms are untouched: health below 20 %,
+  falling, last breath and the boss pull still come instantly.
+- **Mute a single event:** `/lyra stumm <EVENT>`, undo with `/lyra laut <EVENT>`. `/lyra
+  gehoert` lists what you heard last, with the ID to switch it off. Alarms cannot be muted.
+- **"Why aren't you saying anything?"** - `/lyra warum` names the last five messages that did
+  not make it out, and why. It also says which of those were losses and which were simply
+  how you set her up.
+- **Rare lines.** Lines marked as rare now come up a quarter as often, and never twice in a
+  row.
+
+### Sound
+- **Lyra has her own volume control**, `/lyra lautstaerke <0-100>` or the slider in the fine
+  settings. It works relative to the sound channel you picked; Blizzard's own slider is only
+  lowered for the length of one line and put back exactly afterwards - even if you reload
+  mid-line. Alarms always stay at full volume.
+
 ## 0.14.0 (2026-09-20)
 
 ### Lyra miscounts less often

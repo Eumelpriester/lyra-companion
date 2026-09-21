@@ -271,4 +271,61 @@ ns.locales.enUS = {
     ["Colour theme tip"] = "Four named palettes for the speech bubble, the subtitle bar and the warning pulse at the screen edge: standard (Lyra's violet), kontrast (black/white), warm (amber on brown), kalt (ice blue on night blue). Every palette is checked for readability - text is above 11:1 in all four, the requirement is 4.5:1. The \"High contrast\" checkbox wins over the palette choice; no palette changes the brightness or the rhythm of the pulse, those are the photosensitivity limit. Also available as /lyra farbe <name>.",
     -- W10a: the disclosure line for /lyra hilfe (free-text concept §2.8, wave 9b §8 item 5).
     ["Disclosure"] = "Lyra answers from fixed templates and your own chronicle. No language model is running.",
+    -- =========================================================================================
+    -- W11B (20.09.2026): direction, safety, controls. APPENDED ONLY, nothing rewritten.
+    -- =========================================================================================
+    ["Event muted"] = "%s is quiet now. Bring it back with /lyra laut %s.",
+    ["Event unmuted"] = "%s will speak up again.",
+    ["Event is alarm"] = "%s is an alarm (level 3). I am not switching that one off for you - that is what it is for. If you want me fully quiet: /lyra stumm without an event, or turn the voice off.",
+    ["Event unknown"] = "I do not know an event called %s. /lyra gehoert lists what I said last.",
+    ["Recently heard"] = "What you heard from me last (newest first):",
+    ["Recently heard empty"] = "nothing said yet this session",
+    ["muted"] = "muted",
+    ["Mute hint"] = "/lyra stumm <EVENT> switches one of these off, /lyra laut <EVENT> switches it back on.",
+    ["Why silent"] = "What I did NOT say last, and why:",
+    ["Why nothing dropped"] = "nothing dropped - everything that came up also came out",
+    ["Why counters"] = "%d of those were losses, %d were by design.",
+    ["loss"] = "loss",
+    ["by design"] = "by design",
+    ["Why drossel"] = "throttle - this event has a waiting time and it was still running",
+    ["Why preset-leerlauf"] = "talkativeness - on \"little\" and \"silent\" I do not chat into the void",
+    ["Why session"] = "once per session - that one already happened today",
+    ["Why abstand"] = "spacing - something else came through shortly before",
+    ["Why budget"] = "hourly budget - my allowance for this hour is used up",
+    ["Why gruppe"] = "group - I hold back in parties and raids",
+    ["Why still-modus"] = "silent mode",
+    ["Why stumm"] = "you switched off this exact event (/lyra laut <ID>)",
+    ["Why ruhe"] = "quiet spell - after a memorial or someone else's warning I stay quiet for a moment",
+    ["Why tod-ruhe"] = "after a death I stay silent for a minute",
+    ["Why ladebildschirm"] = "loading screen",
+    ["Why warteliste-voll"] = "combat - the waiting list was full",
+    ["Why warte-ttl"] = "combat - it took too long, the line no longer fit afterwards",
+    ["Muted count"] = "Muted events: %d (/lyra gehoert)",
+    ["Volume range"] = "My volume runs from 0 to 100.",
+    ["Volume is"] = "My volume: %d %%",
+    ["Volume alarm note"] = "Alarms (level 3: health below 20 %, falling, last breath) stay at full volume.",
+    ["Lyra volume"] = "Lyra's volume",
+    ["Lyra volume tip"] = "How loud I am - relative to the sound channel you picked above. 100 % means unchanged. Technically I lower that channel for the one to four seconds of my line and put it back exactly afterwards; I never change your Blizzard slider permanently. During those seconds the whole channel is quieter, not just me - which is why the default is 100. Alarms (level 3) always stay at full volume, for the same reason they move to the Master channel.",
+    ["Recently heard button"] = "Recently heard",
+    ["Recently heard button tip"] = "Prints the events I said most recently, with their IDs, plus the line you need to switch one of them off. A clickable list with checkboxes is not something WoW's settings API gives us here: the page is built ONCE at login, and what you heard last is not known at that point.",
+    ["Wave 11b"] = "Pacing and quiet",
+    ["Help text w11b"] = "/lyra stumm <EVENT> - switch off a single event (/lyra laut <EVENT> to undo)\n"
+        .. "/lyra gehoert - what I said last, with the ID to switch it off\n"
+        .. "/lyra warum - what I did NOT say last, and why\n"
+        .. "/lyra lautstaerke <0-100> - how loud I am (alarms stay at full volume)",
+    -- W11A: wave 11a (death gets a voice, familiarity, remembering) - appended only.
+    -- The last-words prompt and its confirmation deliberately stay in the locale and do NOT move
+    -- into the phrase catalogue: Core/Regie.lua routes them past the director on purpose, because
+    -- the 60 s death lock would otherwise swallow them. Sinne/Erbe.lua picks a variant at random;
+    -- if one is missing it falls back to the first cleanly.
+    ["Last words prompt 2"] = "Anything you want to pass on to the next one? Tell me: /lyra <your words>",
+    ["Last words prompt 3"] = "One sentence, and I'll carry it on. /lyra <your words>",
+    ["Last words prompt 4"] = "I'm taking notes. Say it if you want to: /lyra <your words>",
+    -- IMPORTANT: every variant must carry the word "saved". tests/pruefstand/review4.lua checks
+    -- the confirmation for exactly that, and rightly so: a confirmation that does not confirm
+    -- that something was saved is not one.
+    ["Last words saved 2"] = "It is saved. The next one gets to hear it.",
+    ["Last words saved 3"] = "Written down and saved. Word for word, not roughly.",
+    -- Hall of the fallen: second section in the chronicle window (Sinne/Erbe.lua E.halleZeilen).
+    ["Hall of the fallen"] = "Hall of the fallen",
 }

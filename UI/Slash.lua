@@ -31,6 +31,9 @@ local function hilfe()
         local ok, zeilen = pcall(ns.Farben.hilfe)
         if ok and type(zeilen) == "table" then for _, z in ipairs(zeilen) do ns.print(z) end end
     end
+    -- W11B: die vier neuen Befehle. Eigener Locale-Schluessel statt einer Aenderung an
+    -- "Help text 3" - die Locales werden in dieser Runde nur ERGAENZT, nie umgeschrieben.
+    for line in L("Help text w11b"):gmatch("[^\n]+") do ns.print(line) end
     -- W10a: der Offenlegungssatz, als LETZTE Zeile der Hilfe (Freitext-Konzept §2.8).
     ns.print(L("Disclosure"))
 end
@@ -66,6 +69,18 @@ local function status()
     ns.print(L("Voice enabled") .. ": " .. anAus(ns.Get("stimme")) .. " - " .. L("Voice pack") .. " " .. eff .. ": "
         .. (geladen == nil and L("not loaded") or anAus(geladen)))
     ns.print(L("Combat") .. ": " .. anAus(R.imKampf) .. " - " .. L("Group") .. ": " .. anAus(R.inGruppe))
+    -- W11B: Lautstaerke und die Zahl der stummgeschalteten Ereignisse. Beides sind Einstellungen,
+    -- die ein Nutzer im Bugreport vergisst zu erwaehnen ("sie sagt nichts mehr").
+    if ns.Stimme and ns.Stimme.lautstaerke then
+        ns.print((L("Volume is")):format(ns.Stimme.lautstaerke()))
+    end
+    if R.stummListe then
+        local n = 0
+        for _ in pairs(R.stummListe()) do n = n + 1 end
+        if n > 0 then ns.print((L("Muted count")):format(n)) end
+    end
+    local z = R.dropZaehler or { normal = 0, verlust = 0 }
+    ns.print(("  " .. L("Why counters")):format(z.verlust or 0, z.normal or 0))
     -- Bruecken-Welle 1: erkannte Partner-Addons (Modul darf fehlen)
     if ns.Bruecken and ns.Bruecken.status then
         local ok, zeilen = pcall(ns.Bruecken.status)
@@ -117,10 +132,16 @@ local function debug()
     ns.print(ns.Get("debug") and L("Debug on") or L("Debug off"))
     local log = ns.Regie and ns.Regie.dropLog or {}
     ns.print(L("Drop log"))
+    -- W11B (Abgleich §4.4): NORMALBETRIEB und VERLUST getrennt nennen. Von sechs gemeldeten
+    -- "gescheiterten Aufrufen" waren bei ClaudeBuddy fuenf Normalbetrieb - das Blatt war formal
+    -- korrekt und inhaltlich durchweg Fehlalarm. Hier steht die Einordnung jetzt an jeder Zeile.
+    local z = (ns.Regie and ns.Regie.dropZaehler) or { normal = 0, verlust = 0 }
+    ns.print(("  " .. L("Why counters")):format(z.verlust or 0, z.normal or 0))
     if #log == 0 then ns.print("  " .. L("Drop log empty")); return end
     for i = 1, math.min(10, #log) do
         local d = log[i]
-        ns.print(("  %s  %s  %s"):format(tostring(d[3]), tostring(d[2]), tostring(d[1])))
+        ns.print(("  %s  %s  %s  [%s]"):format(tostring(d[3]), tostring(d[2]), tostring(d[1]),
+            d.verlust and L("loss") or L("by design")))
     end
 end
 
@@ -264,7 +285,85 @@ cmd(function(a)
     if v then setze("anrede", v) end
     zeigeWert("anrede")
 end, "anrede", "address")
-cmd(function() toggle("stimme") end, "stumm", "mute")
+-- W11B-4: "/lyra stumm" bleibt, was es seit 0.2 ist - der Schalter fuer die STIMME. Mit einem
+-- Argument bekommt es die zweite Bedeutung: "/lyra stumm BAGS" schaltet EIN EREIGNIS ab.
+-- Dieselbe Weiche wie bei "/lyra punkt weg" (W5) und "/lyra figur aus" (W6): ohne Argument das
+-- alte Verhalten, unveraendert. Gegenstueck ist "/lyra laut <ID>".
+local function stummBefehl(an)
+    return function(a, roh)
+        local id = (roh ~= nil and roh ~= "" and roh or a) or ""
+        id = tostring(id):match("^%s*(%S*)") or ""
+        if id == "" then
+            if an then toggle("stimme") else zeigeWert("stimme") end
+            return
+        end
+        local R = ns.Regie
+        if not (R and R.stumm) then ns.print(L("unknown command")); return end
+        local ok, grund = R.stumm(id, an)
+        id = id:upper()
+        if ok then
+            ns.print((an and L("Event muted") or L("Event unmuted")):format(id))
+        elseif grund == "alarm" then
+            ns.print((L("Event is alarm")):format(id))
+        else
+            ns.print((L("Event unknown")):format(id))
+        end
+    end
+end
+cmd(stummBefehl(true), "stumm", "mute")
+cmd(stummBefehl(false), "laut", "unmute", "anschalten")
+-- W11B-4: die Liste. Ohne sie weiss niemand, WAS er abschalten koennte - genau der Punkt aus
+-- docs/review-bindung-2026-09-20.md P-7 ("im Fenster die zuletzt gesagten IDs anzeigen").
+local function gehoertBefehl()
+    local R = ns.Regie
+    if not (R and R.zuletztGehoert) then ns.print(L("unknown command")); return end
+    local liste = R.zuletztGehoert(12)
+    ns.print(L("Recently heard"))
+    if #liste == 0 then ns.print("  " .. L("Recently heard empty")); return end
+    for _, g in ipairs(liste) do
+        ns.print(("  %s  %s%s"):format(tostring(g.zeit), tostring(g.id),
+            g.stumm and ("  (" .. L("muted") .. ")") or ""))
+    end
+    ns.print("  " .. L("Mute hint"))
+end
+-- UI/Settings.lua haengt seinen Knopf "Zuletzt gehoert" hier ein. Die Datei liegt in der TOC
+-- VOR dieser - beim BAUEN der Seite steht der Verweis also noch nicht, beim KLICKEN schon.
+ns.CMDS_gehoert = gehoertBefehl
+cmd(gehoertBefehl, "gehoert", "gehört", "zuletzt", "heard")
+-- W11B-4: "Warum sagst du nichts?" - die naheliegendste Frage an eine Begleiterin, die bewusst
+-- viel schweigt, und bis 0.14.0 die einzige, die sie nicht beantworten konnte. Die Regie fuehrt
+-- dafuer ein Ringpuffer-Protokoll (Core/Regie.lua, R.verworfen) - nur Ereignis-IDs, Gruende und
+-- Uhrzeiten, kein Text und kein Name eines Fremden.
+cmd(function()
+    local R = ns.Regie
+    if not (R and R.verworfen) then ns.print(L("unknown command")); return end
+    local liste = R.verworfen(5)
+    ns.print(L("Why silent"))
+    if #liste == 0 then ns.print("  " .. L("Why nothing dropped")) end
+    for _, v in ipairs(liste) do
+        local grund = L("Why " .. tostring(v.grund))
+        if grund == "Why " .. tostring(v.grund) then grund = tostring(v.grund) end
+        ns.print(("  %s  %s  %s"):format(tostring(v.zeit), tostring(v.id), grund))
+    end
+    -- §4.4 (Abgleich): BEIDE Zahlen nennen. "Ein Filter, der sich selbst versteckt, waere der
+    -- naechste leise Ausfall" - und die Haelfte aller Drops ist Normalbetrieb, kein Verlust.
+    local z = R.dropZaehler or { normal = 0, verlust = 0 }
+    ns.print(("  " .. L("Why counters")):format(z.verlust or 0, z.normal or 0))
+end, "warum", "why", "wieso")
+-- W11B-6: Lyras eigene Lautstaerke, 0-100 %. Relativ zum gewaehlten Tonkanal; Blizzards Regler
+-- bleibt, wo er steht (Gestalt/Stimme.lua, Block W11B-6).
+cmd(function(a)
+    local S = ns.Stimme
+    if not (S and S.lautstaerke) then ns.print(L("unknown command")); return end
+    local v = tonumber(a)
+    if v then
+        if v > 0 and v <= 1.0 and a:find("%.") then v = v * 100 end   -- "0.5" als Prozent tolerieren
+        if v < 0 or v > 100 then ns.print(L("Volume range")); return end
+        setze("lautstaerke", math.floor(v + 0.5))
+    end
+    ns.print((L("Volume is")):format(S.lautstaerke()))
+    if S.lautstaerke() < 100 then ns.print("  " .. L("Volume alarm note")) end
+end, "lautstaerke", "lautstärke", "volume")
 for name, preset in pairs(PRESETS) do
     cmd(function() setze("gespraechig", preset); zeigeWert("gespraechig") end, name)
 end

@@ -35,6 +35,123 @@ local function kanal(stufe)
 end
 S.kanalFuer = kanal
 
+-- =============================================================================================
+-- W11B-6: LYRAS EIGENE LAUTSTAERKE.
+-- =============================================================================================
+-- Befund docs/review-bindung-2026-09-20.md §6.1 (Schwere: hoch): Lyra hat keinen eigenen Regler.
+-- UI/Settings.lua bot bis 0.14.0 nur ein Kanal-Dropdown und einen Slider auf Blizzards CVar
+-- Sound_DialogVolume - also auf ALLE Questgeber mit. Und PlaySoundFile kennt keinen
+-- Lautstaerkeparameter; das ist eine Client-Grenze, keine Nachlaessigkeit.
+--
+-- WAS HIER GEBAUT IST, UND WAS AUSDRUECKLICH NICHT:
+--   * Der Wert "lautstaerke" (0-100 %) ist RELATIV. 100 = unveraendert, 50 = halb so laut wie
+--     der Kanal gerade steht. Er ersetzt Blizzards Regler nicht, er sitzt darunter.
+--   * Technisch geht das nur ueber das CVar des gewaehlten Kanals - und zwar VORUEBERGEHEND:
+--     gesenkt unmittelbar vor der Zeile, zurueckgestellt, sobald sie durch ist. BLIZZARDS CVAR
+--     WIRD NIE DAUERHAFT VERSTELLT. Das ist die Zusage, an der dieses Stueck gemessen wird,
+--     und der Pruefstand misst genau sie (w11b_harness, Szene 6).
+--   * Waehrend der ein bis vier Sekunden einer Zeile ist der ganze Kanal leiser, nicht nur
+--     Lyra. Das ist der ehrliche Preis; er ist der Grund, warum der Standard 100 ist und der
+--     Regler in der Feineinstellung steht statt auf Seite 1.
+--   * STUFE 3 WIRD NIE GEDAEMPFT. Aus demselben Grund, aus dem sie auf "Master" ausweicht:
+--     ein Alarm, den man leiser stellen kann, ist auf Hardcore keiner. Wer Lyra ganz still
+--     will, schaltet die Stimme ab - das ist eine bewusste Entscheidung, ein Schieberegler auf
+--     30 % ist keine.
+--   * Dreht der Spieler waehrend einer Zeile selbst am Kanalregler, GEWINNT ER: zurueckgestellt
+--     wird nur ein Wert, den wir selbst gesetzt haben und der seitdem unveraendert ist.
+--   * Ein /reload oder Absturz mitten in einer Zeile wuerde den gesenkten Wert stehen lassen -
+--     also genau den Dauerschaden, den wir ausschliessen. Dagegen merkt sich der
+--     Rueckstand-Eintrag in den SavedVariables, was offen ist; der naechste Login stellt ihn
+--     zurueck (S.lautRueckstandPruefen, am PLAYER_ENTERING_WORLD unten).
+S.KANAL_CVAR = {
+    Master   = "Sound_MasterVolume",
+    SFX      = "Sound_SFXVolume",
+    Dialog   = "Sound_DialogVolume",
+    Ambience = "Sound_AmbienceVolume",
+}
+S.daempfung = nil           -- { cvar, orig, gesetzt } solange eine Zeile laeuft
+S.daempfungMarke = 0
+S.daempfungen = 0           -- Zaehler fuer /lyra status und den Pruefstand
+
+if type(ns.DEFAULTS_ACCOUNT) == "table" then
+    if ns.DEFAULTS_ACCOUNT.lautstaerke == nil then ns.DEFAULTS_ACCOUNT.lautstaerke = 100 end
+    -- false statt {} : defaults() wuerde eine Tabelle rekursiv anlegen, und ein leerer
+    -- Rueckstand-Eintrag ist kein Rueckstand.
+    if ns.DEFAULTS_ACCOUNT.lautRueckstand == nil then ns.DEFAULTS_ACCOUNT.lautRueckstand = false end
+end
+
+-- 0-100, ganzzahlig. Alles ausserhalb faellt auf 100 zurueck.
+function S.lautstaerke()
+    local v = tonumber(ns.Get("lautstaerke"))
+    if not v then return 100 end
+    if v < 0 then return 0 end
+    if v > 100 then return 100 end
+    return math.floor(v + 0.5)
+end
+
+local function cvarLesen(cvar)
+    if not GetCVar then return nil end
+    local ok, roh = pcall(GetCVar, cvar)
+    if not ok then return nil end
+    return tonumber(roh)
+end
+
+-- Den offenen Rueckstand zurueckstellen (Ende einer Zeile, Ausschalter, Logout, Login).
+function S.daempfeEnde()
+    local d = S.daempfung
+    S.daempfung = nil
+    if not d then return false end
+    if ns.Set then ns.Set("lautRueckstand", false) end
+    if not SetCVar then return false end
+    local ist = cvarLesen(d.cvar)
+    if ist and math.abs(ist - (d.gesetzt or 0)) > 0.0005 then
+        ns.debug("Lautstaerke: Kanalregler wurde von Hand bewegt - nichts zurueckgestellt")
+        return false
+    end
+    pcall(SetCVar, d.cvar, tostring(d.orig))
+    return true
+end
+
+-- Vor einer Zeile senken. Rueckgabe true = es wurde gedaempft.
+function S.daempfeStart(kan, dauer, stufe)
+    if (tonumber(stufe) or 0) >= S.ALARM_STUFE then return false end   -- Alarm nie daempfen
+    local prozent = S.lautstaerke()
+    if prozent >= 100 then return false end
+    local cvar = S.KANAL_CVAR[kan]
+    if not (cvar and SetCVar and GetCVar) then return false end
+    if S.daempfung then S.daempfeEnde() end          -- nie zwei Daempfungen uebereinander
+    local orig = cvarLesen(cvar)
+    if not orig or orig <= 0 then return false end   -- Kanal steht ohnehin auf null
+    local neu = math.floor(orig * (prozent / 100) * 1000 + 0.5) / 1000
+    if math.abs(neu - orig) < 0.0005 then return false end
+    if not pcall(SetCVar, cvar, tostring(neu)) then return false end
+    S.daempfung = { cvar = cvar, orig = orig, gesetzt = neu }
+    S.daempfungen = S.daempfungen + 1
+    if ns.Set then ns.Set("lautRueckstand", { cvar = cvar, orig = orig, gesetzt = neu }) end
+    S.daempfungMarke = S.daempfungMarke + 1
+    local marke = S.daempfungMarke
+    ns.Compat.After((tonumber(dauer) or S.SCHAETZ_SEK) + 0.3, function()
+        if S.daempfungMarke == marke then S.daempfeEnde() end
+    end)
+    return true
+end
+
+-- Nach einem /reload oder Absturz mitten in einer Zeile: den gesenkten Wert zurueckholen.
+-- Nur, wenn der Kanal seitdem unveraendert auf unserem Wert steht - sonst gehoert er dem Spieler.
+function S.lautRueckstandPruefen()
+    local r = ns.Get("lautRueckstand")
+    if type(r) ~= "table" or not r.cvar then return false end
+    if ns.Set then ns.Set("lautRueckstand", false) end
+    if not (GetCVar and SetCVar) then return false end
+    local ist = cvarLesen(r.cvar)
+    if ist and math.abs(ist - (tonumber(r.gesetzt) or -1)) < 0.0005 then
+        pcall(SetCVar, r.cvar, tostring(r.orig))
+        ns.debug("Lautstaerke: Rueckstand von der letzten Sitzung zurueckgestellt")
+        return true
+    end
+    return false
+end
+
 function S.paketLaden(sprache)
     if S.geladen[sprache] ~= nil then return S.geladen[sprache] end
     local name = "Lyra_Gestalt_Stimme_" .. sprache
@@ -81,7 +198,13 @@ function S.spiele(name, klasse, stufe)
             return false
         end
     end
-    local will, h = PlaySoundFile(pfad(sprache, name), kanal(stufe))
+    -- W11B-6: senken, BEVOR die Datei startet - sonst sind die ersten Silben voll laut.
+    local kan = kanal(stufe)
+    local m0 = LyraGestalt_StimmeManifest and LyraGestalt_StimmeManifest[sprache]
+    local vorDauer = (m0 and type(m0[name]) == "number") and m0[name] or S.SCHAETZ_SEK
+    S.daempfeStart(kan, vorDauer, stufe)
+    local will, h = PlaySoundFile(pfad(sprache, name), kan)
+    if not will then S.daempfeEnde() end          -- nichts gespielt, also auch nichts zu daempfen
     if will then
         S.handle, S.klasse = h, klasse
         local m = LyraGestalt_StimmeManifest and LyraGestalt_StimmeManifest[sprache]
@@ -103,6 +226,7 @@ function S.stoppe(klasse)
     if klasse and S.klasse ~= klasse then return false end
     if S.handle and StopSound then pcall(StopSound, S.handle) end
     S.handle, S.laeuftBis, S.klasse = nil, 0, nil
+    S.daempfeEnde()          -- W11B-6: abgebrochene Zeile laesst keinen gesenkten Kanal zurueck
     return true
 end
 
@@ -112,7 +236,9 @@ function S.cue(name)
     if math.random() < 0.5 then return end
     if t < S.laeuftBis then return end
     S.cueZuletzt = t
-    PlaySoundFile(ns.PFAD .. "laute\\" .. name .. ".ogg", kanal())
+    local kan = kanal()
+    S.daempfeStart(kan, 2, 0)     -- die Laute sind kurz; zwei Sekunden reichen reichlich
+    PlaySoundFile(ns.PFAD .. "laute\\" .. name .. ".ogg", kan)
 end
 
 -- =============================================================================================
@@ -531,6 +657,12 @@ ns.on("VOICE_CHAT_TTS_PLAYBACK_FAILED", function()
     S.ttsNaechste()
 end)
 ns.on("VOICE_CHAT_TTS_VOICES_UPDATE", S.ttsStimmenVergessen)
+
+-- W11B-6: die zwei Enden der Zusage "nie dauerhaft".
+--   PLAYER_ENTERING_WORLD  holt einen Rueckstand der letzten Sitzung zurueck (/reload, Absturz)
+--   PLAYER_LOGOUT          stellt zurueck, BEVOR der Client die CVars wegschreibt
+ns.on("PLAYER_ENTERING_WORLD", function() S.lautRueckstandPruefen() end)
+ns.on("PLAYER_LOGOUT", function() S.daempfeEnde() end)
 
 -- Stand fuer /lyra status und den Pruefstand.
 function S.ttsStand()

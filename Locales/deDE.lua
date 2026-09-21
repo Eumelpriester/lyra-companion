@@ -269,4 +269,61 @@ ns.locales.deDE = {
     -- Schluesselwoertern und einer Kosinusaehnlichkeit. Ehrlicher als Schweigen ist er trotzdem,
     -- und spaetestens wenn eine Stufe 2 daneben steht, ist er das wichtigste Unterscheidungsmerkmal.
     ["Disclosure"] = "Lyra antwortet aus festen Vorlagen und deiner eigenen Chronik. Es läuft kein Sprachmodell.",
+    -- =========================================================================================
+    -- W11B (20.09.2026): Regie, Sicherheit, Bedienung. NUR ANGEHAENGT, nichts umgeschrieben.
+    -- =========================================================================================
+    ["Event muted"] = "%s ist jetzt still. Zurück mit /lyra laut %s.",
+    ["Event unmuted"] = "%s sagt wieder etwas.",
+    ["Event is alarm"] = "%s ist ein Alarm (Stufe 3). Den schalte ich dir nicht ab – dafür ist er da. Wenn du mich ganz still willst: /lyra stumm ohne Ereignis, oder die Stimme aus.",
+    ["Event unknown"] = "Ein Ereignis %s kenne ich nicht. /lyra gehoert zeigt, was zuletzt von mir kam.",
+    ["Recently heard"] = "Zuletzt von mir gehört (neueste zuerst):",
+    ["Recently heard empty"] = "noch nichts gesagt in dieser Sitzung",
+    ["muted"] = "still",
+    ["Mute hint"] = "/lyra stumm <EREIGNIS> schaltet eines davon ab, /lyra laut <EREIGNIS> wieder an.",
+    ["Why silent"] = "Was ich zuletzt NICHT gesagt habe, und warum:",
+    ["Why nothing dropped"] = "nichts verworfen – alles, was anstand, ist auch herausgekommen",
+    ["Why counters"] = "%d davon waren Verluste, %d war so eingestellt.",
+    ["loss"] = "Verlust",
+    ["by design"] = "so eingestellt",
+    ["Why drossel"] = "Drossel – dieses Ereignis hat eine Wartezeit, sie lief noch",
+    ["Why preset-leerlauf"] = "Gesprächigkeit – auf „wenig\" und „still\" plaudere ich nicht ins Leere",
+    ["Why session"] = "einmal je Sitzung – das war heute schon dran",
+    ["Why abstand"] = "Abstand – kurz vorher kam schon etwas",
+    ["Why budget"] = "Stundenbudget – für diese Stunde ist mein Kontingent aufgebraucht",
+    ["Why gruppe"] = "Gruppe – in Gruppe und Schlachtzug halte ich mich zurück",
+    ["Why still-modus"] = "Still-Modus",
+    ["Why stumm"] = "du hast genau dieses Ereignis abgeschaltet (/lyra laut <ID>)",
+    ["Why ruhe"] = "Ruhe – nach einer Andacht oder einer fremden Warnung bin ich kurz leise",
+    ["Why tod-ruhe"] = "nach einem Tod schweige ich eine Minute",
+    ["Why ladebildschirm"] = "Ladebildschirm",
+    ["Why warteliste-voll"] = "Kampf – die Warteliste war voll",
+    ["Why warte-ttl"] = "Kampf – es hat zu lange gedauert, die Zeile passte danach nicht mehr",
+    ["Muted count"] = "Stummgeschaltete Ereignisse: %d (/lyra gehoert)",
+    ["Volume range"] = "Meine Lautstärke geht von 0 bis 100.",
+    ["Volume is"] = "Meine Lautstärke: %d %%",
+    ["Volume alarm note"] = "Alarme (Stufe 3: Leben unter 20 %, Sturz, letzte Luft) bleiben voll laut.",
+    ["Lyra volume"] = "Lyras Lautstärke",
+    ["Lyra volume tip"] = "Wie laut ICH bin – relativ zu dem Tonkanal, den du oben gewählt hast. 100 % heißt: unverändert. Technisch senke ich dafür den Kanal für die ein bis vier Sekunden meiner Zeile und stelle ihn danach exakt zurück; deinen Blizzard-Regler verstelle ich nie dauerhaft. In diesen Sekunden ist der ganze Kanal leiser, nicht nur ich – deshalb steht der Standard auf 100. Alarme (Stufe 3) bleiben immer voll laut, aus demselben Grund, aus dem sie auf den Master-Kanal ausweichen.",
+    ["Recently heard button"] = "Zuletzt gehört",
+    ["Recently heard button tip"] = "Schreibt die zuletzt von mir gesagten Ereignisse mit ihrer ID in den Chat – samt der Zeile, mit der du eines davon abschalten kannst. Eine anklickbare Liste mit Häkchen gibt die Einstellungs-API von WoW an dieser Stelle nicht her: die Seite wird beim Login EINMAL gebaut, und was du zuletzt gehört hast, weiß sie da noch nicht.",
+    ["Wave 11b"] = "Dosierung und Ruhe",
+    ["Help text w11b"] = "/lyra stumm <EREIGNIS> - ein einzelnes Ereignis abschalten (/lyra laut <EREIGNIS> zurück)\n"
+        .. "/lyra gehoert - was ich zuletzt gesagt habe, mit ID zum Abschalten\n"
+        .. "/lyra warum - was ich zuletzt NICHT gesagt habe, und warum\n"
+        .. "/lyra lautstaerke <0-100> - wie laut ich bin (Alarme bleiben voll laut)",
+    -- W11A: Welle 11a (Der Tod bekommt eine Stimme, Vertrautheit, Erinnern) - NUR angehaengt.
+    -- Die Frage nach den letzten Worten und ihre Bestaetigung bleiben ausdruecklich hier und
+    -- wandern NICHT in den Phrasen-Katalog: Core/Regie.lua schickt sie absichtlich an der Regie
+    -- vorbei, weil der 60-s-Tod-Riegel sie sonst verschlucken wuerde. Sinne/Erbe.lua waehlt
+    -- zufaellig eine der Varianten; fehlt eine, faellt sie sauber auf die erste zurueck.
+    ["Last words prompt 2"] = "Willst du dem Nächsten etwas mitgeben? Schreib es mir: /lyra <deine Worte>",
+    ["Last words prompt 3"] = "Ein Satz, und ich trage ihn weiter. /lyra <deine Worte>",
+    ["Last words prompt 4"] = "Ich schreibe mit. Sag es mir, wenn du willst: /lyra <deine Worte>",
+    -- WICHTIG: jede Fassung muss das Wort "gespeichert" tragen. tests/pruefstand/review4.lua
+    -- prueft die Bestaetigung genau darauf - und zwar zu Recht: eine Bestaetigung, die nicht
+    -- bestaetigt, dass etwas gespeichert wurde, ist keine.
+    ["Last words saved 2"] = "Ist gespeichert. Der Nächste bekommt es zu hören.",
+    ["Last words saved 3"] = "Aufgeschrieben und gespeichert. Wortwörtlich, nicht sinngemäß.",
+    -- Halle der Gefallenen: zweiter Abschnitt im Chronik-Fenster (Sinne/Erbe.lua E.halleZeilen).
+    ["Hall of the fallen"] = "Halle der Gefallenen",
 }

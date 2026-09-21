@@ -1,13 +1,16 @@
 -- Sinne/Rituale.lua — kleine Rituale: Abschied, AFK-Rueckkehr, spaete Stunde, Jahrestag,
 --   Gedenken, In-Game-Feste, eigene Emotes, Lagerfeuer. Doku: Sinne/LEBENSECHT.md.
 -- Ereignisse: ABSCHIED, RUECKKEHR, SPAET, JAHRESTAG, GEDENKEN, FEIERTAG, EMOTE, LAGERFEUER.
+-- W11A: der Rueckblick beim /camp-Countdown (R.erinnerungSitzung) haengt an ABSCHIED; neue
+--   Ereignisse gibt es dafuer keine.
 -- API (nur lesend): time, date, GetTime, UnitIsAFK, UnitGUID, UnitName, UnitOnTaxi,
 --   UnitAffectingCombat, UnitIsDeadOrGhost, IsInGroup/IsInRaid, GetSpellInfo,
 --   ns.Compat.auraByIndex/istHardcore/After/NewTicker, ns.Chronik.stand, ns.Stimmung.*.
 --   Hooks (nur lesend, nie aufrufend): DoEmote, Logout, Quit - jeweils type()-geprueft.
 -- Events: PLAYER_CAMPING, PLAYER_QUITING, CANCEL_LOGOUT, LOGOUT_CANCEL, PLAYER_FLAGS_CHANGED,
 --   PLAYER_LOGIN, PLAYER_ENTERING_WORLD, PLAYER_LOGOUT, CHAT_MSG_TEXT_EMOTE, UNIT_AURA (player),
---   UNIT_SPELLCAST_SUCCEEDED (player).
+--   UNIT_SPELLCAST_SUCCEEDED (player), W11A: PLAYER_LEVEL_UP, PLAYER_REGEN_DISABLED/ENABLED
+--   (nur Zaehler fuer den Sitzungs-Rueckblick, keine Ausgabe).
 -- Takt: EIN 60-s-Ticker (Tagwechsel, spaete Stunde, Lagerfeuer-Standzeit). Kein OnUpdate.
 -- Privatsphaere (Grenze B): CHAT_MSG_TEXT_EMOTE wird NUR ausgewertet, wenn arg12 == UnitGUID("player").
 --   Fremde Emotes fallen sofort durch, es wird nie ein Name gespeichert, geloggt oder ausgegeben.
@@ -170,13 +173,107 @@ function R.erinnerung()
     return nil
 end
 
+-- ---------------------------------------------------------------- W11A: Erinnerung AUS DIESER SITZUNG
+-- Befund docs/review-bindung-2026-09-20.md §2.4: "Der Moment, in dem ein Mensch offen fuer einen
+-- Rueckblick ist, ist der Moment, in dem er /camp tippt und auf den 20-Sekunden-Countdown schaut.
+-- Genau dort passiert fast nichts." Der Rueckblick kam bisher als DEBRIEF beim NAECHSTEN Login,
+-- zwanzig Stunden spaeter, auf Slot +142 s, in Konkurrenz zu sechs anderen Login-Zeilen.
+--
+-- R.erinnerung() taugt dafuer nicht: sie sucht ausdruecklich das LANGE Zurueckliegende
+-- (Beinahe-Tod vor 2 bis 30 Tagen, alter Meilenstein, laengste Sitzung aller Zeiten) und es gibt
+-- sie hoechstens EINMAL je Sitzung. Am Abschied will man das Gegenteil: heute, gerade eben.
+-- Darum eine zweite Quelle mit eigener Buchhaltung, gleiche Form (ein Satzteil, der in
+-- {erinnerung} passt), gleiche Regel aus companion-v3 A.6: vage ist erlaubt, Telemetrie nicht.
+-- Vier Quellen, in dieser Reihenfolge, die erste die gewinnt:
+--   1. ein Beinahe-Tod aus DIESER Sitzung (die Chronik schreibt sie mit Zeitstempel mit)
+--   2. eine Zone, die dieser Charakter heute zum ersten Mal gesehen hat
+--   3. eine Stufe, die heute gefallen ist
+--   4. die laengste Kampfserie der Sitzung (Kaempfe mit weniger als SERIE_PAUSE Sekunden dazwischen)
+-- Findet sie nichts, gibt sie nil zurueck - dann faellt der Abschied ueber den ns.melde-Wrapper
+-- auf die Langzeit-Erinnerung zurueck, und wenn es auch die nicht gibt, sagt Lyra einen der
+-- gewoehnlichen Abschiedssaetze. Es wird nichts erfunden, damit eine Zeile gefuellt wird.
+local SERIE_PAUSE = 60                  -- s Abstand, bis eine Kampfserie als abgerissen gilt
+local SITZ = { zone = nil, levelVon = nil, levelBis = nil, serie = 0, serieMax = 0, kampfEnde = 0 }
+R.sitzung = SITZ
+
+local SATZ_S = {
+    de = {
+        beinahe = "wie es heute in %s knapp wurde",
+        zone    = "dass du heute zum ersten Mal in %s gestanden hast",
+        stufe   = "wie du heute Stufe %d erreicht hast",
+        serie   = "die %d Kaempfe am Stueck, ohne einmal durchzuatmen",
+    },
+    en = {
+        beinahe = "how close it got in %s today",
+        zone    = "that you stood in %s for the first time today",
+        stufe   = "how you reached level %d today",
+        serie   = "those %d fights back to back without once catching your breath",
+    },
+}
+
+function R.erinnerungSitzung()
+    local db, sitz = chronik()
+    local l = sprache()
+    local S = SATZ_S[l] or SATZ_S.en
+    local start = sitz and tonumber(sitz.start) or nil
+
+    -- 1) Beinahe-Tod aus dieser Sitzung
+    if db and start then
+        for i = #(db.beinahe or {}), 1, -1 do
+            local b = db.beinahe[i]
+            if type(b) == "table" and tonumber(b.t) and b.t >= start and b.zone and b.zone ~= "" then
+                return S.beinahe:format(b.zone)
+            end
+        end
+    end
+    -- 2) neue Zone
+    if SITZ.zone and SITZ.zone ~= "" then return S.zone:format(SITZ.zone) end
+    -- 3) Stufe
+    if SITZ.levelBis and SITZ.levelVon and SITZ.levelBis > SITZ.levelVon then
+        return S.stufe:format(SITZ.levelBis)
+    end
+    -- 4) Kampfserie
+    if SITZ.serieMax >= 4 then return S.serie:format(SITZ.serieMax) end
+    return nil
+end
+
+-- Mitschreiben, was diese Sitzung hergibt. Alles drei kostet keinen Ticker und keine neue
+-- Erhebung: die Zone kommt aus der Ausgabe, die Lyra ohnehin macht, die Stufe aus dem Ereignis,
+-- das der Client ohnehin wirft, und die Serie aus den zwei Kampfflanken, die Core/Regie.lua
+-- ohnehin abhoert.
+ns.nachAusgabe(function(id, _, vars)
+    if id == "ZONE_ERSTMALS" and vars and vars.zone and vars.zone ~= "" then SITZ.zone = vars.zone end
+end)
+ns.on("PLAYER_LEVEL_UP", function(level)
+    local lvl = tonumber(level) or (UnitLevel and UnitLevel("player")) or 0
+    if lvl <= 0 then return end
+    if not SITZ.levelVon then SITZ.levelVon = lvl - 1 end
+    if not SITZ.levelBis or lvl > SITZ.levelBis then SITZ.levelBis = lvl end
+end)
+ns.on("PLAYER_REGEN_DISABLED", function()
+    if SITZ.kampfEnde > 0 and (jetzt() - SITZ.kampfEnde) <= SERIE_PAUSE then
+        SITZ.serie = SITZ.serie + 1
+    else
+        SITZ.serie = 1
+    end
+    if SITZ.serie > SITZ.serieMax then SITZ.serieMax = SITZ.serie end
+end)
+ns.on("PLAYER_REGEN_ENABLED", function() SITZ.kampfEnde = jetzt() end)
+
 -- Der Platzhalter {erinnerung}: ns.melde wird gewrappt (Muster aus Sinne/Erbe.lua und
 -- Sinne/Bruecken.lua), damit Core/Regie.lua unangetastet bleibt. Zeilen ohne den Platzhalter
 -- merken es nicht; Zeilen MIT dem Platzhalter sind nur dann Kandidaten, wenn es eine
 -- Erinnerung gibt - waehle() wirft Platzhalter-Zeilen ohne passende Vars von selbst heraus.
+--
+-- W11A: LOGIN, ZONE und ABSCHIED kommen dazu (review-bindung §2.2: sechs Zeilen im ganzen
+-- Katalog erinnerten sich aktiv an etwas Gemeinsames; mit Welle 11a sind es einundzwanzig).
+-- Es sind die drei haeufigsten Plauder-Anlaesse ueberhaupt - und die Deckelung "hoechstens EINE
+-- Erinnerung je Sitzung" sorgt dafuer, dass mehr Zeilen nicht mehr Erinnerungen heisst,
+-- sondern nur eine bessere Chance, dass die eine an einer guten Stelle faellt.
 local ERINNERUNGS_IDS = {
     LEERLAUF = true, RAST_AN = true, ZONE_ERINNERUNG = true,
     BEINAHE_NACHWIRKUNG = true, WIEDERKEHR = true, LAGERFEUER = true,
+    LOGIN = true, ZONE = true, ABSCHIED = true,
 }
 local gewrappt = false
 
@@ -197,8 +294,12 @@ local function meldeWrappen()
 end
 
 -- Verbraucht ist die Erinnerung erst, wenn die gewaehlte Zeile sie wirklich getragen hat.
+-- W11A: kam sie aus DIESER Sitzung (R.erinnerungSitzung, nur am Abschied), zaehlt sie NICHT
+-- gegen das Langzeit-Kontingent. Sonst haette ein /camp mit anschliessendem Abbrechen des
+-- Countdowns die eine Langzeit-Erinnerung der Sitzung aufgebraucht, ohne sie erzaehlt zu haben.
 ns.nachAusgabe(function(id, e, vars, text)
     if not (text and vars and vars.erinnerung) then return end
+    if vars.erinnerungAusSitzung then return end
     local s = (text.de or "") .. (text.en or "")
     if s:find("{erinnerung}", 1, true) then erinnerungVerbraucht = true end
 end)
@@ -354,6 +455,16 @@ local function abschied()
     if ns.Stimmung then
         local h = ns.Stimmung.zustand().sitzung
         if h >= 1 then vars.stunden = math.floor(h + 0.5) end
+    end
+    -- W11A: DER RUECKBLICK. Er faellt HIER, im /camp-Countdown, und nicht beim naechsten Login.
+    -- Erst die Erinnerung aus dieser Sitzung; findet sie nichts, laesst diese Funktion
+    -- vars.erinnerung leer und der ns.melde-Wrapper oben fuellt sie (ABSCHIED steht seit
+    -- Welle 11a in ERINNERUNGS_IDS) aus der Langzeit-Erinnerung. Findet auch die nichts,
+    -- bleibt der Platzhalter ungesetzt und waehle() zieht eine gewoehnliche Abschiedszeile.
+    local ok, e = pcall(R.erinnerungSitzung)
+    if ok and type(e) == "string" and e ~= "" then
+        vars.erinnerung = e
+        vars.erinnerungAusSitzung = true
     end
     meldeRitual("ABSCHIED", vars, true)
 end

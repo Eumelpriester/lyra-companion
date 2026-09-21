@@ -16,6 +16,51 @@ local PRESETS = {           -- Gespraechigkeit: Abstand (s), Budget je Stunde, L
 }
 local WARTE_MAX, WARTE_TTL = 3, 180
 
+-- =============================================================================================
+-- W11B-1: DIE DRITTE VORFAHRTSKLASSE - "warn" der STUFE 1 bekommt Abstand und Budget.
+-- =============================================================================================
+-- Befund docs/abgleich-claudebuddy-2026-09-20.md §4.1: ClaudeBuddy hat teuer gelernt, dass ein
+-- gemeinsames Budget Warnungen frisst ("Nichts stumm drosseln", Budget 4 -> 10 -> 15/h). Lyra
+-- hat die Lehre mit UMGEKEHRTEM Vorzeichen gebaut: hier laeuft JEDE warn-Zeile an Abstand,
+-- Budget, Gruppen-Schweigen und Still-Modus vorbei. Fuer die drei Ereignisse der Stufe 3
+-- (HP20, STURZ, ATEM10) ist das richtig und bleibt so. Fuer die FUENFZEHN der Stufe 1 ist es
+-- der Grund, warum ein Testabend laut wird: GEOFENCE, GEOFENCE_WASSER, GEOFENCE_MOB, TRANK,
+-- BESTIARIUM, RUNNER, GEFAHR_STUFEN, MOB_RIVALE_WARNUNG, RUNEN_FEHLER, BOSS_PULL,
+-- STURZ_VORAUS, WASSER_VORAUS, TIEFES_WASSER (und die beiden Ausnahmen unten).
+--
+-- Stufe 1 heisst im Katalog "Hinweis" (docs/design-v2.md 5.2) - nicht "Warnung" und nicht
+-- "Alarm". Ein Hinweis darf warten. Also: eigener Mindestabstand (15 s) und ein eigenes
+-- Stundenbudget (10), beide GETRENNT von der Plauder-Rechnung - ein Hinweis nimmt dem
+-- Geplauder nichts weg und das Geplauder ihm nichts. Stufe 2 und 3 sind unberuehrt.
+--
+-- DIE AUSNAHME-LISTE, und warum genau diese zwei:
+--   NOTFALL_BEREIT / NOTFALL_CD  kommen ausschliesslich drei Sekunden NACH einer HP20/HP35-
+--       Warnung und nur, wenn die Lage noch besteht (Sinne/Faehigkeiten.lua, NOTFALL_VERZUG).
+--       Sie sind formal Stufe 1, inhaltlich aber die zweite Haelfte eines Alarms: "du bist bei
+--       20 % - und dein Schutzstein ist bereit". Genau dieser Satz darf nicht am Abstand zu
+--       einem Klippen-Hinweis von vor zehn Sekunden scheitern. Ihre eigene Drossel (20 s) und
+--       der Verzug halten sie ohnehin kurz.
+--   BOSS_PULL  ist ein COUNTDOWN. Er kommt von DBM/BigWigs, hoechstens einmal je Pull, und er
+--       ist in genau den acht Sekunden etwas wert, in denen er kommt - fuenfzehn Sekunden
+--       spaeter ist der Kampf laengst gelaufen. Der Pruefstand hat das sofort gezeigt: eine
+--       Lua-Fehler-Rune (RUNEN_FEHLER, ebenfalls Stufe 1) eine Sekunde vor dem Pull hat den
+--       Pull verschluckt. Eine Fehlermeldung ueber ein fremdes Addon darf keine Boss-Ansage
+--       fressen - das ist genau der strukturelle Kollisionsfall aus Abgleich §4.6
+--       (Flugmeister-Wink), und er wird an der Quelle geloest und nicht per Abstand.
+-- Wer die Liste erweitert, schreibt den Grund dazu. "Ist mir wichtig" ist keiner.
+--
+-- WO DER ABSTAND LIEGT, und warum das keine Kleinigkeit ist: in R.cool, unter dem reservierten
+-- Schluessel "#warn1". R.cool ist die Tabelle "naechster erlaubter Zeitpunkt je Schluessel" -
+-- fachlich genau das, was ein Mindestabstand ist. Ein eigenes Feld daneben waere ein zweiter
+-- Ort, an dem eine Sperre liegt, und jeder, der die Regie zuruecksetzt (der Prueftstand tut das
+-- reihenweise mit R.cool = {}), haette ihn uebersehen. Das "#" kann mit keiner Ereignis-ID
+-- kollidieren - die bestehen aus Grossbuchstaben, Ziffern und Unterstrichen.
+R.WARN1_ABSTAND = 15        -- s zwischen zwei Stufe-1-Hinweisen
+R.WARN1_BUDGET  = 10        -- Hinweise je Stunde
+R.WARN1_KEY = "#warn1"
+R.STUFE1_FREI = { NOTFALL_BEREIT = true, NOTFALL_CD = true, BOSS_PULL = true }
+R.warn1Fenster = { start = 0, n = 0 }
+
 R.zuletztPlauder = 0
 R.budgetFenster = { start = 0, n = 0 }
 R.cool = {}          -- [id] oder [id..":"..key] -> naechster erlaubter Zeitpunkt
@@ -31,7 +76,74 @@ R.todRiegelBis = 0
 R.plauderRuheBis = 0
 R.imKampf = false
 R.inGruppe = false
-R.dropLog = {}       -- Ringpuffer (Grund, id, Zeit) fuer /lyra debug
+R.dropLog = {}       -- Ringpuffer (Grund, id, Zeit) fuer /lyra debug und /lyra warum
+R.letzteZeile = {}   -- [id] = zuletzt gezogene Zeilentabelle (W11B-5: selten nie zweimal hintereinander)
+R.gehoert = {}       -- Ringpuffer der zuletzt AUSGEGEBENEN Ereignis-IDs (W11B-4: "was will ich abschalten?")
+
+-- =============================================================================================
+-- W11B-4a: EREIGNIS-SCHALTER. "/lyra stumm <ID>" / "/lyra laut <ID>".
+-- =============================================================================================
+-- Befund docs/review-bindung-2026-09-20.md §6.2: der ganze Baum kennt keine Per-Event-Stumm-
+-- schaltung. Wer genau EIN Ereignis nervig findet, kann nur den ganzen Sinn abschalten oder auf
+-- "wenig" gehen - die klassische "dann mach ich es halt ganz aus"-Falle, die die Recherche des
+-- Projekts woertlich belegt.
+--
+-- POSITIVLISTE: stummschalten laesst sich nur, was im Katalog steht. Ein Tippfehler schaltet
+-- damit nichts stumm, sondern sagt es. Und STUFE 3 IST AUSGENOMMEN (HP20, STURZ, ATEM10): ein
+-- Addon, mit dem man seinen eigenen Todesalarm abschalten kann, hat auf Hardcore nichts
+-- verloren - und der Spieler, der es tut, merkt es genau einmal.
+-- Die Liste liegt account-weit in den SavedVariables. Core/Init.lua gehoert in dieser Runde
+-- einem anderen Team, deshalb steht der Schluessel hier (dieselbe Bauart wie in
+-- Gestalt/Stimme.lua) - das laeuft auf DATEIEBENE, also lange vor ns.initDB().
+if type(ns.DEFAULTS_ACCOUNT) == "table" and ns.DEFAULTS_ACCOUNT.stummEreignisse == nil then
+    ns.DEFAULTS_ACCOUNT.stummEreignisse = {}
+end
+
+local function katalog(id)
+    return LyraGestalt_Phrasen and LyraGestalt_Phrasen.ereignisse
+       and LyraGestalt_Phrasen.ereignisse[id] or nil
+end
+local function stufeVon(e)
+    return tonumber(e.stufe) or ((e.klasse == "warn") and 2 or 0)
+end
+R.stufeVon = stufeVon
+
+function R.stummListe()
+    local t = ns.Get("stummEreignisse")
+    if type(t) ~= "table" then return {} end
+    return t
+end
+function R.istStumm(id) return R.stummListe()[id] and true or false end
+
+-- R.stumm(id, an) -> ok, grund. grund: "unbekannt" (nicht im Katalog) | "alarm" (Stufe 3).
+function R.stumm(id, an)
+    id = tostring(id or ""):upper()
+    local e = katalog(id)
+    if not e then return false, "unbekannt" end
+    if an and stufeVon(e) >= 3 then return false, "alarm" end
+    -- Vor ns.initDB() gibt ns.Get die VORGABE-Tabelle aus ns.DEFAULTS_ACCOUNT zurueck. Wer sie
+    -- hier veraenderte, haette die Stummschaltung in jede kuenftige Datenbank geschrieben -
+    -- also auch in die des naechsten Charakters. ns.Set verwirft vor initDB ohnehin; diese
+    -- Zeile sorgt dafuer, dass es dann auch gar nicht erst zum Schreiben kommt.
+    if not ns.db then return false, "zu frueh" end
+    local t = ns.Get("stummEreignisse")
+    if type(t) ~= "table" then t = {}; ns.Set("stummEreignisse", t) end
+    t[id] = an and true or nil
+    -- ns.Set noch einmal, damit ns.onSetting laeuft (die Tabelle selbst ist schon geaendert).
+    ns.Set("stummEreignisse", t)
+    return true
+end
+
+-- Zuletzt gehoerte Ereignisse, neueste zuerst. Nur IDs aus dem eigenen Katalog - hier steht
+-- kein Text, keine Zahl und kein Name.
+R.GEHOERT_MAX = 12
+function R.zuletztGehoert(n)
+    local out = {}
+    for i = 1, math.min(tonumber(n) or R.GEHOERT_MAX, #R.gehoert) do
+        out[#out + 1] = { id = R.gehoert[i].id, zeit = R.gehoert[i].zeit, stumm = R.istStumm(R.gehoert[i].id) }
+    end
+    return out
+end
 
 local function jetzt() return GetTime() end
 -- REVIEW5: das rohe Preset ohne Stimmungs-Modulation. Die Login-Slots rechnen damit (siehe
@@ -103,10 +215,49 @@ function R.loginSlot(fruehestens)
     return ziel - t
 end
 
+-- =============================================================================================
+-- W11B-4b: DAS PROTOKOLL. "/lyra warum" - warum sagst du nichts?
+-- =============================================================================================
+-- Befund §4.4 (Abgleich): das Alarmblatt von ClaudeBuddy sagte zur Haelfte Rauschen, weil es
+-- NORMALBETRIEB und VERLUST in einen Topf warf. Genau das tut R.dropLog bis heute: "drossel"
+-- und "preset-leerlauf" sind eingestellt so gewollt, "abstand", "budget", "warteliste-voll"
+-- und "warte-ttl" sind Verluste - da wollte etwas heraus und kam nicht. Wer /lyra debug liest,
+-- sieht dreissig Zeilen ohne diese Unterscheidung.
+--
+-- Der Eintrag traegt ab jetzt BEIDE Formen: die alte Liste [1]=grund [2]=id [3]=Uhrzeit (darauf
+-- baut UI/Slash.lua seit 0.5) und benannte Felder samt der Einordnung. Und er traegt NUR
+-- Ereignis-IDs - kein Text, keine Zahl, kein Name eines Fremden.
+R.NORMALBETRIEB = {
+    ["drossel"] = true,           -- so eingestellt (Katalog-Drossel)
+    ["preset-leerlauf"] = true,   -- Gespraechigkeit "wenig"/"still": Leerlauf ist aus
+    ["session"] = true,
+    ["stumm"] = true,             -- der Spieler hat genau das abgeschaltet
+    ["ruhe"] = true,              -- Andacht/GTFO-Stillhalte: gewollt
+    ["tod-ruhe"] = true,          -- 60 s Schweigen nach dem Tod: gewollt
+    ["ladebildschirm"] = true,    -- der 5-s-Riegel
+}
+R.dropZaehler = { normal = 0, verlust = 0 }
+
 local function drop(grund, id)
-    table.insert(R.dropLog, 1, { grund, id, date("%H:%M:%S") })
+    local verlust = not R.NORMALBETRIEB[grund]
+    local eintrag = { grund, id, date("%H:%M:%S") }
+    eintrag.grund, eintrag.id, eintrag.zeit = grund, id, eintrag[3]
+    eintrag.t, eintrag.verlust = jetzt(), verlust
+    table.insert(R.dropLog, 1, eintrag)
     if #R.dropLog > 30 then table.remove(R.dropLog) end
+    if verlust then R.dropZaehler.verlust = R.dropZaehler.verlust + 1
+    else R.dropZaehler.normal = R.dropZaehler.normal + 1 end
     ns.debug("Regie drop " .. id .. ": " .. grund)
+end
+
+-- Die letzten n verworfenen Meldungen, neueste zuerst. Fuer /lyra warum.
+function R.verworfen(n)
+    local out = {}
+    for i = 1, math.min(tonumber(n) or 5, #R.dropLog) do
+        local d = R.dropLog[i]
+        out[#out + 1] = { id = d[2], grund = d[1], zeit = d[3], verlust = d.verlust and true or false }
+    end
+    return out
 end
 
 -- Drossel-String aus phrasen.lua auswerten. Rueckgabe true = erlaubt (und merkt sich den Verbrauch).
@@ -133,6 +284,15 @@ local function budgetOk()
     local t = jetzt()
     if t - R.budgetFenster.start > 3600 then R.budgetFenster.start = t; R.budgetFenster.n = 0 end
     return R.budgetFenster.n < p.budget
+end
+
+-- W11B-1: eigenes Stundenfenster fuer Stufe-1-Hinweise. Bewusst NICHT an das Preset gekoppelt:
+-- "still"/"wenig" drehen das PLAUDER-Budget herunter, an einem Hinweis soll das nichts aendern.
+-- Wer gar keine Hinweise will, schaltet sie einzeln ab (/lyra stumm <ID>) oder nimmt den Sinn aus.
+local function warn1BudgetOk()
+    local t = jetzt()
+    if t - R.warn1Fenster.start > 3600 then R.warn1Fenster.start = t; R.warn1Fenster.n = 0 end
+    return R.warn1Fenster.n < R.WARN1_BUDGET
 end
 
 local function ausgebenKern(e, id, vars, text)
@@ -177,14 +337,44 @@ local function ausgebenKern(e, id, vars, text)
 end
 
 local function ausgeben(e, id, vars, text)
+    -- W11B-4: Ringpuffer der zuletzt gehoerten Ereignisse. Er steht VOR der Ausgabe, damit auch
+    -- eine Zeile gezaehlt wird, deren Ausgabe irgendwo unterwegs haengt. Nur die ID und die Uhr.
+    table.insert(R.gehoert, 1, { id = id, zeit = date("%H:%M:%S"), t = jetzt() })
+    if #R.gehoert > R.GEHOERT_MAX then table.remove(R.gehoert) end
     ausgebenKern(e, id, vars, text)
     for _, fn in ipairs(ns.hooksAusgabe) do pcall(fn, id, e, vars, text) end
 end
 
+-- =============================================================================================
+-- W11B-5: SELTENE ZEILEN.
+-- =============================================================================================
+-- docs/review-bindung-2026-09-20.md P-6: das Zeilenschema kennt de, en, v, wenn - keine
+-- Seltenheitsstufe. Eine Zeile, die man nach zwanzig Stunden zum ersten Mal hoert, ist der
+-- billigste "hast du DAS schon gehoert?"-Moment, den ein Addon haben kann. Team 11a liefert das
+-- Feld ueber tools/gen-phrasen-lua.py als z.selten = true.
+--
+-- DIE GEWICHTE SIND ABSICHTLICH GANZZAHLIG. Die Auswahl arbeitet seit Welle 1 mit einem Topf,
+-- in den jeder Kandidat so oft hineinkommt, wie sein Gewicht sagt (ungetaggt 1, erfuellter
+-- wenn-Tag 3). Ein Bruchgewicht 0,25 geht darin nicht - also wurde der ganze Topf mit vier
+-- multipliziert: 4 statt 1, 12 statt 3, und eine seltene Zeile bekommt 1 (= 0,25) bzw. 3
+-- (= 0,25 x 3, wenn sie zusaetzlich einen erfuellten wenn-Tag traegt). Die Verhaeltnisse unter
+-- den nicht-seltenen Zeilen bleiben damit EXAKT dieselben wie vorher - ein Katalog ohne
+-- selten-Zeilen zieht Zeile fuer Zeile mit derselben Wahrscheinlichkeit wie in 0.14.0.
+-- Das ist die Zusage, an der dieser Umbau gemessen wird.
+--
+-- NIE ZWEIMAL HINTEREINANDER gilt NUR fuer seltene Zeilen, und auch das ist Absicht: eine
+-- allgemeine Wiederholungssperre waere eine gute Idee (P-7), sie WUERDE aber das Verhalten von
+-- Ereignissen ohne selten-Zeilen aendern - und genau das darf diese Runde nicht. Sie steht als
+-- offener Punkt im Bericht. Hat ein Ereignis nur eine einzige seltene Zeile und sonst nichts,
+-- greift die Sperre nicht (sonst bliebe Lyra stumm).
+local GEW_NORMAL, GEW_TAG, GEW_SELTEN, GEW_SELTEN_TAG = 4, 12, 1, 3
+
 -- Zeile waehlen: bei "keine Anrede" tokenfreie Zeilen bevorzugen; Platzhalter-Zeilen nur mit Vars.
-local function waehle(e, vars, sprache)
+local function waehle(e, vars, sprache, id)
     local kand = {}
     local g = ns.geschlecht()
+    local letzte = id and R.letzteZeile[id] or nil
+    local seltenUebersprungen = false
     for _, z in ipairs(e.texte or {}) do
         local s = z[sprache] or z.en or ""
         local ok = true
@@ -197,9 +387,14 @@ local function waehle(e, vars, sprache)
         -- W1 (Sinne/Leben2.lua): Zustands-Filter. Ohne ns.Stimmung fallen getaggte Zeilen einfach
         -- heraus - das ist exakt die heutige Auswahl. Treffer MIT Tag bekommen Gewicht 3, ungetaggte
         -- bleiben mit Gewicht 1 im Topf: kein "Tag gewinnt immer", keine Verhungerung.
-        local gewicht = 1
+        local gewicht = GEW_NORMAL
         if ok and z.wenn then
-            if ns.Stimmung and ns.Stimmung.passt and ns.Stimmung.passt(z.wenn) then gewicht = 3 else ok = false end
+            if ns.Stimmung and ns.Stimmung.passt and ns.Stimmung.passt(z.wenn) then gewicht = GEW_TAG else ok = false end
+        end
+        -- W11B-5: seltene Zeile -> Viertel-Gewicht, und nicht direkt nach sich selbst.
+        if ok and z.selten then
+            gewicht = (gewicht == GEW_TAG) and GEW_SELTEN_TAG or GEW_SELTEN
+            if z == letzte then ok = false; seltenUebersprungen = true end
         end
         if ok then
             local eintrag = (g == "keine" and ns.hatToken(s)) and { z = z, reserve = true } or { z = z }
@@ -215,13 +410,20 @@ local function waehle(e, vars, sprache)
     if type(pz) == "table" then
         local s = pz[sprache] or pz.en or ""
         local eintrag = (g == "keine" and ns.hatToken(s)) and { z = pz, reserve = true } or { z = pz }
-        for _ = 1, 3 do kand[#kand + 1] = eintrag end
+        for _ = 1, GEW_TAG do kand[#kand + 1] = eintrag end
     end
+    -- W11B-5: die Wiederholungssperre darf Lyra nie stumm machen. Hat sie gerade die EINZIGE
+    -- verbliebene Zeile weggenommen, kommt diese Zeile eben doch - zweimal dieselbe seltene
+    -- Zeile ist immer noch besser als Schweigen an einer Stelle, an der etwas zu sagen war.
+    if #kand == 0 and seltenUebersprungen and letzte then return letzte end
     if #kand == 0 then return nil end
     local prim = {}
     for _, k in ipairs(kand) do if not k.reserve then prim[#prim + 1] = k.z end end
-    if #prim > 0 then return prim[math.random(#prim)] end
-    return kand[math.random(#kand)].z
+    local gewaehlt
+    if #prim > 0 then gewaehlt = prim[math.random(#prim)]
+    else gewaehlt = kand[math.random(#kand)].z end
+    if id then R.letzteZeile[id] = gewaehlt end
+    return gewaehlt
 end
 
 -- Oeffentliche Meldung: ns.melde("HP20") / ns.melde("ZONE", {zone = "Westfall", key = "Westfall"})
@@ -236,6 +438,12 @@ function R.melde(id, vars)
     -- Bestaetigung (Sinne/Erbe.lua) - geht darum absichtlich NICHT ueber die Regie, sondern direkt
     -- ueber ns.Blase.zeige + ns.print. ERBE_TOD selbst ist klasse "still" und damit ohnehin frei.
     local direktFrueh = (vars and vars.direkt) or id == "KLICK" or id == "TEST"
+    -- W11B-4: einzeln stummgeschaltet. GANZ VORNE, weil eine abgeschaltete Zeile auch keine
+    -- Miene, keine Drossel und keinen Budget-Verbrauch ausloesen soll - sie hat schlicht nicht
+    -- stattgefunden. Stufe 3 kann gar nicht in der Liste stehen (R.stumm lehnt sie ab); steht
+    -- sie durch eine von Hand editierte SavedVariables doch drin, gewinnt hier der Alarm.
+    local eStufe = stufeVon(e)
+    if eStufe < 3 and R.istStumm(id) then drop("stumm", id); return false end
     if t < R.ladeRiegelBis and not direktFrueh then drop("ladebildschirm", id); return false end
     if e.klasse ~= "still" and t < R.todRiegelBis then drop("tod-ruhe", id); return false end
     -- REVIEW: Drossel (session/cooldown) erst NACH Gruppe/Abstand/Budget verbrauchen. Vorher wurde
@@ -244,8 +452,26 @@ function R.melde(id, vars)
     local sprache = ns.sprache()
 
     if e.klasse == "warn" or e.klasse == "still" then
+        -- W11B-1: die dritte Vorfahrtsklasse. NUR warn/Stufe 1, nur ausserhalb der Ausnahmen.
+        -- Sie steht VOR der Drossel - sonst waere die Stelle nach einem Abstands-Drop verbraucht
+        -- und schwiege zehn Minuten (dieselbe Lehre wie oben bei "zone-session").
+        -- "direkt" heisst: der Spieler hat gefragt (Klick, Menue "Sag was", /lyra test, Probe).
+        -- Dieselbe Regel wie im Plauder-Zweig unten und aus demselben Grund: nach 10 Proben in
+        -- einer Stunde waere /lyra test sonst stumm ("budget") - genau der Befund, der beim
+        -- Pruefstand-Wiederaufbau am 20.09. fuer den Plauder-Pfad behoben wurde. Ein Hinweis,
+        -- um den ausdruecklich gebeten wurde, ist kein ungefragter Hinweis.
+        local gebremst = (e.klasse == "warn" and eStufe == 1 and not R.STUFE1_FREI[id]
+                          and not direktFrueh)
+        if gebremst then
+            if (R.cool[R.WARN1_KEY] or 0) > t then drop("abstand", id); return false end
+            if not warn1BudgetOk() then drop("budget", id); return false end
+        end
         if not drossel(e, id, key) then drop("drossel", id); return false end
-        ausgeben(e, id, vars, waehle(e, vars, sprache))
+        if gebremst then
+            R.cool[R.WARN1_KEY] = t + R.WARN1_ABSTAND
+            R.warn1Fenster.n = R.warn1Fenster.n + 1
+        end
+        ausgeben(e, id, vars, waehle(e, vars, sprache, id))
         return true
     end
     -- plauder
@@ -253,7 +479,7 @@ function R.melde(id, vars)
     -- kein Abstand, kein Budget, kein Still-Modus. Nur Lade-/Tod-Riegel oben gelten.
     local direkt = (vars and vars.direkt) or id == "KLICK" or id == "TEST"
     if direkt then
-        local text = waehle(e, vars, sprache)
+        local text = waehle(e, vars, sprache, id)
         R.zuletztPlauder = t
         ausgeben(e, id, vars, text)
         return true
@@ -266,14 +492,14 @@ function R.melde(id, vars)
     if R.imKampf and ns.Get("kampfNurWarnungen") then
         if #R.warteliste >= WARTE_MAX then drop("warteliste-voll", id); return false end
         if not drossel(e, id, key) then drop("drossel", id); return false end
-        table.insert(R.warteliste, { e = e, id = id, vars = vars, text = waehle(e, vars, sprache), bis = t + WARTE_TTL })
+        table.insert(R.warteliste, { e = e, id = id, vars = vars, text = waehle(e, vars, sprache, id), bis = t + WARTE_TTL })
         ns.debug("Regie wartet: " .. id)
         return true
     end
     if t - R.zuletztPlauder < p.abstand then drop("abstand", id); return false end
     if not budgetOk() then drop("budget", id); return false end
     if not drossel(e, id, key) then drop("drossel", id); return false end
-    local text = waehle(e, vars, sprache)
+    local text = waehle(e, vars, sprache, id)
     R.zuletztPlauder = t
     R.budgetFenster.n = R.budgetFenster.n + 1
     ausgeben(e, id, vars, text)

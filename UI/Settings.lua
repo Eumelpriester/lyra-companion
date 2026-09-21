@@ -441,6 +441,14 @@ local function baueNativ()
     -- =====================================================================================
     header(fein, "Voice")
     dropdown(fein, "kanal", "Sound channel", { { "Master", "Master" }, { "SFX", "SFX" }, { "Dialog", "Dialog" }, { "Ambience", "Ambience" } }, "Sound channel tip")
+    -- W11B-6: LYRAS EIGENER REGLER, und er steht bewusst UEBER Blizzards Dialog-Regler.
+    -- Befund docs/review-bindung-2026-09-20.md §6.1: bis 0.14.0 war der einzige "Lautstaerke"-
+    -- Schieber auf dieser Seite Blizzards Sound_DialogVolume - also alle Questgeber mit. Wer
+    -- Lyra leiser wollte, machte das ganze Spiel leiser. Der neue Regler ist relativ zu dem
+    -- Kanal darueber und stellt Blizzards Wert nach jeder Zeile exakt zurueck
+    -- (Gestalt/Stimme.lua, Block W11B-6). Alarme der Stufe 3 bleiben voll laut - das steht im
+    -- Hinweistext, denn ein Regler, der bei einem Wert heimlich nicht gilt, ist eine Falle.
+    slider(fein, "lautstaerke", "Lyra volume", 0, 100, 5, ganz, "Lyra volume tip", { default = 100 })
     if Settings.RegisterCVarSetting then
         local ok, cv = pcall(Settings.RegisterCVarSetting, fein, "Sound_DialogVolume", VT.Number, "Dialog volume")
         if ok and cv then
@@ -553,6 +561,25 @@ local function baueNativ()
     header(fein, "Wave 9b")
     checkbox(fein, "freitext", "Freetext", "Freetext tip")
     checkbox(fein, "fragenMerken", "Remember questions", "Remember questions tip")
+
+    -- W11B-4: die zuletzt gehoerten Ereignisse.
+    --
+    -- DER AUFTRAG WOLLTE HIER EINE LISTE MIT HAEKCHEN, UND DIE GIBT ES NICHT. Grund, geprueft
+    -- und nicht geraten: diese Seite wird EINMAL gebaut - baueNativ() laeuft beim Login (bzw.
+    -- beim ersten Oeffnen), und jedes Bedienelement entsteht dabei aus einem Initializer, den
+    -- Settings.RegisterAddOnCategory in dem Moment einsammelt. Welche Ereignisse der Spieler
+    -- "zuletzt gehoert" hat, weiss zu diesem Zeitpunkt niemand: der Ringpuffer ist leer. Eine
+    -- feste Liste ALLER 124 Katalog-IDs waere die Alternative - 124 Kaestchen in einer
+    -- Feineinstellung sind keine Bedienung, sondern eine Strafe, und sie widersprechen dem
+    -- Design-Deckel B-5, der diese Seite ueberhaupt erst erträglich gemacht hat.
+    -- Also ein KNOPF: er schreibt die Liste mit IDs in den Chat, zusammen mit der Zeile, die
+    -- eines davon abschaltet. Das ist ein Klick mehr und eine ehrliche Loesung.
+    -- Wenn Welle 12 das gebuendelte Fenster baut (review-bindung P-15/W12-13), gehoert die
+    -- Liste mit Haekchen dorthin und nicht hierher.
+    header(fein, "Wave 11b")
+    button(fein, "Recently heard button", "Recently heard button", function()
+        if ns.CMDS_gehoert then ns.CMDS_gehoert() end
+    end, "Recently heard button tip")
 
     Settings.RegisterAddOnCategory(category)
 end

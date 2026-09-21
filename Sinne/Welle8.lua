@@ -352,6 +352,20 @@ function W.puls()
                 local cos = (cx * ux + cy * uy) / d
                 if cos >= W.KEGEL_COS then
                     local tode = todeVon(mapID, s.key, art)
+                    -- W11B-3: "Dein eigener Punkt schlaegt jede Statistik." Hat Sinne/Umwelt.lua
+                    -- gerade GEOFENCE_BEINAHE gemeldet, schweigt die Vorwarnung 30 s lang - sie
+                    -- ist die REINE Statistik (nur Zellen mit Schluessel "d...", also
+                    -- Deathlog-Material), und die tritt hinter die eigene Erinnerung zurueck.
+                    -- Die Flanke wird hier NICHT verbraucht: anders als beim Geofence warnt
+                    -- diese Stelle vor etwas, auf das der Spieler erst ZULAEUFT - fuer sie ist
+                    -- Zurueckstellen richtig und Wegwerfen falsch.
+                    -- W.schwimmPruefen (TIEFES_WASSER) ist ausdruecklich NICHT gesperrt: dort ist
+                    -- der Spieler schon drin und hat weniger als halbe Luft. Das ist keine
+                    -- Statistik mehr, das ist die Lage.
+                    local U = ns.Sinne and ns.Sinne.Umwelt
+                    if U and U.eigenerVorrang and U.eigenerVorrang() then
+                        return verwirf("eigener-punkt")
+                    end
                     if tode and tode >= W.TODE_MIN then
                         if not gesagt[s.key] then
                             gesagt[s.key] = true

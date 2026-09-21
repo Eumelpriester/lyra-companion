@@ -1,10 +1,11 @@
 -- Sinne/Umwelt.lua — Ortssinn und Umgebung: Zone, Atem, Erschoepfung, Rast, Taxi, Geofence.
--- Ereignisse: ZONE, ATEM30, ATEM10, MUEDE, RAST_AN, TAXI_START, TAXI_ENDE, GEOFENCE.
+-- Ereignisse: ZONE, ATEM30, ATEM10, ERSCHOEPFUNG, MUEDE, RAST_AN, TAXI_START, TAXI_ENDE, GEOFENCE.
 -- API (nur lesend): GetRealZoneText/GetZoneText, GetMirrorTimerProgress/GetMirrorTimerInfo,
---   IsResting, UnitOnTaxi, TaxiNodeName (Post-Hook auf TakeTaxiNode, nicht protected),
+--   IsResting, GetXPExhaustion/GetRestState, UnitOnTaxi, TaxiNodeName (Post-Hook auf
+--   TakeTaxiNode, nicht protected),
 --   C_Map.GetBestMapForUnit/GetPlayerMapPosition, UnitAffectingCombat, UnitIsDeadOrGhost, GetTime.
 -- Events: ZONE_CHANGED_NEW_AREA, MIRROR_TIMER_START/STOP, PLAYER_UPDATE_RESTING,
---   PLAYER_CONTROL_LOST/GAINED, PLAYER_ENTERING_WORLD.
+--   PLAYER_XP_UPDATE, UPDATE_EXHAUSTION, PLAYER_CONTROL_LOST/GAINED, PLAYER_ENTERING_WORLD.
 -- Takt: ein 3-s-Ticker (Geofence + Flug-Flanken), eine 2-s-Tick-Kette NUR waehrend eines
 --   Atem-/Erschoepfungs-Timers. Kein OnUpdate.
 -- Grenzen: Instanzen liefern keine Kartenposition (Geofence still); Gefahren-Tabelle
@@ -101,31 +102,87 @@ local function atemStart()
     end
 end
 
--- Erschoepfung: der EXHAUSTION-Timer laeuft, sobald man im offenen Meer ist. Flanke am Start,
--- eine Meldung je Schwimmgang (Regie-Drossel 3600 obendrauf). Zwilling der Atem-Wache, aber
--- ohne Tick-Kette: die Warnung ist beim Start am meisten wert (Umkehren ist noch moeglich).
-local muede = { aktiv = false, gemeldet = false }
+-- =============================================================================================
+-- ERSCHOEPFUNG (W11B-1) — und warum hier bis 0.14.0 das falsche Ereignis stand.
+-- =============================================================================================
+-- Der EXHAUSTION-Timer laeuft, sobald man im offenen Meer ist. Flanke am Start, eine Meldung je
+-- Schwimmgang. Zwilling der Atem-Wache, aber ohne Tick-Kette: die Warnung ist beim Start am
+-- meisten wert (Umkehren ist noch moeglich).
+--
+-- DER BEFUND (docs/abgleich-claudebuddy-2026-09-20.md §4.2, sicherheitsrelevant):
+-- Dieser Handler war richtig verdrahtet und meldete das FALSCHE Ereignis. Er meldete MUEDE -
+-- und MUEDE ist im Katalog der AUSGERUHT-BONUS: "Du bist müde. Ich auch. Einer von uns sollte
+-- ins Gasthaus." · "Kein Ausgeruht-Bonus mehr." Ein Spieler, der beim Erscheinen des
+-- Erschoepfungsbalkens "Gasthaus" hoert, dreht nicht um. Er taucht auf. Auftauchen hilft bei
+-- Erschoepfung nicht - bei Erschoepfung muss man UMKEHREN, und Ertrinken ist Todesursache
+-- Nr. 8 in Classic Hardcore.
+-- Dazu kam die Klasse: MUEDE ist "plauder". Es wurde also im Kampf zurueckgehalten, in der
+-- Gruppe verworfen und im Still-Modus geschluckt, waehrend der Charakter im offenen Meer trieb.
+--
+-- JETZT: ein eigenes Ereignis ERSCHOEPFUNG, Klasse "warn", Stufe 2 (docs/phrasen-w11b.json).
+-- Damit laeuft es an Gruppen-Schweigen, Still-Modus und Kampf-Riegel vorbei, bekommt den
+-- Bildschirmpuls der Stufe 2 (UI/Glow.lua haengt generisch an e.stufe) und sagt "kehr um".
+-- Stufe 2 und nicht 3: der Balken laeuft ueber eine Minute, es ist eine Warnung und kein Alarm -
+-- Stufe 3 sind die drei Faelle, in denen es um Sekunden geht (HP20, STURZ, ATEM10).
+-- TIEFES_WASSER (Sinne/Welle8.lua) deckt einen verwandten, aber anderen Fall ab - tiefes Wasser
+-- mit halbem Atem ueber einer Ertrinken-Zelle - und ersetzt diese Warnung nicht.
+local erschoepfung = { aktiv = false, gemeldet = false }
 
-local function muedeStart()
-    muede.aktiv = true
-    if muede.gemeldet or tot() then return end
-    muede.gemeldet = true
-    ns.melde("MUEDE")
+local function erschoepfungStart()
+    erschoepfung.aktiv = true
+    if erschoepfung.gemeldet or tot() then return end
+    erschoepfung.gemeldet = true
+    ns.melde("ERSCHOEPFUNG")
 end
 
-local function muedeStop()
-    muede.aktiv = false
-    muede.gemeldet = false
+local function erschoepfungStop()
+    erschoepfung.aktiv = false
+    erschoepfung.gemeldet = false
 end
 
 ns.on("MIRROR_TIMER_START", function(name)
     if name == "BREATH" then atemStart()
-    elseif name == "EXHAUSTION" then muedeStart() end
+    elseif name == "EXHAUSTION" then erschoepfungStart() end
 end)
 ns.on("MIRROR_TIMER_STOP", function(name)
     if name == "BREATH" then atemStop()
-    elseif name == "EXHAUSTION" then muedeStop() end
+    elseif name == "EXHAUSTION" then erschoepfungStop() end
 end)
+
+-- ---------------------------------------------------------------- MUEDE (Ausgeruht-Bonus)
+-- MUEDE bleibt, was seine ZEILEN immer waren: die Bemerkung zum aufgebrauchten Ausgeruht-Bonus.
+-- Es hatte bis heute nur keinen Auslöser dafuer - es hing am Erschoepfungs-Timer (siehe oben).
+-- Geprueft und gefunden wurde der richtige: GetXPExhaustion() gibt die verbleibenden Bonus-EP
+-- oder nil; UPDATE_EXHAUSTION und PLAYER_XP_UPDATE melden jede Aenderung. Die Flanke ist der
+-- Uebergang "hatte Bonus" -> "kein Bonus mehr", und zwar nur ausserhalb der Rast: wer im
+-- Gasthaus steht, BAUT den Bonus gerade auf und soll nicht ins Gasthaus geschickt werden.
+--
+-- Auf Stufe 60 (bzw. am Stufendeckel) gibt es keine Erfahrung mehr und GetXPExhaustion bleibt
+-- dauerhaft nil - dann feuert die Flanke schlicht nie, und das ist richtig so.
+-- Fehlt die API (Client ohne GetXPExhaustion), bleibt MUEDE stumm statt zu raten.
+local ruhe = { hatte = nil }        -- nil = Basislinie noch nicht gesetzt
+
+local function bonusRest()
+    if not GetXPExhaustion then return nil end
+    local ok, v = pcall(GetXPExhaustion)
+    if not ok then return nil end
+    return tonumber(v) or 0
+end
+
+local function pruefeBonus()
+    local rest = bonusRest()
+    if rest == nil then return end
+    local hat = rest > 0
+    if ruhe.hatte == nil then ruhe.hatte = hat; return end      -- Login: still merken
+    if ruhe.hatte == hat then return end
+    ruhe.hatte = hat
+    if hat then return end                                      -- Bonus ist gewachsen: kein Anlass
+    if IsResting and IsResting() then return end                -- im Gasthaus: er baut sich auf
+    ns.melde("MUEDE")
+end
+
+ns.on("UPDATE_EXHAUSTION", pruefeBonus)
+ns.on("PLAYER_XP_UPDATE", pruefeBonus)
 
 -- ---------------------------------------------------------------- RAST
 local letzteRast = nil          -- nil = Basislinie noch nicht gesetzt
@@ -181,6 +238,33 @@ ns.on("PLAYER_CONTROL_GAINED", function()
 end)
 
 -- ---------------------------------------------------------------- GEOFENCE
+-- =============================================================================================
+-- W11B-3: DEIN EIGENER PUNKT SCHLAEGT JEDE STATISTIK.
+-- =============================================================================================
+-- Befund docs/abgleich-claudebuddy-2026-09-20.md §4.3. ClaudeBuddy hatte beim Bau der Todeskarte
+-- zwei Regeln, und dem Autor war diese die erste: "In Hillsbrad steht dein Beinahe-Tod (n=1) vor
+-- einem Fremdpunkt mit 562 Toten. Du warst dort, es war dein Charakter."
+-- Die ZWEITE Regel - Fremdwissen muss anders klingen - ist bei Lyra sauber umgesetzt
+-- (GEOFENCE_BEINAHE "Hier war's knapp, weißt du noch? Ich schon." gegen GEOFENCE_MOB "Hier sind
+-- viele gefallen. Nicht dich, bitte."). Die ERSTE fehlte: die Sperre lag je Art getrennt
+-- (geofenceZuletzt[art]), und an einer gefaehrlichen Ecke - wo ein eigener Beinahe-Punkt und
+-- eine fremde Deathlog-Zelle uebereinanderliegen, also im wahrscheinlichen Fall - feuerten
+-- BEIDE. Aus einer Erinnerung wurde damit eine Statistik mit Nachschlag.
+--
+-- JETZT: der Puls sammelt erst alle Treffer eines Durchlaufs ein und entscheidet dann. Ist ein
+-- eigener Beinahe-Punkt dabei, kommt NUR der - die fremden Treffer desselben Durchlaufs werden
+-- stumm verbraucht (ihre Flanke ist weg, sie schreien also nicht drei Sekunden spaeter nach).
+-- Zusaetzlich schweigen die fremden Arten 30 s lang, ueber alle Arten hinweg. Umgekehrt gilt
+-- das NICHT: eine fremde Zelle hindert den eigenen Punkt an gar nichts.
+U.VORRANG_SEK = 30
+U.vorrangBis = 0                -- absoluter Zeitpunkt, bis zu dem fremde Arten schweigen
+
+-- Oeffentlich, weil Sinne/Welle8.lua dieselbe Frage stellt (die praeventive Warnung liest
+-- dieselben Deathlog-Zellen). Ohne diese Datei antwortet die Abfrage dort fail-safe mit false.
+function U.eigenerVorrang()
+    return jetzt() < (U.vorrangBis or 0)
+end
+
 local geofenceZuletzt = {}
 -- 3-s-Puls: Naehe zu bekannten Gefahren-Stellen der aktuellen Karte. Flanke innerhalb r,
 -- Re-Arm erst ausserhalb 2r. Im Kampf, im Flug, tot: still (Warnung waere wertlos).
@@ -210,6 +294,11 @@ local function gefahrPuls()
     if not karte then return end
     local stellen = tab[karte]
     if type(stellen) ~= "table" then return end
+    -- W11B-3: ERST SAMMELN, DANN ENTSCHEIDEN. Vorher wurde im Schleifendurchlauf sofort
+    -- gemeldet - und damit konnte der eigene Punkt gar keinen Vorrang haben, weil die fremde
+    -- Zelle je nach Reihenfolge in der Tabelle schon heraus war.
+    local treffer = {}
+    local eigener = nil
     for i, s in ipairs(stellen) do
         local r = s.r or 0.02
         local k = s.key or (tostring(karte) .. ":" .. i)
@@ -217,21 +306,60 @@ local function gefahrPuls()
         local d2 = dx * dx + dy * dy
         if d2 <= r * r then
             if gefahrArmed[k] ~= false then
-                gefahrArmed[k] = false                    -- Flanke verbraucht
                 local art = s.art or "sturz"
-                local id = (art == "beinahe" and "GEOFENCE_BEINAHE") or (art == "wasser" and "GEOFENCE_WASSER") or (art == "mob" and "GEOFENCE_MOB") or "GEOFENCE"
-                -- globale Bremse je Art: Mob-Lager 90 s, Rest 20 s (sonst Warnsalve beim Durchqueren)
-                local jetztT = GetTime()
-                local pause = (art == "mob") and 90 or 45
-                if jetztT - (geofenceZuletzt[art] or 0) >= pause then
-                    geofenceZuletzt[art] = jetztT
-                    ns.melde(id, { key = k, art = art })
+                local eintrag = { k = k, art = art }
+                if art == "beinahe" then
+                    -- Der eigene Punkt: hoechstens einer je Durchlauf, der naechstgelegene.
+                    if not eigener or d2 < eigener.d2 then
+                        eintrag.d2 = d2
+                        eigener = eintrag
+                    end
+                else
+                    treffer[#treffer + 1] = eintrag
                 end
             end
         elseif d2 >= 4 * r * r then
             gefahrArmed[k] = true
         end
     end
+
+    local jetztT = GetTime()
+    local function feuere(k, art)
+        gefahrArmed[k] = false                        -- Flanke verbraucht
+        local id = (art == "beinahe" and "GEOFENCE_BEINAHE") or (art == "wasser" and "GEOFENCE_WASSER")
+                or (art == "mob" and "GEOFENCE_MOB") or "GEOFENCE"
+        -- globale Bremse je Art: Mob-Lager 90 s, Rest 45 s (sonst Warnsalve beim Durchqueren)
+        local pause = (art == "mob") and 90 or 45
+        if jetztT - (geofenceZuletzt[art] or 0) >= pause then
+            geofenceZuletzt[art] = jetztT
+            ns.melde(id, { key = k, art = art })
+        end
+    end
+
+    if eigener then
+        feuere(eigener.k, "beinahe")
+        U.vorrangBis = jetztT + U.VORRANG_SEK
+        -- Die fremden Treffer desselben Durchlaufs sind damit erledigt. Ihre Flanke wird
+        -- VERBRAUCHT und nicht nur zurueckgestellt: sonst kaeme dieselbe Stelle drei Sekunden
+        -- spaeter (oder nach Ablauf der Sperre) doch noch als Statistik hinterher, und der
+        -- Spieler bekaeme fuer EINEN Ort zwei Zeilen - genau das, was hier abgestellt wird.
+        for _, tr in ipairs(treffer) do
+            gefahrArmed[tr.k] = false
+            ns.debug("Geofence: " .. tr.art .. " weicht dem eigenen Punkt")
+        end
+        return
+    end
+
+    -- Kein eigener Punkt hier - aber vielleicht gerade eben einer nebenan.
+    if U.eigenerVorrang() then
+        for _, tr in ipairs(treffer) do
+            gefahrArmed[tr.k] = false
+            ns.debug("Geofence: " .. tr.art .. " unterdrueckt (Vorrang eigener Punkt)")
+        end
+        return
+    end
+
+    for _, tr in ipairs(treffer) do feuere(tr.k, tr.art) end
 end
 
 -- Ein Ticker fuer Geofence und Flug-Flanken (faengt fehlende/zu fruehe Control-Events).
@@ -250,7 +378,8 @@ end
 -- ---------------------------------------------------------------- Ladebildschirm
 ns.on("PLAYER_ENTERING_WORLD", function()
     atemStop()
-    muedeStop()
+    erschoepfungStop()
+    ruhe.hatte = nil
     letzteRast = nil
     -- Zonen-Basislinie: beim Login still setzen, danach (Portal/Instanz) echter Wechsel.
     if not zoneBereit then
@@ -268,5 +397,5 @@ ns.on("PLAYER_ENTERING_WORLD", function()
 end)
 
 function U.stand()
-    return letzteZone, atem.aktiv, muede.aktiv, letzteRast, flug.drin, flug.ziel
+    return letzteZone, atem.aktiv, erschoepfung.aktiv, letzteRast, flug.drin, flug.ziel
 end

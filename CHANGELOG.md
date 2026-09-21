@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.15.0 (2026-09-20)
+
+### Welle 11a: Der Tod bekommt eine Stimme
+**Der Tod bekommt eine Stimme.** Nach dem Fall eines Hardcore-Charakters schweigt Lyra
+weiterhin eine Minute — das bleibt so. Danach spricht sie einen Nachruf aus den Fakten, die
+ohnehin in deiner Chronik stehen: Stufe, Zone, gespielte Stunden, Beinahe-Tode, der ärgste
+Gegner. Hast du ihr letzte Worte mitgegeben, trägt sie sie weiter — und nur dann; sie erfindet
+keine. Die Frage nach den letzten Worten hat jetzt vier Fassungen statt einer, der Vorgänger
+sechs Zeilen statt zwei. Das Chronik-Fenster hat einen neuen Abschnitt: die **Halle der
+Gefallenen**, mit allen deinen gefallenen Charakteren, ihrer Stufe, ihrer Zone und ihren letzten
+Worten. Nur deine eigenen, nie fremde.
+**Sie erinnert sich an dich.** 48 neue Zeilen greifen erst, wenn ihr eine Weile zusammen
+unterwegs wart — der Schwerpunkt liegt auf den ersten zehn Stunden, wo es bisher vier Zeilen im
+ganzen Katalog gab. Dazu 15 seltene Zeilen, die du vielleicht nie hörst.
+**Der Rückblick kommt jetzt beim Abschied.** Wenn du `/camp` tippst, erzählt sie im Countdown
+etwas aus *dieser* Sitzung statt beim nächsten Login von der letzten.
+**Größere Vorräte.** Der Fluchtmob-Warner hatte zwei Sätze und hat jetzt sechs; `LEVELUP`
+zwölf statt sechs, Lyra anklicken zwanzig statt elf, Emotes sechzehn statt neun.
+
+### Sicherheit
+- **Erschöpfung im offenen Meer sagt jetzt das Richtige.** Bisher kam beim
+  Erschöpfungsbalken eine Plauderzeile über das Gasthaus — und die wurde im Kampf
+  zurückgehalten, in der Gruppe verworfen und im Still-Modus geschluckt. Jetzt kommt eine
+  Warnung der Stufe 2, sie kommt in allen drei Lagen durch, und sie sagt, was hilft:
+  umkehren. Auftauchen hilft bei Erschöpfung nicht.
+- **Dein eigener Beinahe-Tod schlägt fremde Statistik.** Stehen an derselben Stelle deine
+  eigene knappe Erinnerung und eine fremde Todeszelle, kommt nur noch deine — und die
+  fremden schweigen dort 30 Sekunden.
+
+### Ruhe und Dosierung
+- **Hinweise der Stufe 1** (Klippen, tiefes Wasser, Tränke, Bestiarium, Runner …) haben
+  jetzt 15 Sekunden Abstand und höchstens zehn je Stunde. Warnungen und Alarme sind
+  unberührt: Leben unter 20 %, Sturz, letzte Luft und die Boss-Ansage kommen weiter sofort.
+- **Einzelne Ereignisse abschalten:** `/lyra stumm <EREIGNIS>`, zurück mit `/lyra laut
+  <EREIGNIS>`. Was du zuletzt gehört hast, zeigt `/lyra gehoert` — mit der ID zum
+  Abschalten. Alarme lassen sich nicht abschalten.
+- **„Warum sagst du nichts?"** — `/lyra warum` nennt die letzten fünf Meldungen, die nicht
+  herausgekommen sind, und den Grund dafür. Es steht auch dabei, was davon Verlust war und
+  was einfach so eingestellt ist.
+- **Seltene Zeilen.** Zeilen, die als selten markiert sind, kommen nur noch ein Viertel so
+  oft und nie zweimal hintereinander.
+
+### Ton
+- **Lyra hat einen eigenen Lautstärkeregler**, `/lyra lautstaerke <0-100>` oder der Schieber
+  in der Feineinstellung. Er wirkt relativ zum gewählten Tonkanal; Blizzards Regler wird
+  dafür nur für die Dauer einer Zeile gesenkt und danach exakt zurückgestellt — auch, wenn
+  du mittendrin neu lädst. Alarme bleiben immer voll laut.
+
 ## 0.14.0 (2026-09-20)
 
 ### Lyra verzählt sich seltener

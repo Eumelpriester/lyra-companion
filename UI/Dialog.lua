@@ -710,6 +710,16 @@ function D.antwort(a)
     if type(a.setzt) == "table" then
         for k, v in pairs(a.setzt) do D.setze(k, v) end
     end
+    -- W17: Feld "merkt" neben "setzt" — schreibt ins Personen-Gedaechtnis (ns.Person) statt in
+    -- die Einstellungen. Form: { schluessel = "...", wert = ..., ebene = "char"|"konto" }.
+    -- Existenzpruefung + pcall: ns.Person kann fehlen (Welle 17 nicht gemergt), dann ist dieser
+    -- Knopf wie jeder andere ohne "merkt" — er "weiter"t oder fuehrt seine Aktion trotzdem aus.
+    if type(a.merkt) == "table" and ns.Person and type(ns.Person.setze) == "function" then
+        local m = a.merkt
+        if type(m.schluessel) == "string" and m.schluessel ~= "" then
+            pcall(ns.Person.setze, m.schluessel, m.wert, m.quelle or "frage", m.ebene)
+        end
+    end
     local ziel, vars = a.weiter, nil
     if a.aktion then
         local fn = D.aktionen[a.aktion]
@@ -765,6 +775,16 @@ function D.oeffneKontext()
     if D.offen() then D.schliesse(); return false end   -- Rechtsklick ist ein Schalter
     if ns.Menue and ns.Menue.schliesse then ns.Menue.schliesse() end
     D.loreLauf = 0
+    -- W17 (MERGE 0.19.0): eine KUERZLICH GESPROCHENE Einladung ("Darf ich dich was fragen?
+    -- Rechtsklick.") geht vor jedem anderen Rechtsklick-Ziel - sonst landet der Spieler auf dem
+    -- Startknoten und die Einladung war eine Luege. ns.Welle17.rechtsklickAngebot() liefert nur
+    -- innerhalb seines eigenen Zeitfensters etwas und verbraucht das Angebot dabei; ausserhalb
+    -- gibt es nil und dieser Block ist ein No-op. Dasselbe Muster (pcall + knoten()-Pruefung)
+    -- wie die Ziel-Weiche direkt darunter.
+    if ns.Welle17 and type(ns.Welle17.rechtsklickAngebot) == "function" then
+        local ok, id, vars = pcall(ns.Welle17.rechtsklickAngebot)
+        if ok and id and knoten(id) then return D.zeigeKnoten(id, vars) end
+    end
     if zielFeindlichesUngeheuer() and type(D.aktionen.ziel) == "function" then
         local ok, id, vars = pcall(D.aktionen.ziel)
         if ok and id and knoten(id) then return D.zeigeKnoten(id, vars) end

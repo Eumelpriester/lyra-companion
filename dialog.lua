@@ -29,9 +29,14 @@ LyraGestalt_Dialog = {
       text = { de = "Noch was?", en = "Anything else?" },
       antworten = {
         { text = { de = "Erzähl mir was.", en = "Tell me something." }, bedingung = "hatZiel", aktion = "lore" },
-        { text = { de = "Wer bist du eigentlich?", en = "Who are you, really?" }, bedingung = "keinZiel", weiter = "ueber_lyra" },
         { text = { de = "Sei still.", en = "Be quiet." }, aktion = "still" },
-        { text = { de = "Nichts, schon gut.", en = "Nothing, never mind." }, weiter = "ende" },
+        -- W15C (MERGE 0.19.0): "Über dich..." ersetzt ZWEI Eintraege - "Wer bist du eigentlich?"
+        -- (war keinZiel-gated und fuehrte auf denselben Knoten) und "Nichts, schon gut." (Esc
+        -- oder ein Klick daneben schliesst bereits, und die Fusszeile sagt das). Der Einstieg in
+        -- den erweiterten ueber_lyra-Baum (ueber_dialog.lua, Welle 15c) ist damit IMMER
+        -- erreichbar, und beide Zweige (hatZiel/keinZiel) bleiben bei vier Knoepfen - die
+        -- FIX2-Rechnung zwei Kommentarzeilen darueber gilt unveraendert weiter.
+        { text = { de = "Über dich...", en = "About you..." }, weiter = "ueber_lyra" },
         { text = { de = "Zurück.", en = "Back." }, weiter = "start" },
       } },
     { id = "ueber_lyra", miene = "smug",

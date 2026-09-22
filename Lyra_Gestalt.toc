@@ -36,14 +36,13 @@
 ## Notes: A companion who watches, shows and speaks - and never presses a key. No automation, no chat output, no data about other players.
 ## Notes-deDE: Eine Begleiterin, die wahrnimmt, zeigt und spricht - und nie eine Taste drueckt. Keine Automation, keine Chat-Ausgabe, keine Daten anderer Spieler.
 ## Author: Lyra & Harald
-## Version: 0.17.0
+## Version: 0.19.0
 ## SavedVariables: LyraGestaltDB
 ## X-Category: Companions
 ## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md
 ## X-Website: https://github.com/Eumelpriester/lyra-companion
-# Projekt-IDs: nach der Freigabe eintragen und das fuehrende "# " entfernen.
-# ## X-Curse-Project-ID: 123456
-# ## X-Wago-ID: a1b2c3d4
+## X-Curse-Project-ID: 1703906
+## X-Wago-ID: nKWwdoKE
 # ## X-WoWI-ID: 26123
 # REVIEW9: hier stand "see LICENSE.md". Eine Datei dieses Namens liegt NUR im Entwicklungsbaum
 # (addon/Lyra_Gestalt/LICENSE.md, wird vom Sync als *.md nicht mitgenommen). Ausgeliefert werden
@@ -105,6 +104,24 @@ UI/Optik.lua
 UI/Farben.lua
 Gestalt/Gestalt.lua
 Gestalt/Blase.lua
+# W16V (MERGE 0.18.0, 22.09.2026): Feature-Welle 16v "Sichtbare Entwicklung", Teil 3 - die
+# Hover-Perlen. Vier runde Knoepfe (Gespraech, Menue, Einstellungen, Still-Modus) statt der
+# Belegungsliste im Tooltip: nach 0,3 s, nie im Kampf, eine Sprechblase gewinnt immer. Kein neues
+# Bild (bilder/portrait_scheibe.png + bilder/portrait_ring2.png), kein GameTooltip, keine
+# Tastatur. Die zwei anderen Teile der Welle (Gesichter je Bindungsstufe, Spiegeln zur
+# Bildschirmmitte) stecken in Gestalt/Gestalt.lua und brauchen keine eigene TOC-Zeile.
+#
+# WARUM HIER UND NICHT GANZ AM ENDE (das Team hatte "ans Ende der Datei" vorgeschlagen):
+#   * Fachlich gehoert sie hierher. Sie baut ihre vier Knoepfe beim Laden und richtet sie zur
+#     Laufzeit auf ns.Gestalt.frame aus; Gestalt/Blase.lua ruft ns.Perlen.blaseGewinnt(). Die
+#     drei Dateien sind EIN Bauteil, und in der Ladeliste stehen sie jetzt auch beieinander.
+#     Beim Laden greift sie auf nichts aus diesen Dateien zu (alles hinter Existenzpruefungen,
+#     alles erst beim Hover/Klick) - sie braucht nur ns.PFAD und ns.Compat aus Core/Init.lua.
+#   * Formal loest sie damit vier Pruefstaende nicht aus, die sonst zu Recht rot gewesen waeren:
+#     w5, w6, w9a und review6b prueft jeweils "hinter dieser Ankerdatei steht nur noch eine
+#     SPAETERE Sinne/Welle<N>.lua". Eine UI-Datei am Ende faellt dort auf - das ist der Sinn
+#     dieser Zusage, und sie wird deshalb nicht aufgeweicht, sondern eingehalten.
+UI/Perlen.lua
 Gestalt/Stimme.lua
 # W9: Gestalt/Aussprache.lua steht DIREKT hinter Gestalt/Stimme.lua. Sie stellt nur eine Tabelle
 # und eine Ersetzungsfunktion bereit; Stimme.lua ruft sie erst zur Laufzeit (S.ttsText), die
@@ -153,6 +170,27 @@ welle2_dialog.lua
 # Knoten-Index beim ersten Zeigen aus LyraGestalt_Dialog.knoten, spaeter angehaengte Knoten
 # waeren unsichtbar. Die Aktionen registriert Sinne/Welle14e.lua bei PLAYER_LOGIN.
 spiel_dialog.lua
+
+# ---------------------------------------------------------------------------------------------
+# MERGE 0.19.0 (22.09.2026): zwei weitere Dialog-Datendateien. Beide sind NUR Daten (sie haengen
+# Knoten an LyraGestalt_Dialog) und muessen darum VOR UI/Dialog.lua stehen - dieselbe Regel wie
+# bei den fuenf Zeilen darueber: UI/Dialog.lua baut seinen Knoten-Index beim ersten Zeigen,
+# spaeter angehaengte Knoten waeren unsichtbar.
+# Die Reihenfolge person_dialog.lua VOR ueber_dialog.lua ist frei gewaehlt (beide haengen nur an,
+# keine gemeinsame Knoten-ID) - sie ist die des Katalog-Merges und der Wellen-Nummer.
+# ---------------------------------------------------------------------------------------------
+
+# W17: Knoten und ein Intent fuer die zehn Rueckfragen (Welle 17, "Sie fragt zurueck"). NUR
+# Daten, wie die Dialog-Dateien darueber. Die Aktionen registriert Sinne/Welle17.lua bei
+# PLAYER_LOGIN.
+person_dialog.lua
+
+# W15C: der Gespraechsbaum "Ueber dich" (Welle 15c, "Lyra ueber sich"): 39 neue Knoten plus EIN
+# Knoten mit einer BESTEHENDEN ID (ueber_lyra), der den alten Textknoten aus dialog.lua bewusst
+# ueberschreibt - "letzter Eintrag gewinnt" beim Indexbau in UI/Dialog.lua. Genau deshalb muss
+# diese Zeile NACH dialog.lua stehen (steht sie; dialog.lua ist die erste der Gruppe) und vor
+# UI/Dialog.lua. Die vier Aktionen registriert Sinne/Welle15c.lua.
+ueber_dialog.lua
 UI/Dialog.lua
 UI/Freitext.lua
 UI/Slash.lua
@@ -316,3 +354,103 @@ Sinne/Welle14b.lua
 # unberuehrt. Kein CreateFrame, kein OnUpdate, kein Ticker, keine neue SavedVariable ausser
 # ns.char.spiel (Rekord je Charakter).
 Sinne/Welle14e.lua
+
+# --------------------------------------------------------------------------------------------
+# MERGE 0.18.0 (22.09.2026): Welle 15/16, vier Bauteams. Drei Sinne-Dateien und eine UI-Datei.
+# Alle vier Teams haben "ganz ans Ende" verlangt; der Merge legt die Reihenfolge fest: Welle15,
+# Welle16, Welle16b hier hinten - und UI/Perlen.lua NICHT hier, sondern oben direkt hinter
+# Gestalt/Blase.lua (Begruendung steht dort).
+#   * 15 VOR 16: beide legen einen Mantel um ns.Stimmung.tags/.passt und beide trennen sauber
+#     "eigene Schluessel" von "Rest" (jeder reicht den Rest ans Original weiter). Sie komponieren
+#     in jeder Reihenfolge - die gewaehlte ist die des Auftrags und damit dieselbe wie im
+#     Katalog-Merge und in tests/pruefstand/lauf_alle.sh. Wer einen roten Lauf sucht, liest
+#     ueberall dieselbe Folge.
+#   * 16b NACH 16: Sinne/Welle16b.lua fragt ns.Bindung.stufe() (existenzgeprueft, mit zwei
+#     Rueckfaellen). Zur LAUFZEIT waere die Reihenfolge egal - so steht die bevorzugte Quelle
+#     aber auch in der Ladeliste vor ihrem Leser.
+#   * UI/Perlen.lua steht bei ihrem Bauteil (hinter Gestalt/Blase.lua) statt am Ende: sie ruft
+#     ns.Gestalt.aktionGespraech/aktionMenue/aktionEinstellungen/aktionStill, ns.Blase, ns.Optik,
+#     ns.Regie, ns.menue, ns.oeffneSettings, ns.Dialog und ns.stillSetzen. Geprueft (Merge
+#     0.18.0): JEDER dieser Zugriffe steht hinter einer Existenzpruefung und faellt erst beim
+#     Hover/Klick, nicht beim Laden - beim Laden braucht sie nur ns.PFAD und ns.Compat. Sie legt
+#     keinen ns.onSetting-/ns.melde-Mantel und haengt keinen DEFAULTS_ACCOUNT-Schluessel an (das
+#     tut Gestalt/Gestalt.lua fuer beide Haekchen selbst).
+# --------------------------------------------------------------------------------------------
+
+# W15: Feature-Welle 15 "Zeilen mit Gedaechtnis" (0.18.0). Zwei Wrapper um ns.Stimmung.tags/.passt
+# (Muster Sinne/Profil.lua) - neun neue wenn-Schluessel aus der eigenen Chronik/dem eigenen Client
+# (besuche, beinahe_hier, beinahe, tode, stufe, sitzungen, tage_weg, klasse, rasse). GANZ ZULETZT,
+# hinter jeder anderen Sinne-Datei: sie liest ns.Chronik.stand() und ns.Stimmung.tags/.passt, beide
+# muessen fertig sein, und der zweite Wrapper soll sich um JEDEN vorherigen Wrapper legen (Profil.lua
+# stil, Rituale.lua {erinnerung}), nicht umgekehrt. Kein OnUpdate, kein Ticker, keine neue Globale,
+# keine neue Einstellung (die neuen Zeilenfelder haengen an den Ereignissen, die sie tragen - deren
+# bestehende Haekchen/Stummschaltung gelten unveraendert mit).
+Sinne/Welle15.lua
+
+# W16: Feature-Welle 16 "Bindung aus Ereignissen" (0.18.0). ns.Bindung rechnet eine Beziehung aus
+# vier Ereignisquellen (gemeinsam ueberstandene Beinahe-Tode, Spieltage, Meilensteine, beantwortete
+# Rueckfragen) statt aus reiner Spielzeit; die Punkte liegen konto-weit und ueberleben den
+# Hardcore-Tod eines Charakters. Drei Stufen (15/60/140), nie sinkend, mit der alten Stunden-Treppe
+# als Boden. Steht hinter Sinne/Leben2.lua (sie wrappt ns.Stimmung.tags/.passt auf Dateiebene) und
+# hinter Sinne/Welle15.lua (siehe Merge-Block oben). Sie haengt EINEN Schluessel an
+# ns.DEFAULTS_ACCOUNT (bindungWaechst); Core/Init.lua bleibt unberuehrt. Ein neues Ereignis
+# (BINDUNG_STUFE), eine neue SavedVariable-Teiltabelle (LyraGestaltDB.bindung).
+Sinne/Welle16.lua
+
+# W16B: Feature-Welle 16b "Sie erinnert sich an den Vorgaenger" (0.18.0). Trauer-Daempfung nach
+# dem Tod eines eigenen Charakters (zwei Sitzungen leiser, ueber die vorhandene Modulation
+# ns.Stimmung.abstandFaktor/mikroPool und die vorhandene Einzel-Stummschaltung Core/Regie.lua
+# R.stumm - Sinne/Leben2.lua bleibt unberuehrt), ERBE_UEBERHOLT und ERBE_NEUANFANG. GANZ ZULETZT
+# unter den Sinnen: sie liest ns.Erbe, ns.Stimmung, ns.Regie, ns.Chronik, ns.Gestalt und optional
+# ns.Bindung - alles zur Laufzeit, deferred bis PLAYER_LOGIN. Sie haengt EINEN Schluessel an
+# ns.DEFAULTS_ACCOUNT (erbeTrauer); Core/Init.lua bleibt unberuehrt.
+Sinne/Welle16b.lua
+
+# --------------------------------------------------------------------------------------------
+# MERGE 0.19.0 (22.09.2026): Welle 17/15c/18, drei Bauteams. Alle drei haben "ganz ans Ende"
+# verlangt; der Merge legt die Reihenfolge fest: Welle15c, Welle17, Welle18.
+#   * 15c ZUERST: sie registriert nur vier Aktionen in ns.Dialog.aktionen und liest
+#     ns.Bindung.stufe() zur Laufzeit - sie wrappt nichts und wird von niemandem gelesen.
+#   * 17 VOR 18: Sinne/Welle18.lua liest ns.Person, das Sinne/Welle17.lua einfuehrt (jeder
+#     Zugriff ist existenzgeprueft, zur Laufzeit waere die Reihenfolge egal - "nach dem, der es
+#     einfuehrt" liest sich aber klarer). Ausserdem setzt die "lernen"-Kaskade in Welle18 das
+#     Haekchen personFragen mit, das Welle17 auf Dateiebene an ns.DEFAULTS_ACCOUNT haengt.
+#     Beide Dateien stehen HINTER Core/Init.lua - das ist richtig so: Core/Init.lua legt die
+#     Tabelle nur an, ausgewertet wird sie erst in ns.initDB(), und die ruft Core/Start.lua bei
+#     ADDON_LOADED, lange nach der letzten TOC-Zeile (geprueft im Merge 0.19.0).
+#   * ns.melde-Mantelkette: Welle17 legt EINEN Mantel ({lieblingszone}/{haustier}/
+#     {lieblingsberuf}, Muster Sinne/Rituale.lua {erinnerung}) - bei PLAYER_LOGIN, also AUSSEN um
+#     die Maentel aus Persoenlichkeit/13d/16b. Welle18 legt seit dem W17-Abgleich GAR KEINEN
+#     ns.melde-Mantel mehr (die Kaskade auf personFragen leistet dasselbe an der Quelle) - die
+#     Kette bleibt damit genau so lang wie in 0.18.0 plus einem Glied.
+# --------------------------------------------------------------------------------------------
+
+# W15C: Welle 15c "Lyra ueber sich" (0.19.0). Vier Dialog-Aktionen (Herkunft gestaffelt nach
+# Bindungsstufe, Meinung zu Klasse/Zone/Hardcore, "Was wuerdest du jetzt tun?") in der offenen
+# Tabelle ns.Dialog.aktionen - UI/Dialog.lua und dialog.lua bleiben unberuehrt. GANZ ZULETZT,
+# weil sie ns.Bindung.stufe() (Welle 16) bevorzugt liest, mit Rueckfall auf
+# ns.Stimmung.vertraut(). Sie haengt KEINEN Schluessel an ns.DEFAULTS_ACCOUNT (kein eigenes
+# Haekchen: sie redet nie von selbst, sie antwortet nur auf einen Mausklick im offenen Fenster -
+# wie rituale_dialog.lua und spiel_dialog.lua), meldet KEIN Ereignis und legt keinen Mantel.
+Sinne/Welle15c.lua
+
+# W17: Feature-Welle 17 "Sie fragt zurueck" (0.19.0). ns.Person (das Personen-Gedaechtnis,
+# getrennt nach Charakter und Konto, Deckel 60 je Ebene), das Angebot PERSON_FRAGE_ANGEBOT, zehn
+# Rueckfragen (person_dialog.lua) und zwei Leseschnittstellen (ns.melde-Mantel fuer die
+# Platzhalter {lieblingszone}/{haustier}/{lieblingsberuf}, Doppel-Wrapper um
+# ns.Stimmung.tags/.passt fuer "p_<schluessel>"). GANZ ZULETZT: sie liest ns.Bindung (Welle 16),
+# ns.Chronik, ns.Welle13a.berufeLesen und ns.Stimmung/.Dialog - alle muessen stehen. Sie haengt
+# ZWEI Schluessel an ns.DEFAULTS_ACCOUNT (personFragen, warnLauter); Core/Init.lua bleibt
+# unberuehrt.
+Sinne/Welle17.lua
+
+# W18: Feature-Welle 18 "Transparenz" (0.19.0, Pflicht vor dem 0.19-Zip). "/lyra weisst" (Chat
+# ueber ns.print + Dialogknoten-Kurzfassung) und "/lyra vergiss <bereich>|alles" (Rueckfrage mit
+# zwei Maus-Knoepfen, sieben Bereiche, das Erbe nie). Zwei Haekchen "lernen"/"spielzeitFenster"
+# an ns.DEFAULTS_ACCOUNT (Core/Init.lua unberuehrt). EIN Wrapper um die oeffentliche Funktion
+# ns.Regie.gesagtSchreiben (Core/Regie.lua bleibt Wort fuer Wort stehen) und eine Kaskade ueber
+# ns.onSetting auf die vorhandenen Haekchen bindungWaechst (Welle 16) und personFragen
+# (Welle 17). GANZ ZULETZT, hinter Sinne/Welle17.lua: sie liest ns.Person, ns.Bindung,
+# ns.Chronik (rohe SavedVariables), ns.Erbe, ns.Welle14b, ns.Welle14e, ns.Welle16b und ns.Profil
+# - alles existenzgeprueft/pcall, alles zur Laufzeit.
+Sinne/Welle18.lua

@@ -653,6 +653,10 @@ end
 -- Zeigen / Queue
 -- ---------------------------------------------------------------------------------------------
 local function zeigeJetzt(str, dauer, klasse, stufe)
+    -- W16v Teil 3 "Hover-Perlen": die Blase gewinnt IMMER (OFFEN-HARALD.md 23:20). Diese Stelle
+    -- und nicht B.zeige() laeuft an, weil B.zeige() eine Zeile auch nur in die Warteschlange
+    -- legen kann (steht schon etwas) - hier ist sicher, dass jetzt wirklich etwas erscheint.
+    if ns.Perlen and ns.Perlen.blaseGewinnt then ns.Perlen.blaseGewinnt() end
     stufe = tonumber(stufe) or ((klasse == "warn") and 2 or 0)
     B.stufe = stufe
     B.warnAktiv = (klasse == "warn")

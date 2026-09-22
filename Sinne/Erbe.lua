@@ -593,3 +593,16 @@ end
 function E.stand()
     return letzterEintrag, ns.erbeWarteAufWorte, worteBis, gewrappt, halleGewrappt
 end
+
+-- ---------------------------------------------------------------- W16B: Setzer/Leser fuer e.hergang
+-- docs/welle13c-2026-09-21.md §3g ("Offene Schnittstellen, nicht in dieser Runde gebaut"): ein
+-- additives Feld auf dem EIGENEN, juengsten Erbe-Eintrag, damit Sinne/Welle13c.lua nicht selbst in
+-- diese Liste schreibt. Wortlaut wie dort vorgeschlagen, unveraendert uebernommen.
+function E.hergangSetzen(tab)   -- nur der EIGENE, juengste Eintrag; nie ueberschreiben
+    local e = letzterEintrag
+    if not (e and type(tab) == "table") then return false end
+    if type(e.hergang) == "table" then return false end
+    e.hergang = tab
+    return true
+end
+function E.hergangVon(eintrag) return type(eintrag) == "table" and eintrag.hergang or nil end

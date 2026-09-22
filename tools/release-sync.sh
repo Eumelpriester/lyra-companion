@@ -130,9 +130,11 @@ toc_filter() {  # $1 = Rolle (kern|stimme); liest stdin, schreibt stdout
         if (rolle == "kern") {
           print "## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md"
           print "## X-Website: https://github.com/Eumelpriester/lyra-companion"
-          print "# Projekt-IDs: nach der Freigabe eintragen und das fuehrende \"# \" entfernen."
-          print "# ## X-Curse-Project-ID: 123456"
-          print "# ## X-Wago-ID: a1b2c3d4"
+          # 22.09.2026: beide Projekte angelegt und freigegeben - CurseForge 1703906 (Approved 22.09.),
+          # Wago nKWwdoKE (Projekt angelegt 22.09., Upload per ops/wago-upload.sh). Die Zeilen stehen
+          # damit scharf; der Packager (Release-Workflow) laedt nur mit gesetzten Secrets hoch.
+          print "## X-Curse-Project-ID: 1703906"
+          print "## X-Wago-ID: nKWwdoKE"
           print "# ## X-WoWI-ID: 26123"
         } else {
           print "## X-License: MIT (code) / ARR (voice) - see Lyra_Gestalt/LICENSE and Lyra_Gestalt/LICENSE-ASSETS.md"

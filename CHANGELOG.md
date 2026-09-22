@@ -1,5 +1,109 @@
 # Changelog
 
+## 0.19.0 (2026-09-22)
+
+### Welle 17/15c/18: Rückfragen, Lyra über sich, Transparenz
+
+12 neue Zeilen je Sprache (8 davon auch gesprochen), ein Gesprächsbaum mit 40 Knoten, zehn
+Fragen, die Lyra dir stellt, und zwei Befehle, mit denen du siehst und löschst, was sie sich
+gemerkt hat. Drei neue Häkchen in der Feineinstellung, Abschnitt **„Bindung und Gedächtnis"**.
+
+**Sie fragt zurück**
+
+Bei Rast im Gasthaus oder auf dem Greifen bietet Lyra jetzt ab und zu an, dir eine Frage zu
+stellen — nach deiner Lieblingszone, dem Namen deines Tieres, deinem Lieblingsberuf, ob du
+lieber allein unterwegs bist, wie vorsichtig du dich einschätzt. Zehn Fragen, alles per
+Mausklick, nie öfter als einmal pro Sitzung, nie im Kampf, nie in einer Gruppe. Das
+Gesprächsfenster öffnet sich dabei **nie von selbst**: sie sagt es nur, du entscheidest, ob du
+draufklickst.
+
+Ihre Antworten wirken zurück. Kommst du später in die Zone, die du ihr genannt hast, merkt sie
+es. Steht dein Tier wieder neben dir, nennt sie es beim Namen. Sagst du „vorsichtig", sagt sie
+beim Rasten irgendwann „Vorsichtig, hast du gesagt. Merkt man." Zweimal „Lass gut sein" schaltet
+das Angebot ab, ohne Nachfrage und ohne beleidigt zu sein; das Häkchen **„Lyra darf mich etwas
+fragen"** schaltet es jederzeit wieder ein.
+
+**Lyra über sich**
+
+„Über dich…" im Gespräch ist kein einzelner Satz mehr, sondern ein eigener kleiner Baum. Frag
+sie, woher sie kommt — die Antwort wird ehrlicher, je besser ihr euch kennt: erst weicht sie
+aus, dann deutet sie etwas an, dann erzählt sie die ganze Geschichte von der Rune, der Leylinie
+und der abgebrochenen Lehre. Und wenn ihr euch wirklich lange kennt, sagt sie dir auch, wovor
+sie sich fürchtet. Dazu: was sie von deiner Klasse hält (je eine milde Spitze und ein ehrliches
+Lob für alle neun), was sie über die Gegend hier weiß, was sie zu Hardcore sagt — und was sie an
+deiner Stelle jetzt tun würde. Die letzte Antwort nennt immer nur die Lage, nie eine Route oder
+eine Skillung.
+
+**Transparenz**
+
+`/lyra weisst` zeigt dir in einem Stück, was Lyra sich über dich merkt — Bindung, Chronik,
+Gedächtnis, die Antworten aus ihren Rückfragen, Flugzeiten, Quiz-Rekord, Spielstil und dein
+Erbe. Alles bleibt in deiner Speicherdatei auf deinem Rechner, nichts wird hochgeladen.
+`/lyra vergiss <bereich>` (oder `alles`) löscht einen Teil davon oder alles auf einmal — nach
+einer Rückfrage per Mausklick, nie sofort. Dein Erbe (die letzten Worte deiner gefallenen
+Vorgänger) bleibt dabei immer erhalten; wer das wirklich löschen will, tut es in der Datei.
+
+Kurzfassung für die Datenschutz-Frage: **`/lyra weisst` zeigt, `/lyra vergiss` löscht.**
+
+Zwei weitere Häkchen: **„Lyra lernt"** friert Bindung, Gedächtnis und Rückfragen ein, ohne
+etwas zu löschen (aus heißt einfrieren, nicht vergessen) — und **„Spielzeit-Fenster merken"**,
+ab Werk **aus**, weil Spielzeiten eine heikle Angabe sind.
+
+## 0.18.0 (2026-09-22)
+
+### Welle 15/16: Gedächtnis, Bindung, sichtbare Entwicklung, Erbe
+
+61 neue Zeilen je Sprache (58 davon auch gesprochen), eine Beziehung, die aus euren
+Ereignissen wächst, sechs neue Gesichter und vier kleine Knöpfe. Vier neue Häkchen in der
+Feineinstellung, Abschnitt **„Bindung und Gedächtnis"**, alle ab Werk an.
+
+**Zeilen mit Gedächtnis**
+
+Lyra hat jetzt ein Gedächtnis für einzelne Sätze. Manche Beobachtungen sagt sie nur **einmal** im
+Leben eines Charakters oder einmal in ihrer ganzen Beziehung zu dir („Erste Nacht zusammen. Merk
+dir, wie sich das anfühlt."), andere bauen aufeinander auf: an einem hartnäckigen Gegner sagt sie
+beim dritten Mal etwas anderes als beim ersten, und beim vierten wieder etwas anderes. 40 neue
+Sätze, verteilt auf vierzehn bestehende Momente — Login, Wiederkehr, Levelaufstieg, Zonen,
+Wasser, späte Nächte, Leerlauf, Rast, erste Instanz.
+
+Dazu bemerkt sie beim Einloggen gelegentlich deine Klasse oder Rasse — mild, eine Beobachtung,
+kein Ranking. Keine dieser Zeilen nennt eine Zahl: die Zahl steckt in der Bedingung, nicht im
+Satz („Zehntes Mal." statt „10. Mal.").
+
+**Bindung**
+
+Lyra merkt sich, was ihr gemeinsam erlebt habt — überstandene Beinahe-Tode, gemeinsame Spieltage,
+große Meilensteine, beantwortete Rückfragen. Daraus wächst eine Bindung in drei Stufen, und
+jeden Stufenwechsel sagt sie genau einmal, nie im Kampf. Sie überlebt den Tod eines
+Hardcore-Charakters: das Konto erinnert sich, auch wenn der nächste Held bei null anfängt. Ab
+Stufe 2 nennt Lyra dich im Text gelegentlich beim Kosenamen statt „Held"/„Heldin" — im Text, die
+gesprochene Fassung bleibt wie gehabt. `/lyra bindung` zeigt die ganze Rechnung; das Häkchen
+**„Bindung wächst"** friert die Punkte ein, ohne die bisherige Vertrautheit aus reiner Spielzeit
+anzutasten.
+
+**Sichtbare Entwicklung**
+
+Mit wachsender Bindung bekommt Lyra neue Gesichtsausdrücke — Überraschung, Nachdenken, Necken,
+Verlegenheit, Schwärmen. Die alten Mienen bleiben als Rückfall, solange die Bindung noch jung
+ist. Steht sie in der rechten Bildschirmhälfte, blickt sie jetzt zur Mitte statt aus dem Bild
+heraus (Häkchen **„Blickt zur Mitte"**). Und wenn du mit der Maus über sie fährst, erscheinen
+vier kleine runde Knöpfe — Gespräch, Menü, Einstellungen, Still-Modus — statt der Liste im
+Tooltip. Nie im Kampf, und eine Sprechblase gewinnt immer (Häkchen **„Hover-Leiste"**). Die
+vollständige Mausbelegung steht dafür jetzt in `/lyra hilfe`.
+
+**Sie erinnert sich an den Vorgänger**
+
+Stirbt ein eigener Charakter, ist der Nachfolger die nächsten zwei Sitzungen etwas leiser — sie
+redet seltener und lässt das Geplauder in der Stille weg. Danach ist es wie immer. Erreicht der
+Nachfolger eine höhere Stufe, als der letzte Vorgänger je hatte, sagt Lyra das genau einmal, ohne
+Jubel. Und meldet sich ein neuer Charakter auf einem Konto an, das sie schon kennt, sagt sie beim
+ersten Login nicht mehr nur „Hallo" — sie sagt, dass sie die Hand dahinter erkennt, auch wenn der
+Name neu ist. Häkchen **„Trauer nach Tod"**.
+
+| | |
+|---|---|
+| **Behoben** | Zwei Aufnahmen neu gerendert: die englische `adds-1` sprach den Satz doppelt, die deutsche `gefahr_elite-3` stotterte am Anfang. Beide liegen in den Sprachpaketen — ein Neuladen genügt |
+
 ## 0.17.0 (2026-09-21)
 
 ### Welle 14: Verbündete, Flugzeit, Weißt du noch?

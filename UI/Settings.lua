@@ -667,6 +667,56 @@ local function baueNativ()
     -- 14e: das Minispiel "Weisst du noch?".
     checkbox(fein, "spielFragen", "Ask me things", "Ask me things tip")
 
+    -- MERGE 0.18.0 (22.09.2026): EIN gemeinsamer Abschnitt fuer die Wellen 15, 16, 16v und 16b.
+    -- Anders als bei Welle 13 und 14 traegt die Ueberschrift diesmal WIEDER einen beschreibenden
+    -- Namen (de "Bindung und Gedaechtnis", en "Bond and memory") - und das ist kein Rueckfall,
+    -- sondern die Regel, die bei 14 nicht anwendbar war: hier gibt es einen gemeinsamen Nenner.
+    -- Alle vier Kaestchen beschreiben dasselbe Thema, naemlich dass Lyra sich etwas merkt und
+    -- sich daran veraendert - die Punkte (16), die Gesichter und die Blickrichtung (16v), die
+    -- Stille nach einem Tod (16b). Welle 15 selbst hat KEIN Kaestchen: ihre 40 Zeilen haengen an
+    -- vierzehn bestehenden Ereignissen und folgen deren Haekchen und Stummschaltung (Bericht
+    -- W15 §3b). Der Wellenname steht trotzdem im Schluessel "Wave 15/16", damit die Reihe der
+    -- Abschnitts-Schluessel ("Wave 13", "Wave 14", ...) nicht abreisst.
+    -- W16v hatte die zwei Gestalt-Kaestchen fuer den Abschnitt "Figure" vorgeschlagen (Bericht
+    -- §3b). Der Koordinator legt sie hierher: "Figure" haette die zwei sichtbaren Folgen der
+    -- Bindung von ihrer Ursache getrennt, und wer wissen will, was 0.18.0 bringt, liest dann
+    -- zwei Abschnitte statt einem. Der Preis ist bekannt und klein: "Blickt zur Mitte" ist
+    -- Frame-Verhalten und stuende in "Figure" ebenfalls richtig.
+    -- Alle vier stehen ab Werk auf AN; die Voreinstellungen haengen in Sinne/Welle16.lua
+    -- (bindungWaechst), Gestalt/Gestalt.lua (blicktZurMitte, hoverLeiste) und
+    -- Sinne/Welle16b.lua (erbeTrauer) an ns.DEFAULTS_ACCOUNT, Core/Init.lua bleibt unberuehrt.
+    -- Die erste Seite bleibt unberuehrt (Design-Deckel B-5).
+    header(fein, "Wave 15/16")
+    -- 16: die Bindung selbst. Aus friert nur die PUNKTE ein - die Stufe kann ueber die reine
+    -- Spielzeit weiter steigen (Stunden-Boden in Sinne/Leben2.lua, unveraendert).
+    checkbox(fein, "bindungWaechst", "Bond grows", "Bond grows tip")
+    -- 16v Teil 2: Spiegelung zur Bildschirmmitte.
+    checkbox(fein, "blicktZurMitte", "Look toward center", "Look toward center tip")
+    -- 16v Teil 3: die Hover-Perlen statt der Belegungsliste im Tooltip.
+    checkbox(fein, "hoverLeiste", "Hover bar", "Hover bar tip")
+    -- 16b: die leisere Sitzung nach dem Tod eines eigenen Charakters.
+    checkbox(fein, "erbeTrauer", "Grief after death", "Grief after death tip")
+
+    -- MERGE 0.19.0 (22.09.2026): die drei Kaestchen der Wellen 17 und 18 kommen in DENSELBEN
+    -- Abschnitt "Bindung und Gedaechtnis" - kein neuer Kopf. Begruendung: der gemeinsame Nenner
+    -- des Abschnitts ist genau ihr Thema ("Lyra merkt sich etwas und veraendert sich daran"),
+    -- und "Lyra lernt" ist der Schalter UEBER "Bindung waechst" und "Lyra darf mich etwas
+    -- fragen" - er setzt beide per Kaskade mit (Sinne/Welle18.lua Abschnitt 1a). Stuenden sie in
+    -- einem eigenen Kopf, waere der Oberschalter von seinen zwei Untergebenen getrennt.
+    -- Welle 15c hat KEIN Kaestchen (Bericht §3c): sie redet nie von selbst, sie antwortet nur im
+    -- offenen Gespraechsfenster - wie rituale_dialog.lua und spiel_dialog.lua.
+    -- Voreinstellungen: personFragen AN (Sinne/Welle17.lua), lernen AN und spielzeitFenster AUS
+    -- (Sinne/Welle18.lua) - alle drei haengen auf Dateiebene an ns.DEFAULTS_ACCOUNT,
+    -- Core/Init.lua bleibt unberuehrt. warnLauter (Welle 17, Antwort auf ihre eigene Frage)
+    -- steht bewusst NICHT hier: es ist heute von keiner Warnung gelesen (W17 §5) - ein Kaestchen
+    -- ohne Wirkung waere ein Versprechen, das die Seite nicht halten kann.
+    -- 17: die Rueckfragen ("Darf ich dich was fragen?").
+    checkbox(fein, "personFragen", "Lyra may ask", "Lyra may ask tip")
+    -- 18: der Oberschalter ueber Bindung, Gedaechtnis und Rueckfragen. Er LOESCHT nichts.
+    checkbox(fein, "lernen", "Lyra learns", "Lyra learns tip")
+    -- 18: reine Vorbereitung, Standard AUS (heikle Angabe).
+    checkbox(fein, "spielzeitFenster", "Play-time window", "Play-time window tip")
+
     Settings.RegisterAddOnCategory(category)
 end
 

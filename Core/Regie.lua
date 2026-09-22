@@ -145,6 +145,78 @@ function R.zuletztGehoert(n)
     return out
 end
 
+-- =============================================================================================
+-- W15 "ZEILEN MIT GEDAECHTNIS" - EIN KLEINER BLOCK FUER "gesagt".
+-- =============================================================================================
+-- Zwei neue Zeilenfelder (Katalog-Generator: tools/gen-phrasen-lua.py, Zulieferschema:
+-- docs/phrasen.json _hinweis): "einmal" (nie wieder gezogen, sobald einmal ausgegeben) und
+-- "nach" (nur Kandidat, wenn ihr "k" schon gesagt wurde - eine Kette). Beides braucht dieselbe
+-- Frage: "wurde dieses k schon einmal ERFOLGREICH ausgegeben?" - und dieselbe Antwort: eine
+-- Tabelle k -> unix-Zeit. Zwei Tabellen, nicht eine: "einmal: true" (Kurzform "char") betrifft
+-- DIESEN Charakter (ns.char.gesagt - review-bindung: eine "einmalige" Zeile ueber den Vorgaenger
+-- darf der Nachfolger wieder hoeren), "einmal: 'konto'" betrifft die Beziehung zum SPIELER
+-- (LyraGestaltDB.account.gesagt). "nach" wird in BEIDEN Tabellen gesucht - eine Kette weiss beim
+-- Lesen nicht mehr, in welcher der zwei Tabellen ihr Vorgaenger geschrieben wurde, und ein
+-- doppeltes "k" wird schon vom Generator abgelehnt (kein Kollisionsrisiko).
+--
+-- PROBEN LERNEN NICHTS: dieselbe Zusage wie ueberall sonst (HOTFIX 0.16.1, vars.test). Die
+-- Schreib-Stelle steht darum nicht hier, sondern unten in ausgeben() - direkt neben der Stelle,
+-- die schon heute ueber vars.test entscheidet, ob R.gehoert/die Chronik etwas lernen.
+--
+-- DECKEL: 500 Eintraege je Tabelle (Auftrag W15 Punkt 2), aeltester nach Zeitstempel raus - und
+-- zwar erst BEIM NEUEN Schluessel, nicht bei jedem erneuten Schreiben eines schon bekannten k
+-- (eine Kette, die zwei Stufen weit ist, soll nicht am Deckel ihrer eigenen ersten Stufe scheitern).
+R.GESAGT_DECKEL = 500
+
+-- Tabelle fuer den scope ("char"/true -> ns.char.gesagt, "konto" -> LyraGestaltDB.account.gesagt).
+-- nil, solange ns.char/ns.db noch nicht stehen (vor ns.initDB()) - dann wird weder gelesen noch
+-- geschrieben, genau wie beim Stumm-Schalter oben (R.stumm).
+function R.gesagtTabelle(scope)
+    if scope == "konto" then
+        if not ns.db then return nil end
+        ns.db.gesagt = ns.db.gesagt or {}
+        return ns.db.gesagt
+    end
+    if not ns.char then return nil end
+    ns.char.gesagt = ns.char.gesagt or {}
+    return ns.char.gesagt
+end
+
+-- "wurde k schon gesagt" - fuer "nach" IMMER ueber beide Tabellen (siehe Begruendung oben), fuer
+-- "einmal" mit dem EIGENEN scope der Zeile, damit eine char-Zeile nicht durch einen zufaelligen
+-- Konto-Treffer desselben Namens verschluckt wird (der Generator verbietet die Kollision ohnehin).
+function R.gesagtHat(k, scope)
+    if not k then return false end
+    if scope then
+        local t = R.gesagtTabelle(scope)
+        return t ~= nil and t[k] ~= nil
+    end
+    local c, a = R.gesagtTabelle("char"), R.gesagtTabelle("konto")
+    return (c and c[k] ~= nil) or (a and a[k] ~= nil) or false
+end
+
+-- Schreibt gesagt[z.k] = t, mit Deckel. z.einmal entscheidet den scope (true/"char" -> char,
+-- "konto" -> Konto); eine Zeile OHNE "einmal" (ein blosser Kettenschritt) schreibt ebenfalls -
+-- ihre Nachfolgerin braucht die Zeitmarke - und zwar in den charakterbezogenen scope, den Default.
+function R.gesagtSchreiben(z, t)
+    if not (z and z.k) then return end
+    local scope = (z.einmal == "konto") and "konto" or "char"
+    local tab = R.gesagtTabelle(scope)
+    if not tab then return end
+    if tab[z.k] == nil then
+        local n = 0
+        for _ in pairs(tab) do n = n + 1 end
+        if n >= R.GESAGT_DECKEL then
+            local altK, altT = nil, nil
+            for kk, tt in pairs(tab) do
+                if not altT or (tt or 0) < altT then altK, altT = kk, tt end
+            end
+            if altK then tab[altK] = nil end
+        end
+    end
+    tab[z.k] = t
+end
+
 local function jetzt() return GetTime() end
 -- REVIEW5: das rohe Preset ohne Stimmungs-Modulation. Die Login-Slots rechnen damit (siehe
 -- loginSchritt), sonst wandert der Slot-Abstand mit der Laune - und der Plan aus Review 4 haelt nicht.
@@ -343,6 +415,12 @@ local function ausgeben(e, id, vars, text)
     table.insert(R.gehoert, 1, { id = id, zeit = date("%H:%M:%S"), t = jetzt() })
     if #R.gehoert > R.GEHOERT_MAX then table.remove(R.gehoert) end
     ausgebenKern(e, id, vars, text)
+    -- W15: die gewaehlte Zeile merken - NIE bei einer Probe (vars.test, HOTFIX-0.16.1-Muster).
+    -- "text" ist die Zeilentabelle aus waehle() (oder nil bei klasse "still"); nur eine Zeile mit
+    -- einem "k" hat ueberhaupt etwas zu merken.
+    if type(text) == "table" and text.k and not (vars and vars.test) then
+        R.gesagtSchreiben(text, time())
+    end
     for _, fn in ipairs(ns.hooksAusgabe) do pcall(fn, id, e, vars, text) end
 end
 
@@ -396,6 +474,24 @@ local function waehle(e, vars, sprache, id)
         if ok and z.selten then
             gewicht = (gewicht == GEW_TAG) and GEW_SELTEN_TAG or GEW_SELTEN
             if z == letzte then ok = false; seltenUebersprungen = true end
+        end
+        -- W15 "Zeilen mit Gedaechtnis": einmal-Zeilen fallen aus dem Topf, sobald ihr k schon
+        -- einmal ERFOLGREICH ausgegeben wurde (R.gesagtHat, scope aus z.einmal); nach-Zeilen sind
+        -- nur Kandidat, wenn ihr Vorgaenger (z.nach) schon gesagt wurde. Beides gemeinsam, weil
+        -- ein Kettenschritt beides zugleich sein kann ("stufe 2 von 3, aber auch: kommt nur
+        -- einmal, dann geht die Kette weiter"). Frisch/Ketten-Zeilen bekommen dasselbe Gewicht
+        -- wie ein erfuellter wenn-Tag (12 statt 4) - sie sollen kommen, solange sie NEU sind,
+        -- ohne einen wenn-Treffer zu ueberstimmen (der bleibt bei seinem eigenen Gewicht stehen).
+        if ok and z.k then
+            if z.einmal and R.gesagtHat(z.k, (z.einmal == "konto") and "konto" or "char") then
+                ok = false
+            end
+            if ok and z.nach and not R.gesagtHat(z.nach) then
+                ok = false
+            end
+            if ok and (z.einmal or z.nach) and gewicht == GEW_NORMAL then
+                gewicht = GEW_TAG
+            end
         end
         if ok then
             local eintrag = (g == "keine" and ns.hatToken(s)) and { z = z, reserve = true } or { z = z }

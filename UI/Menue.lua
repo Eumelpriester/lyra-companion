@@ -179,6 +179,19 @@ local function eintraege()
             liste[#liste + 1] = e
         end
     end
+    -- W17 (MERGE 0.19.0): "Frag mich zurueck." (Sinne/Welle17.lua). Dasselbe Muster und
+    -- dieselbe Begruendung wie beim Quiz eine Zeile darueber: HINTEN anhaengen, damit die
+    -- Ziffern 1-9 der festen Eintraege unveraendert bleiben, und menueEintrag() liefert nil,
+    -- solange es nichts zu fragen gibt (Haekchen personFragen aus, Kampf/Tod/Instanz/Gruppe,
+    -- keine offene Frage mehr) - dann steht hier gar nichts.
+    -- Der Eintrag ist der Grund, warum der Rechtsklick-Diff in UI/Dialog.lua allein nicht
+    -- reicht: er ist der Weg zur Frage, wenn gerade keine Einladung gesprochen wurde.
+    if ns.Welle17 and type(ns.Welle17.menueEintrag) == "function" then
+        local ok, e = pcall(ns.Welle17.menueEintrag)
+        if ok and type(e) == "table" and e[1] and type(e[2]) == "function" then
+            liste[#liste + 1] = e
+        end
+    end
     return liste
 end
 

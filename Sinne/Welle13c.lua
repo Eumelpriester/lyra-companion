@@ -384,13 +384,14 @@ end
 
 -- Ergebnis ins ERBE, damit der Nachfolger es sehen kann. Additiv, einmal, nur der eigene
 -- Eintrag, nie ein Name ausserhalb der Positivliste.
+-- W16B: schreibt nicht mehr selbst in die Liste, sondern ueber Sinne/Erbe.lua E.hergangSetzen()
+-- (docs/welle13c-2026-09-21.md §3g) — dieselbe Zusicherung ("nur der eigene, juengste Eintrag,
+-- nie ueberschreiben"), jetzt an EINER Stelle statt an zwei.
 function W.insErbe(b)
     if type(b) ~= "table" then return false end
-    local e = eigenerErbeEintrag()
-    if not e then return false end
-    if type(e.hergang) == "table" then return false end         -- schon geschrieben: nicht ueberschreiben
-    e.hergang = { v = 1, art = b.art, n = b.n, gegner = b.gegner }
-    return true
+    if not (ns.Erbe and ns.Erbe.hergangSetzen) then return false end
+    local ok = ns.Erbe.hergangSetzen({ v = 1, art = b.art, n = b.n, gegner = b.gegner })
+    return ok and true or false
 end
 
 W.letzterBefund = nil

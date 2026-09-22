@@ -34,6 +34,11 @@ local function hilfe()
     -- W11B: die vier neuen Befehle. Eigener Locale-Schluessel statt einer Aenderung an
     -- "Help text 3" - die Locales werden in dieser Runde nur ERGAENZT, nie umgeschrieben.
     for line in L("Help text w11b"):gmatch("[^\n]+") do ns.print(line) end
+    -- W18: eigener Text im Modul (Muster Karte2/Farben oben) - Locales bleiben unangetastet.
+    if ns.Welle18 and ns.Welle18.hilfe then
+        local ok, zeilen = pcall(ns.Welle18.hilfe)
+        if ok and type(zeilen) == "table" then for _, z in ipairs(zeilen) do ns.print(z) end end
+    end
     -- W10a: der Offenlegungssatz, als LETZTE Zeile der Hilfe (Freitext-Konzept §2.8).
     ns.print(L("Disclosure"))
 end
@@ -130,7 +135,20 @@ local function status()
     -- Forever-Pruefpunkt der Welle.
     for _, mod in ipairs({ "Bedrohung", "Questie2", "Persoenlichkeit", "Welle4", "Karte2", "Welle8", "Welle9",
                            "Welle13a", "Welle13b", "Welle13c", "Welle13d",
-                           "Welle14a", "Welle14b", "Welle14e", "Welle6" }) do
+                           "Welle14a", "Welle14b", "Welle14e",
+                           -- MERGE 0.18.0 (22.09.2026): die drei Module der Welle 15/16 in der
+                           -- Ladereihenfolge der TOC (15, 16, 16b). Welle6 bleibt die Letzte.
+                           -- 15 nennt die neun Gedaechtnis-Tags (oder "keine", wenn Chronik/
+                           -- Client noch nicht bereit sind), 16 Stufe und Punkte der Bindung,
+                           -- 16b den Trauer-Stand. Welle 16v hat kein Modul und steht deshalb
+                           -- hier nicht: ihre Werte stehen in G.diagnose() (/lyra drift).
+                           -- MERGE 0.19.0 (22.09.2026): die drei Module der Welle 17/15c/18 in
+                           -- der Ladereihenfolge der TOC (15c, 17, 18). Welle6 bleibt die
+                           -- Letzte. 15c nennt Bindungsstufe und Zahl registrierter Aktionen,
+                           -- 17 den Stand der Rueckfragen (X/60 Charakter, Y Konto, Z offen,
+                           -- Haekchen an|aus), 18 "Lyra lernt" und den Spielzeit-Fenster-Stand.
+                           "Welle15", "Welle16", "Welle16b",
+                           "Welle15c", "Welle17", "Welle18", "Welle6" }) do
         local m = ns[mod]
         if m and m.status then
             local ok, zeilen = pcall(m.status)
@@ -170,6 +188,10 @@ cmd(debug, "debug")
 local function zeilenAus(mod, fn) if ns[mod] and ns[mod][fn] then for _, z in ipairs(ns[mod][fn]()) do ns.print(z) end else ns.print("-") end end
 cmd(function() zeilenAus("Faehigkeiten", "status") end, "cooldowns", "cd", "notfall")
 cmd(function() zeilenAus("Quests", "status") end, "quests", "questlog")
+-- MERGE 0.18.0 / W16 §3e: "/lyra bindung" zeigt die Rechnung hinter der Bindung - Stufe, Punkte
+-- je Quelle, Stunden-Boden und, wenn das Haekchen aus ist, den Hinweis darauf. Ohne
+-- Sinne/Welle16.lua (oder wenn ns.Bindung sonst fehlt) druckt zeilenAus das uebliche "-".
+cmd(function() zeilenAus("Bindung", "bindung") end, "bindung", "bond")
 -- W9 (P2-4): "/lyra profil" bleibt, was es war - der Spielstil aus Welle 2. NEU sind die beiden
 -- Unterbefehle davor: "/lyra profil export" und "/lyra profil import <Zeichenkette>". Die Weiche
 -- steht VOR zeilenAus, sonst zeigte "/lyra profil export" einfach den Spielstil - dieselbe Falle
@@ -541,6 +563,18 @@ cmd(function()
         ns.print(L("unknown command"))
     end
 end, "persoenlich", "persönlich", "personal", "meine")
+-- W18: /lyra weisst - zeigt in einem Stueck, was Lyra ueber dich weiss (Chat-Ausgabe ueber
+-- ns.print, dazu ein Dialogknoten mit Blase-Kurzfassung). Sinne/Welle18.lua traegt Text und Logik.
+cmd(function()
+    if ns.Welle18 and ns.Welle18.weisstBefehl then ns.Welle18.weisstBefehl()
+    else ns.print(L("unknown command")) end
+end, "weisst", "weißt", "know", "aboutme")
+-- W18: /lyra vergiss <bereich>|alles - loescht einen Speicherort, aber erst nach einer
+-- Rueckfrage per Dialogknoten mit zwei Knoepfen (Maus). Sinne/Welle18.lua fuehrt die Bereiche.
+cmd(function(rest)
+    if ns.Welle18 and ns.Welle18.vergissBefehl then ns.Welle18.vergissBefehl(rest)
+    else ns.print(L("unknown command")) end
+end, "vergiss", "forget")
 -- Interaktion: Menue, Gespraechsbaum, Chronik
 cmd(function() if ns.menue then ns.menue() else ns.print(L("unknown command")) end end, "menue", "menü", "menu")
 cmd(function()

@@ -485,6 +485,20 @@ local BEISPIEL = {
     -- (zone = "Westfall", beruf = "Kochkunst") und hier bewusst nicht anders gemacht.
     mechanik = "Betäubt", schritt = "zweihundert", richtung = "Norden", gold = "100",
     charakter = "Testheld", anzahl = 12, lager = "Deine Bank",
+    -- MERGE19 (MERGE 0.19.0, 22.09.2026, Welle 17): drei Platzhalter, und einer davon faellt
+    -- ZUM FUENFTEN MAL in dieselbe Falle (REVIEW5, REVIEW8, MERGE 0.16.0, REVIEW13):
+    --   haustier        PERSON_HAUSTIER_DA - BEIDE Zeilen tragen ihn. Ohne den Wert findet
+    --                   Core/Regie.lua waehle() keinen Kandidaten, und "/lyra test
+    --                   PERSON_HAUSTIER_DA" haette geguckt und geschwiegen. Genau der
+    --                   GEGNER_MECHANIK-Fall. Gefunden vom Pruefstand (r5 totezeilen), nicht
+    --                   von Hand - die Pruefung taugt.
+    --   lieblingszone   ZONE_ERINNERUNG, die neue Platzhalter-Zeile. Ohne den Wert zeigt der
+    --   lieblingsberuf  LEERLAUF, dieselbe Lage - also genau nicht die Zeile, die man pruefen
+    --                   will (REVIEW8-Muster).
+    -- Im Spiel kommen alle drei aus dem ns.melde-Mantel in Sinne/Welle17.lua (Abschnitt 4) und
+    -- sind dort nie leer, wenn die Zeile faellt. Hier stehen Beispielwerte, deutsch wie die
+    -- ganze Tabelle. "Wuschel" ist ein Name, kein echter Spielername.
+    haustier = "Wuschel", lieblingszone = "Westfall", lieblingsberuf = "Kochkunst",
 }
 
 local function sperrenLoesen(id)

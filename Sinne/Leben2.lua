@@ -101,12 +101,29 @@ function S.stunden()
     return (tonumber(acc.spielzeit) or 0) / 3600
 end
 
-function S.vertraut()
+-- Die alte Rechnung, reine Stunden-Treppe. Bleibt unveraendert stehen und bekommt einen Namen
+-- (S.vertrautAusStunden), weil Welle 16 (Sinne/Welle16.lua) sie als STUNDEN-BODEN braucht, ohne
+-- sie zweimal zu schreiben: ns.Bindung.stufe() = max(Punkte-Stufe, S.vertrautAusStunden()).
+local function vertrautAusStunden()
     local h = S.stunden()
     if h >= STUFEN_H[3] then return 3 end
     if h >= STUFEN_H[2] then return 2 end
     if h >= STUFEN_H[1] then return 1 end
     return 0
+end
+S.vertrautAusStunden = vertrautAusStunden
+
+-- W16 (22.09.2026): die Bindung aus Ereignissen (Sinne/Welle16.lua) ersetzt diese Rechnung ALS
+-- OBERFLAECHE — die 67 bestehenden "vertraut"-Stellen im Katalog und im Code greifen dadurch
+-- automatisch auf Punkte statt nur auf Stunden zu. Ohne Welle 16 (oder wenn sie einen Fehler
+-- wirft) bleibt es bei der alten Stunden-Treppe; pcall schuetzt davor, dass ein fremdes Modul
+-- diese Kernfunktion zum Absturz bringt.
+function S.vertraut()
+    if ns.Bindung and ns.Bindung.stufe then
+        local ok, s = pcall(ns.Bindung.stufe)
+        if ok and type(s) == "number" then return s end
+    end
+    return vertrautAusStunden()
 end
 
 -- ---------------------------------------------------------------- Spielzeit-Ticker

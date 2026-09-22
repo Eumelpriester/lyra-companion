@@ -1,6 +1,107 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.19.0 (2026-09-22)
+
+### Wave 17/15c/18: She asks back, Lyra about herself, transparency
+
+12 new lines per language (8 of them spoken as well), a conversation tree of 40 nodes, ten
+questions Lyra asks *you*, and two commands that show and delete what she remembers. Three new
+checkboxes in the fine tuning page, section **"Bond and memory"**.
+
+**She asks back**
+
+While you rest at an inn or ride a gryphon, Lyra now offers now and then to ask you something —
+your favourite zone, your pet's name, which profession you actually like, whether you prefer
+going alone, how careful you think you are. Ten questions, all with the mouse, never more than
+once per session, never in combat, never in a group. The conversation window **never opens on
+its own**: she only says it, you decide whether to click.
+
+Her answers feed back. Come back later to the zone you named and she notices. Stand next to your
+pet again and she calls it by name. Say "careful" and one evening at an inn she'll say "Careful,
+you said. Shows." Picking "Never mind" twice turns the offer off, without arguing and without
+sulking; the checkbox **"Lyra may ask me things"** turns it back on whenever you want.
+
+**Lyra about herself**
+
+"About you..." in the conversation is no longer a single sentence but a small tree of its own.
+Ask her where she comes from — the answer gets more honest the better you know each other: first
+she dodges, then she hints, then she tells the whole story of the rune, the ley line and the
+apprenticeship she never finished. And once you have known each other a long time, she also
+tells you what she is afraid of. On top of that: what she thinks of your class (one mild jab and
+one honest compliment for all nine), what she knows about this area, what she says about
+hardcore — and what she would do in your place right now. That last answer only ever names the
+situation, never a route or a build.
+
+**Transparency**
+
+`/lyra know` shows you in one piece what Lyra remembers about you — bond, chronicle, memory, the
+answers from her questions, flight times, quiz record, play style and your legacy. All of it
+stays in your saved variables file on your own machine, nothing is uploaded.
+`/lyra forget <area>` (or `alles`) deletes part of it or all of it at once — after a confirmation
+by mouse click, never straight away. Your legacy (the last words of your fallen predecessors)
+always stays; anyone who really wants that gone deletes it in the file.
+
+The short version for the privacy question: **`/lyra know` shows it, `/lyra forget` deletes it.**
+
+Two more checkboxes: **"Lyra learns"** freezes the bond, the memory and the questions without
+deleting anything (off means frozen, not forgotten) — and **"Remember play-time window"**, off
+by default, because play times are a sensitive category.
+
+## 0.18.0 (2026-09-22)
+
+### Wave 15/16: Memory, bond, visible growth, legacy
+
+61 new lines per language (58 of them spoken as well), a relationship that grows out of what
+you go through together, six new faces and four little buttons. Four new checkboxes in the fine
+tuning page, section **"Bond and memory"**, all on by default.
+
+**Lines with a memory**
+
+Lyra now remembers individual sentences. Some observations she says only **once** in a
+character's life, or once in her whole relationship with you ("First night together. Remember
+how this feels."); others build on each other: on a stubborn enemy her third line is not her
+first one, and the fourth is different again. 40 new sentences, spread across fourteen existing
+moments — login, returning, levelling, zones, water, late nights, standing still, resting at an
+inn, your first dungeon.
+
+She also notices your class or race at login now and then — mild, an observation, not a ranking.
+None of these lines names a number: the number sits in the condition, not in the sentence
+("Tenth time." instead of "10th time.").
+
+**Bond**
+
+Lyra remembers what you have been through together — near-deaths survived, days played,
+big milestones, questions you answered. Out of that a bond grows in three tiers, and every
+change of tier she says exactly once, never in combat. It survives the death of a hardcore
+character: the account remembers, even when the next hero starts at zero. From tier 2 on she
+occasionally calls you by a pet name instead of "hero" — in the text; the spoken line stays as
+it was. `/lyra bond` shows the whole arithmetic; the checkbox **"Bond grows"** freezes the
+points without touching the familiarity you earn from play time alone.
+
+**Visible growth**
+
+As the bond grows, Lyra gains new facial expressions — surprise, thinking, teasing,
+embarrassment, swooning. The old faces stay as the fallback while the bond is still young. When
+she stands in the right half of the screen she now faces the middle instead of looking off the
+edge (checkbox **"Look toward center"**). And when you hover over her, four small round buttons
+appear — talk, menu, settings, quiet mode — instead of the list in the tooltip. Never in
+combat, and a speech bubble always wins (checkbox **"Hover bar"**). The full mouse mapping now
+lives in `/lyra help` instead.
+
+**She remembers the one before you**
+
+When one of your characters dies, the next one is a little quieter for two sessions — she talks
+less often and leaves out the chatter in the silence. After that it is as it always was. If the
+successor reaches a higher level than the last one ever did, Lyra says so exactly once, without
+cheering. And when a new character logs in on an account she already knows, her first line is
+no longer just "hello" — she says she recognises the hand behind it, even though the name is
+new. Checkbox **"Grief after death"**.
+
+| | |
+|---|---|
+| **Fixed** | Two recordings re-rendered: the English `adds-1` said its line twice, the German `gefahr_elite-3` stuttered at the start. Both are in the voice packs already — a reload is enough |
+
 ## 0.17.0 (2026-09-21)
 
 ### Wave 14: Allies, flight time, Remember?

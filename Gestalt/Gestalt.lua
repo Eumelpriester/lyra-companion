@@ -46,6 +46,20 @@ local ADDON, ns = ...
 local G = {}
 ns.Gestalt = G
 
+-- ---------------------------------------------------------------------------------------------
+-- W16v (22.09.2026, "Sichtbare Entwicklung"): zwei Haekchen, Core/Init.lua gehoert in dieser
+-- Runde einem anderen Team - Muster aus Sinne/Welle13a.lua (Schluessel an ns.DEFAULTS_ACCOUNT
+-- haengen, auf DATEIEBENE, lange vor ns.initDB()/defaults()).
+--   blicktZurMitte  Spiegeln (Teil 2): steht die Gestalt-Mitte rechts, wird die Textur horizontal
+--                   gespiegelt, damit sie zur Bildschirmmitte blickt (wie die Blase es schon tut).
+--   hoverLeiste     Hover-Perlen (Teil 3): vier Knoepfe statt der Tooltip-Belegungsliste.
+-- ---------------------------------------------------------------------------------------------
+if type(ns.DEFAULTS_ACCOUNT) == "table" then
+    local D = ns.DEFAULTS_ACCOUNT
+    if D.blicktZurMitte == nil then D.blicktZurMitte = true end
+    if D.hoverLeiste == nil then D.hoverLeiste = true end
+end
+
 G.SHEET = { w = 512, h = 512, fw = 512, fh = 512, cols = 1 }   -- neu gepackt: ein Frame je Sheet, Figur zentriert, Fuesse auf y=500
 -- DESIGN-V3 A-2: Portraitkante je Preset, unabhaengig von "scale". Die drei Werte sind genau die
 -- Groessen, fuer die bilder/rund/*.png gerendert ist (128 = native Kante, 112 und 96 saubere
@@ -261,7 +275,10 @@ end
 -- fehlende Datei nicht zuverlaessig, deshalb wird hier gefragt und nicht geraten.
 -- Fehlt eine: Fallback auf "neutral" (lieber das falsche Gesicht als ein leerer Ring).
 G.RUND_ORDNER = ns.PFAD .. "bilder\\rund\\"
-G.RUND = { alert = true, amused = true, angry = true, anxious = true, aversion = true, concerned = true, defeated = true, depressed = true, grossedout = true, happy = true, hmm = true, hurt = true, interested = true, neutral = true, overjoyed = true, sad = true, scared = true, shocked = true, shy = true, smirk = true, smug = true, terrified = true, thinking = true, touched = true, upset = true, veryhappy = true, victory = true, whatever = true, wonder = true }
+G.RUND = { alert = true, amused = true, angry = true, anxious = true, aversion = true, concerned = true, defeated = true, depressed = true, grossedout = true, happy = true, hmm = true, hurt = true, interested = true, neutral = true, overjoyed = true, sad = true, scared = true, shocked = true, shy = true, smirk = true, smug = true, terrified = true, thinking = true, touched = true, upset = true, veryhappy = true, victory = true, whatever = true, wonder = true,
+    -- W16v (22.09.2026, "Sichtbare Entwicklung"): sechs neue Gesichter aus dem lizenzierten
+    -- Sprite-Paket (Prometheus Pictures, Mage Extended). Freischaltung siehe G.MIENEN_STUFE unten.
+    surprised = true, almostgotit = true, eureka = true, tease = true, embarrassed = true, swooning = true }
 
 local function sheetPfad(miene)
     return ns.PFAD .. "bilder\\" .. miene .. ".png"
@@ -769,6 +786,8 @@ function G.diagnose()
         tostring(G.animationenAus or false))
     out[#out + 1] = string.format("Drift korrigiert: %d (zuletzt %s)", G.driftZaehler or 0, G.driftLetzter or "-")
     out[#out + 1] = string.format("Groesse %.0fx%.0f  UIParent-Scale %.3f  Ansicht %s", f:GetWidth(), f:GetHeight(), UIParent:GetEffectiveScale(), tostring(ns.Get("ansicht")))
+    out[#out + 1] = string.format("Gespiegelt: %s  (blicktZurMitte=%s)  Bindungsstufe %s",
+        tostring(G.gespiegelt), tostring(ns.Get("blicktZurMitte")), tostring(G.bindungsstufe and G.bindungsstufe()))
     for _, z in ipairs(G.selbsttest()) do out[#out + 1] = z end
     return out
 end
@@ -800,7 +819,85 @@ f:SetScript("OnHide", function() atmenStop(); nickenStop(); G.notAus() end)
 -- Mienen (Crossfade tex -> tex2)
 -- ---------------------------------------------------------------------------------------------
 -- Whitelist der ausgelieferten Sheets (bilder/*.png). SetTexture meldet fehlende Dateien nicht zuverlaessig.
-G.MIENEN = { alert = true, amused = true, angry = true, anxious = true, aversion = true, concerned = true, defeated = true, depressed = true, grossedout = true, happy = true, hmm = true, hurt = true, interested = true, neutral = true, overjoyed = true, sad = true, scared = true, shocked = true, shy = true, smirk = true, smug = true, terrified = true, thinking = true, touched = true, upset = true, veryhappy = true, victory = true, whatever = true, wonder = true }
+G.MIENEN = { alert = true, amused = true, angry = true, anxious = true, aversion = true, concerned = true, defeated = true, depressed = true, grossedout = true, happy = true, hmm = true, hurt = true, interested = true, neutral = true, overjoyed = true, sad = true, scared = true, shocked = true, shy = true, smirk = true, smug = true, terrified = true, thinking = true, touched = true, upset = true, veryhappy = true, victory = true, whatever = true, wonder = true,
+    surprised = true, almostgotit = true, eureka = true, tease = true, embarrassed = true, swooning = true }
+
+-- ---------------------------------------------------------------------------------------------
+-- W16v „Sichtbare Entwicklung" (22.09.2026, docs/welle16v-2026-09-22.md): je Bindungsstufe
+-- schaltet sich statt einer alten Miene eine neue frei - ohne dass phrasen.json angefasst wird.
+-- G.MIENEN_STUFE["<alte Miene>"] = { {stufe, "<neue Miene>"}, ... }. Mehrere Eintraege mit
+-- DERSELBEN Stufe (thinking) sind eine Zufallsauswahl unter den ab dieser Stufe freien Gesichtern -
+-- mehr Abwechslung, ohne den Ereignis->Miene-Katalog zu erweitern.
+-- Bindungsstufe: Team W16 liefert ns.Bindung.stufe()/punkte() (0..3). Existenzpruefung zuerst,
+-- sonst Rueckfall auf ns.Stimmung.vertraut() (dieselbe Skala 0..3, Sinne/Leben2.lua) - das ist
+-- die Vorgabe aus dem Wellenbrief, keine Annahme dieses Teams.
+-- ---------------------------------------------------------------------------------------------
+G.MIENEN_STUFE = {
+    shocked  = { { 1, "surprised" } },
+    thinking = { { 1, "almostgotit" }, { 1, "eureka" } },   -- ab Stufe 1, zufaellig zwischen beiden
+    smirk    = { { 2, "tease" } },
+    shy      = { { 2, "embarrassed" } },
+    touched  = { { 3, "swooning" } },
+}
+
+local function bindungsstufe()
+    if ns.Bindung and ns.Bindung.stufe then
+        local ok, s = pcall(ns.Bindung.stufe)
+        if ok and type(s) == "number" then return s end
+    end
+    if ns.Stimmung and ns.Stimmung.vertraut then
+        local ok, s = pcall(ns.Stimmung.vertraut)
+        if ok and type(s) == "number" then return s end
+    end
+    return 0
+end
+G.bindungsstufe = bindungsstufe
+
+-- G.mieneFreischaltung("shocked") -> "surprised", wenn die Bindungsstufe reicht, sonst
+-- unveraendert "shocked" zurueck (das IST der Ruckfall - die alte Miene ist der Aufrufwert).
+-- Einzige Stelle, die entscheidet, ob eine neue Miene gezeigt wird (design-v3-Hausregel h.4:
+-- ein Ort entscheidet). Faellt G.MIENEN[Ziel] aus irgendeinem Grund aus (fehlende Datei-Whitelist),
+-- bleibt es ohnehin bei der alten Miene - setzeMiene() prueft danach noch einmal gegen G.MIENEN.
+function G.mieneFreischaltung(miene)
+    local liste = miene and G.MIENEN_STUFE[miene]
+    if not liste then return miene end
+    local stufe = bindungsstufe()
+    local kandidaten = {}
+    for i = 1, #liste do
+        local eintrag = liste[i]
+        if stufe >= eintrag[1] and G.MIENEN[eintrag[2]] then
+            kandidaten[#kandidaten + 1] = eintrag[2]
+        end
+    end
+    if #kandidaten == 0 then return miene end
+    return kandidaten[math.random(#kandidaten)]
+end
+
+-- W16v Teil 2 "Spiegeln" (22.09.2026, docs/welle16v-2026-09-22.md, OFFEN-HARALD.md 23:10):
+-- liegt die Gestalt-Mitte nach dem Loslassen in der rechten Bildschirmhaelfte, wird die Textur
+-- horizontal gespiegelt (SetTexCoord mit vertauschten U-Werten) - kein neues Bild, keine
+-- Geometrie-Aenderung. G.gespiegelt ist der einzige Schalter; geometrie() liest ihn nur.
+-- Blase/Zipfel werden NICHT angefasst: Gestalt/Blase.lua waehlt ihre Seite schon heute ueber
+-- freieSeite() zur Bildschirmmitte hin (steht die Gestalt rechts, geht die Blase "links" - also
+-- ebenfalls zur Mitte) - Spiegeln und Zipfel zeigen damit von selbst in dieselbe Richtung, ohne
+-- dass Blase.lua etwas ueber die Spiegelung wissen muesste.
+G.gespiegelt = false
+
+-- Haekchen "Blickt zur Mitte" (Default an, DEFAULTS_ACCOUNT oben). Aus heisst: nie spiegeln.
+local function spiegelnFaellig()
+    if ns.Get("blicktZurMitte") == false then return false end
+    if not (f.GetCenter) then return false end
+    local ok, cx = pcall(f.GetCenter, f)
+    local uw = (UIParent and UIParent.GetWidth and UIParent:GetWidth()) or 0
+    if not (ok and cx and uw > 0) then return false end
+    return cx > uw / 2
+end
+
+-- Nach jedem SetPoint (Login mit gespeicherter Position, Ziehen+Loslassen: OnDragStop ->
+-- ns.Set("pos", ...) -> onSetting -> G.layout()) neu pruefen, VOR geometrie(tex)/geometrie(tex2).
+function G.spiegelnNachfuehren()
+    G.gespiegelt = spiegelnFaellig()
+end
 
 -- DESIGN-V3 A-1: Die Geometrie ist in beiden Ansichten dieselbe - die Textur deckt die
 -- Bewegungsebene ab, mehr nicht. Im Portrait ist die Datei schon rund und schon richtig
@@ -811,10 +908,12 @@ local function geometrie(t)
     local s = G.SHEET
     t:ClearAllPoints()
     t:SetAllPoints(bewegt)
-    if G.istPortrait() then
-        t:SetTexCoord(0, 1, 0, 1)
+    local re = G.istPortrait() and 1 or (s.fw / s.w)
+    local un = G.istPortrait() and 1 or (s.fh / s.h)
+    if G.gespiegelt then
+        t:SetTexCoord(re, 0, 0, un)   -- W16v: U-Werte vertauscht = horizontal gespiegelt
     else
-        t:SetTexCoord(0, s.fw / s.w, 0, s.fh / s.h)
+        t:SetTexCoord(0, re, 0, un)
     end
 end
 G.geometrie = geometrie
@@ -845,6 +944,7 @@ end
 
 local function setzeMiene(miene)
     if not miene then return end
+    miene = G.mieneFreischaltung(miene)   -- W16v: alte Miene -> neue, wenn die Bindungsstufe reicht
     if not G.MIENEN[miene] then
         ns.debug("Miene fehlt: " .. tostring(miene))
         if miene ~= "neutral" then return setzeMiene("neutral") end
@@ -926,6 +1026,7 @@ function G.layout()
     -- REVIEW: kaputte SavedVariables (kein Punkt / keine Zahlen) nicht an SetPoint durchreichen
     if type(pos) ~= "table" or type(pos[1]) ~= "string" then pos = ns.POS_DEFAULT end
     f:SetPoint(pos[1], UIParent, pos[4] or pos[1], tonumber(pos[2]) or 0, tonumber(pos[3]) or 0)
+    G.spiegelnNachfuehren()   -- W16v: rechte Bildschirmhaelfte -> gespiegelt, VOR geometrie()
     optikNachfuehren(breite, hoehe)
     geometrie(tex)
     geometrie(tex2)
@@ -1155,18 +1256,37 @@ function G.groesseStufe(delta)
     return G.GROESSEN_FOLGE[neu], true
 end
 
+-- W16v Teil 3 "Hover-Perlen": dieselben vier Aktionen wie Rechtsklick/Shift-Rechtsklick/Mitte,
+-- jetzt auch als eigene Funktionen - UI/Perlen.lua ruft sie unveraendert mit auf, damit es
+-- KEINE zweite Stelle gibt, die entscheidet, was ein Klick bedeutet (design-v3-Hausregel h.4).
+-- Der OnMouseUp-Handler unten ruft ab jetzt dieselben vier Funktionen statt eigener Zweige.
+function G.aktionGespraech()
+    if ns.Dialog and ns.Dialog.oeffneKontext then ns.Dialog.oeffneKontext()
+    elseif ns.Dialog and ns.Dialog.oeffne then ns.Dialog.oeffne()
+    elseif ns.menue then ns.menue()
+    elseif ns.oeffneSettings then ns.oeffneSettings() end
+end
+function G.aktionMenue()
+    if ns.menue then ns.menue() elseif ns.oeffneSettings then ns.oeffneSettings() end
+end
+function G.aktionEinstellungen()
+    if ns.oeffneSettings then ns.oeffneSettings() end
+end
+function G.aktionStill()
+    if ns.stillSetzen then ns.stillSetzen(not ns.stillModus) end
+end
+
 f:SetScript("OnMouseUp", function(self, button)
     -- REVIEW: OnMouseUp feuert auch nach einem Drag -> kein Klick (sonst LEERLAUF-Zeile je Verschieben)
     if gezogen then gezogen = false; return end
     if button == "RightButton" then
         if IsShiftKeyDown and IsShiftKeyDown() then
-            if ns.menue then ns.menue() elseif ns.oeffneSettings then ns.oeffneSettings() end
-        elseif ns.Dialog and ns.Dialog.oeffneKontext then ns.Dialog.oeffneKontext()
-        elseif ns.Dialog and ns.Dialog.oeffne then ns.Dialog.oeffne()
-        elseif ns.menue then ns.menue()
-        elseif ns.oeffneSettings then ns.oeffneSettings() end
+            G.aktionMenue()
+        else
+            G.aktionGespraech()
+        end
     elseif button == "MiddleButton" then
-        if ns.stillSetzen then ns.stillSetzen(not ns.stillModus) end
+        G.aktionStill()
     elseif button == "LeftButton" then
         local t = GetTime()
         if t - letzterLinks < G.DOPPEL_ZEIT then
@@ -1235,22 +1355,20 @@ f:SetScript("OnEnter", function(self)
     -- waere ein sichtbares Zucken, und noetig ist es hier nicht.
     G.notAus()
     G.regung("interested", 2)
+    -- W16v Teil 3: die Hover-Perlen brauchen dasselbe OnEnter - eigene Stelle, existenzgeprueft,
+    -- damit dieses Team ohne UI/Perlen.lua (z. B. im Pruefstand) unveraendert weiterlaeuft.
+    if ns.Perlen and ns.Perlen.ueberGestalt then ns.Perlen.ueberGestalt(true) end
     if not GameTooltip then return end
     GameTooltip:SetOwner(self, "ANCHOR_TOP")
     -- FIX3 (Kontrast): Blizzards Tooltip-Grund ist nur ~90 % deckend. Auf hellem Spielbild (Schnee)
-    -- kam die alte Titelfarbe 0.70/0.55/1.00 auf 5,3:1, die Hinweiszeile 0.70/0.70/0.70 auf 6,5:1.
-    -- Jetzt 7,96:1 bzw. 8,97:1 - siehe Kontrasttabelle in docs/fix3-2026-09-17.md.
+    -- kam die alte Titelfarbe 0.70/0.55/1.00 auf 5,3:1 - siehe Kontrasttabelle in docs/fix3-2026-09-17.md.
     GameTooltip:AddLine("Lyra", 0.85, 0.72, 1)
     GameTooltip:AddLine(tooltipZeile(), 1, 1, 1, true)
-    -- FIX5: zwei Zeilen statt einer - die Belegung ist laenger geworden (Doppelklick, Mitte, Rad).
-    -- REVIEW7 / DESIGN-V3 B-2 (P1-2): 0,88 statt 0,82. Gemessen ueber fuenf Spielbild-Referenzen
-    -- waren es 8,97-11,57:1, jetzt 10,41-13,4:1. Der Wert liegt in ns.Optik.TOOLTIP_HINWEIS -
-    -- eine Tafel, nicht drei. Den Tooltip-GRUND besitzt Blizzard: dreht der Spieler die
-    -- Tooltip-Deckkraft herunter, sinkt auch "Lyra" - das ist seine Einstellung, aber ein Grund,
-    -- den Titel nicht zusaetzlich abzusenken.
-    local h = (ns.Optik and ns.Optik.TOOLTIP_HINWEIS) or { 0.82, 0.82, 0.82 }
-    GameTooltip:AddLine(ns.L["Tooltip hint"], h[1], h[2], h[3], true)
-    GameTooltip:AddLine(ns.L["Tooltip hint 2"], h[1], h[2], h[3], true)
+    -- W16v Teil 3 (OFFEN-HARALD.md 23:15/23:20): die zwei "Tooltip hint"-Zeilen sind raus - die
+    -- Hover-Perlen ersetzen die Belegungsliste im Tooltip. Die Locale-Zeilen ns.L["Tooltip hint"]
+    -- und ["Tooltip hint 2"] bleiben unveraendert stehen (Merge-Regel: nichts loeschen, was eine
+    -- andere Datei noch lesen koennte) - sie werden nur hier nicht mehr angezeigt. Die volle
+    -- Mausbelegung steht ab jetzt in "Help text 2" (/lyra hilfe) - Merge-Baustein im Bericht.
     GameTooltip:Show()
     tooltipSchrift()
 end)
@@ -1260,6 +1378,7 @@ f:SetScript("OnLeave", function()
     if GameTooltip then GameTooltip:Hide() end
     tooltipSchriftZurueck()   -- REVIEW7: Blizzards Tooltip-Schrift war nur geliehen
     G.regungEnde()
+    if ns.Perlen and ns.Perlen.ueberGestalt then ns.Perlen.ueberGestalt(false) end
 end)
 
 function G.start()
@@ -1281,7 +1400,7 @@ end
 ns.onSetting = function(key, value)
     -- DESIGN-V3 A-1: "maske" ist entfallen. A-2/A-3: "kontrast" faerbt den Ring (Grundfarbe Weiss).
     if key == "scale" or key == "pos" or key == "versteckt" or key == "ansicht" or key == "groesse"
-        or key == "kontrast" then G.layout() end
+        or key == "kontrast" or key == "blicktZurMitte" then G.layout() end
     -- REVIEW2: Ausblenden nimmt Blase und Dialog mit (beide haengen an G.frame und schwebten sonst an der alten Stelle)
     if key == "versteckt" and value then
         if ns.Blase and ns.Blase.verstecke then ns.Blase.verstecke() end
@@ -1289,5 +1408,9 @@ ns.onSetting = function(key, value)
     end
     if key == "kampfAlpha" or key == "streamer" then G.alphaNachfuehren() end
     if (key == "minimap" or key == "minimapWinkel") and ns.Minimap and ns.Minimap.layout then ns.Minimap.layout() end
+    -- W16v Teil 3: Haekchen "Hover-Leiste" abgeschaltet, waehrend sie gerade steht -> sofort weg.
+    if key == "hoverLeiste" and value == false and ns.Perlen and ns.Perlen.verstecken then
+        ns.Perlen.verstecken()
+    end
     if ns.Blase and ns.Blase.layout then ns.Blase.layout() end
 end

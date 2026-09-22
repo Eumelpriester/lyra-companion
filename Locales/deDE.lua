@@ -79,7 +79,15 @@ ns.locales.deDE = {
         .. "/lyra frag - mit Lyra reden (auch: Rechtsklick auf Lyra; Tasten 1-4, Esc schließt)\n"
         .. "/lyra chronik - Chronik-Zusammenfassung\n"
         .. "/lyra notiz: <Text> - Tagebuch-Eintrag\n"
-        .. "/lyra <irgendwas> - frag sie einfach",
+        .. "/lyra bindung - die Rechnung hinter eurer Bindung\n"
+        .. "/lyra <irgendwas> - frag sie einfach\n"
+        -- MERGE 0.18.0 (W16v §3g.3): die volle Mausbelegung. Sie stand bisher NUR im Tooltip der
+        -- Gestalt ("Tooltip hint"/"Tooltip hint 2"), und der zeigt sie seit den Hover-Perlen nicht
+        -- mehr an. Ohne diese Zeile stuende die Bedienung nirgends mehr geschrieben. Der Baustein
+        -- des Teams nannte fuenf der sieben Wege; Links und Doppelklick stehen hier mit, weil die
+        -- Zeile sonst genau das wieder waere, was sie ersetzen soll: eine halbe Liste.
+        .. "Maus auf Lyra: Links: Spruch · Doppelklick: Portrait/Figur · Rechtsklick: Gespräch · "
+        .. "Shift+Rechtsklick: Menü · Mitte: Still-Modus · Mausrad: Größe · Ziehen: verschieben",
     -- Design: Tooltip Gestalt, Minimap-Knopf, Einstellungen (kampfAlpha, glow, minimap)
     -- FIX5: neue Klick-Belegung 0.6.1 (zwei Tooltip-Zeilen, sonst wird die Zeile zu lang)
     ["Tooltip hint"] = "Links: Spruch · Doppelklick: Portrait/Figur · Rechts: Gespräch",
@@ -385,4 +393,40 @@ ns.locales.deDE = {
     -- 14e (Minispiel "Weisst du noch?")
     ["Ask me things"] = "Lyra darf mir Fragen stellen",
     ["Ask me things tip"] = "Auf einem langen Flug oder beim Rasten im Gasthaus bietet Lyra ein Spiel an: sie fragt dich über dein eigenes Leben ab - wo du am häufigsten fast gestorben bist, wer dich am härtesten erwischt hat, wie lang euer längster Abend war. Fünf Fragen, vier Antworten, alles mit der Maus. Sie fragt nur aus dem, was sie selbst mitbekommen hat, nie über deinen gefallenen Vorgänger und nie über andere Spieler. Das Fenster geht nie von selbst auf und schließt sich sofort und wortlos, sobald ein Kampf beginnt, du Schaden nimmst, jemand dich einlädt oder der Greif landet. Dein Rekord bleibt auf diesem Rechner. Kennt sie dich noch nicht lange genug, sagt sie das - und fragt später nochmal.",
+    -- MERGE 0.18.0 (22.09.2026): Welle 15/16 - NUR angehaengt. Ein gemeinsamer Abschnitt in der
+    -- Feineinstellung fuer die vier Kaestchen der vier Bauteams. Die Ueberschrift ist diesmal
+    -- wieder beschreibend (nicht "Welle 15/16" im Text): die vier haben einen gemeinsamen Nenner,
+    -- naemlich dass Lyra sich etwas merkt und sich daran veraendert (Begruendung in UI/Settings.lua).
+    ["Wave 15/16"] = "Bindung und Gedächtnis",
+    -- 16 (Bindung aus Ereignissen)
+    ["Bond grows"] = "Bindung wächst",
+    ["Bond grows tip"] = "Lyra sammelt weiter Bindungspunkte aus gemeinsamen Ereignissen (Beinahe-Tode, Spieltage, Meilensteine, beantwortete Rückfragen). Aus friert nur die Punkte ein — die Stufe kann trotzdem über die reine Spielzeit weiter steigen. /lyra bindung zeigt die Rechnung.",
+    -- 16v Teil 2 (Spiegeln zur Bildschirmmitte)
+    ["Look toward center"] = "Blickt zur Mitte",
+    ["Look toward center tip"] = "Spiegelt Lyra, wenn sie in der rechten Bildschirmhälfte steht, damit sie immer zur Mitte blickt.",
+    -- 16v Teil 3 (Hover-Perlen)
+    ["Hover bar"] = "Hover-Leiste",
+    ["Hover bar tip"] = "Zeigt vier runde Knöpfe (Gespräch, Menü, Einstellungen, Still-Modus), wenn die Maus über Lyra steht. Nie im Kampf, eine Sprechblase gewinnt immer.",
+    -- 16v Teil 3: Name der zweiten Perle. Die drei anderen Namen (Frag mich, Einstellungen,
+    -- Still-Modus) bestehen schon und werden unveraendert wiederverwendet.
+    ["Menu"] = "Menü",
+    -- 16b (Sie erinnert sich an den Vorgaenger)
+    ["Grief after death"] = "Trauer nach Tod",
+    ["Grief after death tip"] = "Nach dem Tod eines eigenen Charakters ist der Nachfolger zwei Sitzungen lang leiser — größerer Redeabstand, kein Leerlauf-Gerede. Danach wieder normal.",
+    -- MERGE 0.19.0 (22.09.2026): Welle 17/18 - NUR angehaengt, derselbe Abschnitt
+    -- ["Wave 15/16"] wie oben (kein neuer Kopf, Begruendung in UI/Settings.lua).
+    -- 17 (Sie fragt zurueck)
+    -- 17: Beschriftung des Menue-Eintrags (UI/Menue.lua holt ihn ueber ns.Welle17.menueEintrag).
+    -- MERGE 0.19.0: der Schluessel MUSS hier stehen - ns.L liefert fuer einen unbekannten
+    -- Schluessel den Schluessel selbst zurueck (Core/Locale.lua), ein deutscher Spieler saehe
+    -- sonst "Ask me something" im Menue.
+    ["Ask me something"] = "Frag mich zurück.",
+    ["Lyra may ask"] = "Lyra darf mich etwas fragen",
+    ["Lyra may ask tip"] = "Lyra bietet ab und zu eine Rückfrage an — zur Lieblingszone, zum Haustiernamen, zum Spielstil. Nur bei Rast oder auf dem Taxi, nie im Kampf, höchstens einmal je Sitzung. Das Gesprächsfenster öffnet sich dabei nie von selbst; du entscheidest per Mausklick. Zweimal „Lass gut sein“ schaltet das Angebot von selbst ab. Ihre Antworten wirken später auf ihre Zeilen zurück. /lyra weisst zeigt, was sie sich gemerkt hat, /lyra vergiss antworten löscht es.",
+    -- 18 (Transparenz): der Oberschalter.
+    ["Lyra learns"] = "Lyra lernt",
+    ["Lyra learns tip"] = "Aus friert drei Dinge ein: die Bindung, das Gedächtnis für einzelne Sätze und die Rückfragen. Nichts davon wird gelöscht — die zwei Häkchen darüber gehen einfach mit aus und wieder mit an. Zum Löschen: /lyra vergiss.",
+    -- 18 (Transparenz): die Vorbereitung, Standard AUS.
+    ["Play-time window"] = "Spielzeit-Fenster merken",
+    ["Play-time window tip"] = "Lyra merkt sich lokal, an welchem Wochentag und zu welcher groben Stunde du spielst — kein Zeitstempel, nur ein Zähler je Sitzung, für künftige Tageszeit-Zeilen. Steht ab Werk auf aus, weil Spielzeiten eine heikle Angabe sind. /lyra vergiss chronik löscht den Zähler mit.",
 }

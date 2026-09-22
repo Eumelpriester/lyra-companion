@@ -84,7 +84,15 @@ ns.locales.enUS = {
         .. "/lyra ask - talk to Lyra (also: right-click Lyra; keys 1-4, Esc closes)\n"
         .. "/lyra chronicle - chronicle summary\n"
         .. "/lyra note: <text> - diary entry\n"
-        .. "/lyra <anything> - just ask her",
+        .. "/lyra bond - the arithmetic behind your bond\n"
+        .. "/lyra <anything> - just ask her\n"
+        -- MERGE 0.18.0 (W16v §3g.3): the full mouse mapping. It used to live ONLY in the figure's
+        -- tooltip ("Tooltip hint"/"Tooltip hint 2"), and that no longer shows it since the hover
+        -- pearls took its place. Without this line the controls would be written down nowhere.
+        -- The team's building block named five of the seven ways; left-click and double-click are
+        -- here too, or the line would be the very thing it replaces: half a list.
+        .. "Mouse on Lyra: Left: a line · Double-click: portrait/figure · Right-click: talk · "
+        .. "Shift+right-click: menu · Middle: quiet mode · Wheel: size · Drag: move",
     -- Design: figure tooltip, minimap button, settings (kampfAlpha, glow, minimap)
     -- FIX5: new click mapping 0.6.1 (two tooltip lines, one would be too long)
     ["Tooltip hint"] = "Left: a line · Double-click: portrait/figure · Right: talk",
@@ -386,4 +394,37 @@ ns.locales.enUS = {
     -- 14e (mini-game "Remember?")
     ["Ask me things"] = "Let Lyra ask me things",
     ["Ask me things tip"] = "On a long flight or while resting at an inn, Lyra offers a game: she quizzes you about your own life - where you nearly died most often, who hit you hardest, how long your longest evening was. Five questions, four answers, all with the mouse. She only asks about what she witnessed herself, never about your fallen predecessor and never about other players. The window never opens by itself and closes instantly and silently the moment combat starts, you take damage, someone invites you or the gryphon lands. Your record stays on this machine. If she hasn't known you long enough yet, she says so - and asks again later.",
+    -- MERGE 0.18.0 (22.09.2026): wave 15/16 - appended only. One shared section in the fine
+    -- tuning page for the four checkboxes of the four build teams. This time the heading is
+    -- descriptive again (not "Wave 15/16" in the text): the four do share a theme, namely that
+    -- Lyra remembers things and changes with them (reasoning in UI/Settings.lua).
+    ["Wave 15/16"] = "Bond and memory",
+    -- 16 (bond from events)
+    ["Bond grows"] = "Bond grows",
+    ["Bond grows tip"] = "Lyra keeps earning bond points from shared events (near-deaths, play-days, milestones, answered questions). Off only freezes the points - the tier can still rise from play time alone. /lyra bond shows the arithmetic.",
+    -- 16v part 2 (mirroring toward the screen centre)
+    ["Look toward center"] = "Look toward center",
+    ["Look toward center tip"] = "Mirrors Lyra when she stands in the right half of the screen, so she always faces the middle.",
+    -- 16v part 3 (hover pearls)
+    ["Hover bar"] = "Hover bar",
+    ["Hover bar tip"] = "Shows four round buttons (talk, menu, settings, quiet mode) when you hover over Lyra. Never during combat, and a speech bubble always wins.",
+    -- 16v part 3: the name of the second pearl. The other three names (Ask me, Settings, Quiet
+    -- mode) already exist and are reused unchanged.
+    ["Menu"] = "Menu",
+    -- 16b (she remembers the one before you)
+    ["Grief after death"] = "Grief after death",
+    ["Grief after death tip"] = "After one of your characters dies, the next one is a little quieter for two sessions - a wider talk spacing, no idle chatter. Back to normal after that.",
+    -- MERGE 0.19.0 (22.09.2026): wave 17/18 - appended only, same section ["Wave 15/16"] as
+    -- above (no new heading, reasoning in UI/Settings.lua).
+    -- 17 (she asks back)
+    -- 17: label of the menu entry (UI/Menue.lua fetches it via ns.Welle17.menueEintrag).
+    ["Ask me something"] = "Ask me back.",
+    ["Lyra may ask"] = "Lyra may ask me things",
+    ["Lyra may ask tip"] = "Lyra occasionally offers to ask you something - your favourite zone, your pet's name, your play style. Only while resting or on a taxi, never in combat, at most once per session. The conversation window never opens on its own; you decide with a mouse click. Picking \"Never mind\" twice turns the offer off by itself. Her answers feed back into her lines later. /lyra know shows what she remembers, /lyra forget antworten deletes it.",
+    -- 18 (transparency): the master switch.
+    ["Lyra learns"] = "Lyra learns",
+    ["Lyra learns tip"] = "Off freezes three things: the bond, the memory for individual lines and the follow-up questions. None of it is deleted - the two boxes above simply go off with it and come back on with it. To delete: /lyra forget.",
+    -- 18 (transparency): preparation only, off by default.
+    ["Play-time window"] = "Remember play-time window",
+    ["Play-time window tip"] = "Lyra locally notes which weekday and which rough hour you play - no timestamp, just a counter per session, for future time-of-day lines. Off by default, because play times are a sensitive category. /lyra forget chronik clears the counter too.",
 }

@@ -8,8 +8,8 @@
 -- OFFEN-HARALD.md 23:15/23:20 (Haralds Korrekturen):
 --   * ANCHOR_TOP am Tooltip verdeckt Portrait/Figur; seitlich sitzt die Blase. Deshalb keine
 --     eigene Leiste "neben" der Gestalt, sondern AUF ihr: im Portrait als vier Perlen auf dem
---     unteren Ringbogen, in der Figur als Reihe unter den Fuessen auf der Aussenseite (weg von
---     der Bildschirmmitte - derselben Seite, auf die W16v Teil 2 die Gestalt NICHT spiegelt).
+--     unteren Ringbogen, in der Figur als Reihe mittig unter den Fuessen (seit 0.19.1; vorher
+--     "aussen neben dem Rahmen" - und damit am Bildschirmrand unsichtbar).
 --   * Die Blase gewinnt IMMER: Gestalt/Blase.lua ruft ns.Perlen.blaseGewinnt() beim tatsaechlichen
 --     Erscheinen einer Zeile (zeigeJetzt), die Leiste blendet dann sofort aus.
 --   * Erst nach 0,3 s (kein Zucken bei einer durchquerenden Maus), verschwindet 0,5 s nach dem
@@ -155,10 +155,7 @@ end
 
 -- Layout: Portrait -> vier Perlen auf dem unteren Ringbogen (Winkel -60/-20/20/60 Grad von der
 -- Senkrechten, Radius = halbe Kante -> sie sitzen GENAU auf dem Ring, wie Perlen aufgefaedelt).
--- Figur -> eine waagrechte Reihe unter den Fuessen, auf der Seite WEG von der Bildschirmmitte
--- (dieselbe Seite, zu der W16v Teil 2 NICHT spiegelt - G.gespiegelt ist true, wenn die Gestalt
--- rechts steht; "weg von der Mitte" ist dann rechts, sonst links. Deckt sich mit der Blase, die
--- immer zur Mitte hin ausweicht - Perlen und Blase liegen dadurch nie auf derselben Seite).
+-- Figur -> eine waagrechte Reihe mittig unter den Fuessen, innerhalb des Rahmens (s. layoutFigur).
 local function layoutPortrait(G)
     local kante = (G.portraitKante and G.portraitKante()) or G.frame:GetWidth() or 112
     local r = kante / 2
@@ -172,16 +169,21 @@ local function layoutPortrait(G)
     end
 end
 
+-- FIX 0.19.1 (Spieltest 22.09.): die Reihe lag NEBEN dem Rahmen (BOTTOMLEFT/BOTTOMRIGHT
+-- nach aussen). Steht die Figur am Bildschirmrand - und dort steht sie fast immer, links oben
+-- ist die Voreinstellung -, liegt "aussen" ausserhalb des Bildschirms: die Perlen kamen nie.
+-- Jetzt sitzt die Reihe UNTER DEN FUESSEN, mittig auf der Unterkante des Rahmens (die Fussli-
+-- nie liegt 12/512 der Hoehe darueber, Gestalt.lua optikNachfuehren) und damit INNERHALB des
+-- geklemmten Rahmens - sichtbar an jedem Rand. Die Blase weicht in der Figur nach oben oder
+-- auf halbe Hoehe zur Seite aus, nie auf die Fusslinie; die Kollision, vor der "aussen"
+-- schuetzen sollte, gibt es dort nicht.
 local function layoutFigur(G)
-    local wegVonMitte = G.gespiegelt and "rechts" or "links"   -- Teil 2: gespiegelt = Gestalt steht rechts
     local schritt = P.PERLE_GROESSE + P.PERLE_ABSTAND
+    local n = #perlen
     for i, b in ipairs(perlen) do
         b:ClearAllPoints()
-        if wegVonMitte == "rechts" then
-            b:SetPoint("BOTTOMLEFT", G.frame, "BOTTOMRIGHT", 8 + (i - 1) * schritt, -6)
-        else
-            b:SetPoint("BOTTOMRIGHT", G.frame, "BOTTOMLEFT", -8 - (i - 1) * schritt, -6)
-        end
+        local x = (i - (n + 1) / 2) * schritt
+        b:SetPoint("CENTER", G.frame, "BOTTOM", x, P.PERLE_GROESSE / 2 - 4)
     end
 end
 
@@ -267,6 +269,20 @@ end
 -- stoert nicht, weil aktualisieren() den Versteck-Timer erst nach 0,5 s wirklich feuert und die
 -- naechste Perle ihn laengst wieder abgebrochen hat (Auftrag: "0,5 s nach OnLeave von Gestalt
 -- UND Leiste" - der Timer, nicht ein Flag, traegt die 0,5 s).
+-- FIX 0.20.0 (Spieltest Harald 22.09.): steht die Maus geometrisch auf einer sichtbaren Perle?
+-- Gestalt/Gestalt.lua fragt das in seinem OnLeave, damit der Wechsel Figur -> Perle nicht als
+-- "Maus weg" zaehlt (das Zittern der Figur beim Hovern ueber die Perlen). IsMouseOver ist eine
+-- reine Rechteckpruefung gegen den Cursor und haengt nicht an der Reihenfolge der Maus-
+-- Ereignisse; im Pruefstand fehlt sie - dann false, und alles verhaelt sich wie vor dem Fix.
+function P.mausUeberPerle()
+    if not sichtbar then return false end
+    for _, b in ipairs(perlen) do
+        local ok, drauf = pcall(function() return b:IsMouseOver() end)
+        if ok and drauf then return true end
+    end
+    return false
+end
+
 for i, b in ipairs(perlen) do
     b:SetScript("OnEnter", function()
         ueberLeiste = true
@@ -279,5 +295,15 @@ for i, b in ipairs(perlen) do
         aktualisieren()
         perleFaerben(b, false)
         nameVerstecken()
+        -- FIX 0.20.0: von der Perle nach DRAUSSEN (nicht auf die Figur, nicht auf die naechste
+        -- Perle) - dann ist der Hover der Gestalt wirklich zu Ende. Kurz verzoegert, damit die
+        -- Rechteckpruefung den neuen Cursorstand sieht.
+        ns.Compat.After(0.05, function()
+            local G = ns.Gestalt
+            if not (G and G.hoverEnde and G.hoverLaeuft and G.hoverLaeuft()) then return end
+            local aufFigur = false
+            pcall(function() aufFigur = G.frame:IsMouseOver() and true or false end)
+            if not aufFigur and not P.mausUeberPerle() then G.hoverEnde() end
+        end)
     end)
 end

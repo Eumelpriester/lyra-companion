@@ -499,6 +499,16 @@ local BEISPIEL = {
     -- sind dort nie leer, wenn die Zeile faellt. Hier stehen Beispielwerte, deutsch wie die
     -- ganze Tabelle. "Wuschel" ist ein Name, kein echter Spielername.
     haustier = "Wuschel", lieblingszone = "Westfall", lieblingsberuf = "Kochkunst",
+    -- MERGE20 (MERGE 0.20.0, 22.09.2026, Welle 14c/14d): drei Platzhalter, die sonst ZUM
+    -- SECHSTEN MAL in dieselbe Falle gegangen waeren (REVIEW5 ... MERGE19):
+    --   was       VORRAT_KNAPP, die zwei v:false-Zeilen ("Noch {n} {was}."). {n} steht oben.
+    --   ms        PING_HOCH/PING_KRITISCH, je eine v:false-Zeile ("{ms} Millisekunden."). Im
+    --             Spiel setzt Sinne/Welle14d.lua {ms} bewusst NICHT (keine Zahl in der Blase,
+    --             Blizzard zeigt die Latenz selbst) - die Zeile ist also nur hier zu sehen.
+    --   standing  RUF_TEMPO ("heute noch {standing}"). Im Spiel Blizzards eigener Name der
+    --             naechsten Ruf-Stufe (_G.FACTION_STANDING_LABELn).
+    -- {buff} (SELBSTBUFF_FEHLT) und {minuten} (STUFE_TEMPO_SCHNELLER) stehen schon oben.
+    was = "Wasser", ms = 340, standing = "Wohlwollend",
 }
 
 local function sperrenLoesen(id)

@@ -427,4 +427,14 @@ ns.locales.enUS = {
     -- 18 (transparency): preparation only, off by default.
     ["Play-time window"] = "Remember play-time window",
     ["Play-time window tip"] = "Lyra locally notes which weekday and which rough hour you play - no timestamp, just a counter per session, for future time-of-day lines. Off by default, because play times are a sensitive category. /lyra forget chronik clears the counter too.",
+    -- MERGE 0.20.0 (22.09.2026): wave 14c/14d - appended only. The three checkboxes sit in the
+    -- ["Wave 14"] section (reasoning in UI/Settings.lua).
+    -- 14c (supplies and self-buffs)
+    ["Supplies and self-buffs"] = "Supplies and self-buffs",
+    ["Supplies and self-buffs tip"] = "Lyra says it once when you target something and your class self-buff is missing (armor, Fortitude, aspect, poison, blessing …; warriors exempt), when you enter a dungeon or target an elite without Well Fed from level 15 on, and when water or food drops to three or fewer - at most once per level. Never in combat.",
+    -- 14d (pace and connection)
+    ["Connection warning"] = "Connection (ping warning)",
+    ["Connection warning tip"] = "Lyra watches your connection (world latency, falling back to home latency) and only speaks up when it gets dangerous: once when it starts lagging (above 250 ms), again if it gets critical (above 600 ms, even mid-fight) - and before a pull, if it's already lagging. An all-clear follows once it's steady again. No number in the speech bubble, no running commentary.",
+    ["Pace"] = "Pace (level and reputation)",
+    ["Pace tip"] = "Lyra compares how long your last level took (from level 10 on, only when both levels were played with her running) and, for a watched reputation faction, tells you once per session if you're on pace to reach the next standing within three hours. No XP bar, no countdown, no number except the minute count or the name of the reputation standing.",
 }

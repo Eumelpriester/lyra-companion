@@ -615,6 +615,14 @@ Pakete/Stimme_de/stimme/notfall_ungenutzt-3.ogg
 Pakete/Stimme_de/stimme/person_frage_angebot-1.ogg
 Pakete/Stimme_de/stimme/person_frage_angebot-2.ogg
 Pakete/Stimme_de/stimme/person_frage_angebot-3.ogg
+Pakete/Stimme_de/stimme/ping_gut-1.ogg
+Pakete/Stimme_de/stimme/ping_gut-2.ogg
+Pakete/Stimme_de/stimme/ping_hoch-1.ogg
+Pakete/Stimme_de/stimme/ping_hoch-2.ogg
+Pakete/Stimme_de/stimme/ping_kritisch-1.ogg
+Pakete/Stimme_de/stimme/ping_kritisch-2.ogg
+Pakete/Stimme_de/stimme/ping_vor_pull-1.ogg
+Pakete/Stimme_de/stimme/ping_vor_pull-2.ogg
 Pakete/Stimme_de/stimme/profil_fehlalarm-1.ogg
 Pakete/Stimme_de/stimme/profil_fehlalarm-2.ogg
 Pakete/Stimme_de/stimme/profil_fehlalarm-3.ogg
@@ -677,6 +685,8 @@ Pakete/Stimme_de/stimme/rueckkehr-2.ogg
 Pakete/Stimme_de/stimme/rueckkehr-3.ogg
 Pakete/Stimme_de/stimme/rueckkehr-4-f.ogg
 Pakete/Stimme_de/stimme/rueckkehr-4-m.ogg
+Pakete/Stimme_de/stimme/ruf_tempo-1.ogg
+Pakete/Stimme_de/stimme/ruf_tempo-2.ogg
 Pakete/Stimme_de/stimme/ruhestein-1.ogg
 Pakete/Stimme_de/stimme/runen_fehler-1.ogg
 Pakete/Stimme_de/stimme/runen_fehler-2.ogg
@@ -695,6 +705,9 @@ Pakete/Stimme_de/stimme/schaden_erlitten_hoch-2.ogg
 Pakete/Stimme_de/stimme/schaden_erlitten_hoch-3.ogg
 Pakete/Stimme_de/stimme/schaden_erlitten_hoch-4-f.ogg
 Pakete/Stimme_de/stimme/schaden_erlitten_hoch-4-m.ogg
+Pakete/Stimme_de/stimme/selbstbuff_fehlt-1.ogg
+Pakete/Stimme_de/stimme/selbstbuff_fehlt-2.ogg
+Pakete/Stimme_de/stimme/selbstbuff_fehlt-3.ogg
 Pakete/Stimme_de/stimme/sitzung_ueber_schnitt-1.ogg
 Pakete/Stimme_de/stimme/sitzung_ueber_schnitt-2.ogg
 Pakete/Stimme_de/stimme/sitzung_ueber_schnitt-3.ogg
@@ -739,6 +752,9 @@ Pakete/Stimme_de/stimme/stufe_meilenstein-2-m.ogg
 Pakete/Stimme_de/stimme/stufe_meilenstein-3.ogg
 Pakete/Stimme_de/stimme/stufe_meilenstein-4.ogg
 Pakete/Stimme_de/stimme/stufe_meilenstein-5.ogg
+Pakete/Stimme_de/stimme/stufe_tempo_langsamer-1.ogg
+Pakete/Stimme_de/stimme/stufe_tempo_langsamer-2.ogg
+Pakete/Stimme_de/stimme/stufe_tempo_schneller-1.ogg
 Pakete/Stimme_de/stimme/sturz-1.ogg
 Pakete/Stimme_de/stimme/sturz-2.ogg
 Pakete/Stimme_de/stimme/sturz-3.ogg
@@ -794,6 +810,8 @@ Pakete/Stimme_de/stimme/trank-4-m.ogg
 Pakete/Stimme_de/stimme/trank-5.ogg
 Pakete/Stimme_de/stimme/trank-6-f.ogg
 Pakete/Stimme_de/stimme/trank-6-m.ogg
+Pakete/Stimme_de/stimme/vorrat_knapp-1.ogg
+Pakete/Stimme_de/stimme/vorrat_knapp-2.ogg
 Pakete/Stimme_de/stimme/wasser_voraus-1-f.ogg
 Pakete/Stimme_de/stimme/wasser_voraus-1-m.ogg
 Pakete/Stimme_de/stimme/wasser_voraus-2.ogg
@@ -813,6 +831,9 @@ Pakete/Stimme_de/stimme/wiederkehr-6.ogg
 Pakete/Stimme_de/stimme/wiederkehr-7.ogg
 Pakete/Stimme_de/stimme/wiederkehr-8.ogg
 Pakete/Stimme_de/stimme/wiederkehr-9.ogg
+Pakete/Stimme_de/stimme/wohlgenaehrt_fehlt-1.ogg
+Pakete/Stimme_de/stimme/wohlgenaehrt_fehlt-2.ogg
+Pakete/Stimme_de/stimme/wohlgenaehrt_fehlt-3.ogg
 Pakete/Stimme_de/stimme/zone-1.ogg
 Pakete/Stimme_de/stimme/zone-2.ogg
 Pakete/Stimme_de/stimme/zone-3.ogg
@@ -1378,6 +1399,14 @@ Pakete/Stimme_en/stimme/notfall_ungenutzt-3.ogg
 Pakete/Stimme_en/stimme/person_frage_angebot-1.ogg
 Pakete/Stimme_en/stimme/person_frage_angebot-2.ogg
 Pakete/Stimme_en/stimme/person_frage_angebot-3.ogg
+Pakete/Stimme_en/stimme/ping_gut-1.ogg
+Pakete/Stimme_en/stimme/ping_gut-2.ogg
+Pakete/Stimme_en/stimme/ping_hoch-1.ogg
+Pakete/Stimme_en/stimme/ping_hoch-2.ogg
+Pakete/Stimme_en/stimme/ping_kritisch-1.ogg
+Pakete/Stimme_en/stimme/ping_kritisch-2.ogg
+Pakete/Stimme_en/stimme/ping_vor_pull-1.ogg
+Pakete/Stimme_en/stimme/ping_vor_pull-2.ogg
 Pakete/Stimme_en/stimme/profil_fehlalarm-1.ogg
 Pakete/Stimme_en/stimme/profil_fehlalarm-2.ogg
 Pakete/Stimme_en/stimme/profil_fehlalarm-3.ogg
@@ -1435,6 +1464,8 @@ Pakete/Stimme_en/stimme/rueckkehr-1.ogg
 Pakete/Stimme_en/stimme/rueckkehr-2.ogg
 Pakete/Stimme_en/stimme/rueckkehr-3.ogg
 Pakete/Stimme_en/stimme/rueckkehr-4.ogg
+Pakete/Stimme_en/stimme/ruf_tempo-1.ogg
+Pakete/Stimme_en/stimme/ruf_tempo-2.ogg
 Pakete/Stimme_en/stimme/ruhestein-1.ogg
 Pakete/Stimme_en/stimme/runen_fehler-1.ogg
 Pakete/Stimme_en/stimme/runen_fehler-2.ogg
@@ -1451,6 +1482,9 @@ Pakete/Stimme_en/stimme/schaden_erlitten_hoch-1.ogg
 Pakete/Stimme_en/stimme/schaden_erlitten_hoch-2.ogg
 Pakete/Stimme_en/stimme/schaden_erlitten_hoch-3.ogg
 Pakete/Stimme_en/stimme/schaden_erlitten_hoch-4.ogg
+Pakete/Stimme_en/stimme/selbstbuff_fehlt-1.ogg
+Pakete/Stimme_en/stimme/selbstbuff_fehlt-2.ogg
+Pakete/Stimme_en/stimme/selbstbuff_fehlt-3.ogg
 Pakete/Stimme_en/stimme/sitzung_ueber_schnitt-1.ogg
 Pakete/Stimme_en/stimme/sitzung_ueber_schnitt-2.ogg
 Pakete/Stimme_en/stimme/sitzung_ueber_schnitt-3.ogg
@@ -1488,6 +1522,9 @@ Pakete/Stimme_en/stimme/stufe_meilenstein-2.ogg
 Pakete/Stimme_en/stimme/stufe_meilenstein-3.ogg
 Pakete/Stimme_en/stimme/stufe_meilenstein-4.ogg
 Pakete/Stimme_en/stimme/stufe_meilenstein-5.ogg
+Pakete/Stimme_en/stimme/stufe_tempo_langsamer-1.ogg
+Pakete/Stimme_en/stimme/stufe_tempo_langsamer-2.ogg
+Pakete/Stimme_en/stimme/stufe_tempo_schneller-1.ogg
 Pakete/Stimme_en/stimme/sturz-1.ogg
 Pakete/Stimme_en/stimme/sturz-2.ogg
 Pakete/Stimme_en/stimme/sturz-3.ogg
@@ -1536,6 +1573,8 @@ Pakete/Stimme_en/stimme/trank-3.ogg
 Pakete/Stimme_en/stimme/trank-4.ogg
 Pakete/Stimme_en/stimme/trank-5.ogg
 Pakete/Stimme_en/stimme/trank-6.ogg
+Pakete/Stimme_en/stimme/vorrat_knapp-1.ogg
+Pakete/Stimme_en/stimme/vorrat_knapp-2.ogg
 Pakete/Stimme_en/stimme/wasser_voraus-1.ogg
 Pakete/Stimme_en/stimme/wasser_voraus-2.ogg
 Pakete/Stimme_en/stimme/wiederkehr-1.ogg
@@ -1552,6 +1591,9 @@ Pakete/Stimme_en/stimme/wiederkehr-6.ogg
 Pakete/Stimme_en/stimme/wiederkehr-7.ogg
 Pakete/Stimme_en/stimme/wiederkehr-8.ogg
 Pakete/Stimme_en/stimme/wiederkehr-9.ogg
+Pakete/Stimme_en/stimme/wohlgenaehrt_fehlt-1.ogg
+Pakete/Stimme_en/stimme/wohlgenaehrt_fehlt-2.ogg
+Pakete/Stimme_en/stimme/wohlgenaehrt_fehlt-3.ogg
 Pakete/Stimme_en/stimme/zone-1.ogg
 Pakete/Stimme_en/stimme/zone-2.ogg
 Pakete/Stimme_en/stimme/zone-3.ogg
@@ -1620,6 +1662,8 @@ Sinne/Welle13c.lua
 Sinne/Welle13d.lua
 Sinne/Welle14a.lua
 Sinne/Welle14b.lua
+Sinne/Welle14c.lua
+Sinne/Welle14d.lua
 Sinne/Welle14e.lua
 Sinne/Welle15.lua
 Sinne/Welle15c.lua

@@ -130,8 +130,16 @@ end
 -- der Grund war: Drossel, Gruppe, Still-Modus und Stummschaltung sind endgueltige Antworten.
 -- Fuer uns ist das kein Luxus, sondern der Normalfall: TAXI_START faellt beim Abheben, und der
 -- Mindestabstand fuer plauder steht ab Werk auf 30 s. Ohne Nachhol kaeme die Dauerzeile nie.
-local function meldeNachhol(id, vars, gilt)
+-- FIX 0.19.1 (Spieltest Harald 22.09.): EIN Nachhol reichte nicht. Auf dem Flug kamen Zone,
+-- Quiz- und Frage-Angebot dazwischen, jede Zeile setzte den Abstand neu, und der zweite Anlauf
+-- der Dauerzeile fiel genauso durch wie der erste. Jetzt bis zu W.NACHHOL_MAX Anlaeufe, jeder
+-- erst nach dem dann gueltigen Rest-Abstand, und jeder nur, solange gilt() noch wahr ist (der
+-- Flug also laeuft). Endgueltige Antworten (Drossel, Gruppe, Still) beenden die Kette sofort.
+W.NACHHOL_MAX = 4
+local function meldeNachhol(id, vars, gilt, versuch)
+    versuch = versuch or 1
     if melde(id, vars) then return true end
+    if versuch >= W.NACHHOL_MAX then return false end
     local d = ns.Regie and ns.Regie.dropLog and ns.Regie.dropLog[1]
     if not (d and d[2] == id and d[1] == "abstand") then return false end
     local rest = 0
@@ -142,7 +150,7 @@ local function meldeNachhol(id, vars, gilt)
     local verzug = math.max(2, math.min(rest + 1, 180))
     ns.Compat.After(verzug, function()
         if gilt and not gilt() then return end
-        melde(id, vars)
+        meldeNachhol(id, vars, gilt, versuch + 1)
     end)
     return false
 end
@@ -458,8 +466,16 @@ local function weckruf(meineId)
     if meineId ~= flug.id or not flug.drin then return end
     if not an() then return end
     if ladeKlammer then return end
-    melde("TAXI_BALD")
+    -- FIX 0.19.1: auch der Weckruf holt nach - aber nur, solange die Landung noch mindestens
+    -- W.WECKRUF_MINDESTENS Sekunden entfernt ist; ein "gleich sind wir da" beim Aufsetzen
+    -- waere eine Zeile, die wie ein Fehler aussieht.
+    meldeNachhol("TAXI_BALD", nil, function()
+        if meineId ~= flug.id or not flug.drin or ladeKlammer then return false end
+        local rest = (flug.schaetzung or 0) - (jetzt() - flug.seit)   -- flug.seit traegt die Ladezeit schon
+        return rest >= W.WECKRUF_MINDESTENS
+    end)
 end
+W.WECKRUF_MINDESTENS = 12
 
 local function beginne()
     if flug.drin then return end

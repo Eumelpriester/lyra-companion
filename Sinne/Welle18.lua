@@ -165,6 +165,8 @@ local TEXT = {
         antwortenKeine = "  Antworten: keine gespeichert",
         antwortenFehlt = "  Antworten: keine Antworten gespeichert",
         flug = "  Flugzeiten: %d Strecke(n) gemessen",
+        -- MERGE20: Welle 14d (Stufentempo, ns.char.stufenTempo).
+        tempo = "  Stufentempo: %d Stufe(n) gemerkt",
         flugKeine = "  Flugzeiten: noch keine Strecke gemessen",
         spiel = "  Quiz 'Weisst du noch?': beste Runde %d von 5, %d Runde(n) gespielt",
         spielKeine = "  Quiz 'Weisst du noch?': noch nicht gespielt",
@@ -174,9 +176,9 @@ local TEXT = {
         lernen = "  Lernen aus Ereignissen: an",
         lernenAus = "  Lernen aus Ereignissen: aus (Einstellungen -> Lyra lernt)",
         stilNamen = { vorsichtig = "vorsichtig", normal = "normal", draufgaenger = "Draufgaenger" },
-        vergissHilfe = "/lyra vergiss <gesagt|bindung|antworten|chronik|flug|spiel|profil|alles>",
+        vergissHilfe = "/lyra vergiss <gesagt|bindung|antworten|chronik|flug|spiel|profil|vorraete|tempo|alles>",
         vergissUnbekannt = "Unbekannter Bereich: %s. " ..
-            "/lyra vergiss <gesagt|bindung|antworten|chronik|flug|spiel|profil|alles>",
+            "/lyra vergiss <gesagt|bindung|antworten|chronik|flug|spiel|profil|vorraete|tempo|alles>",
         vergissKeinDialog = "Das Gespraechsfenster fehlt - keine Rueckfrage moeglich, nichts geloescht.",
         vergissErbe = "Das Erbe bleibt immer. Wer es wirklich loeschen will, macht das in der Datei - nicht im Affekt.",
         frageAlles = "Wirklich alles? Das ist nicht rueckgaengig zu machen - dein Erbe bleibt.",
@@ -185,6 +187,8 @@ local TEXT = {
             gesagt = "das Gedaechtnis", bindung = "die Bindung", antworten = "die Antworten",
             chronik = "die Chronik", flug = "die Flugzeiten", spiel = "den Quiz-Rekord",
             profil = "das Spielstil-Profil",
+            -- MERGE20: Welle 14c/14d.
+            vorraete = "die Vorrats- und Buff-Merker", tempo = "das Stufen- und Ruftempo",
         },
         ehrlich = {
             gesagt    = "Weg. Was ich mir gemerkt hatte, ist wieder offen.",
@@ -194,6 +198,8 @@ local TEXT = {
             flug      = "Weg. Der naechste Flug ist wieder eine Schaetzung wert null.",
             spiel     = "Rekord weg. Naechste Runde zaehlt wieder bei null.",
             profil    = "Ich hab vergessen, wie du kaempfst. Zeig's mir neu.",
+            vorraete  = "Weg. Ich schau wieder frisch in deine Taschen.",
+            tempo     = "Das Stufentempo ist weg. Ab jetzt zaehl ich neu.",
         },
         ehrlichAlles = "Gut. Ich fange neu an. Nicht ganz - die Gefallenen bleiben.",
         abgebrochen = "Gut. Bleibt, wie's ist.",
@@ -217,6 +223,8 @@ local TEXT = {
         antwortenKeine = "  Answers: none stored",
         antwortenFehlt = "  Answers: no answers stored",
         flug = "  Flight times: %d route(s) measured",
+        -- MERGE20: wave 14d (level pace, ns.char.stufenTempo).
+        tempo = "  Level pace: %d level(s) remembered",
         flugKeine = "  Flight times: no route measured yet",
         spiel = "  Quiz 'Remember?': best round %d of 5, %d round(s) played",
         spielKeine = "  Quiz 'Remember?': not played yet",
@@ -226,9 +234,9 @@ local TEXT = {
         lernen = "  Learning from events: on",
         lernenAus = "  Learning from events: off (Settings -> Lyra learns)",
         stilNamen = { vorsichtig = "careful", normal = "normal", draufgaenger = "daredevil" },
-        vergissHilfe = "/lyra forget <gesagt|bindung|antworten|chronik|flug|spiel|profil|alles>",
+        vergissHilfe = "/lyra forget <gesagt|bindung|antworten|chronik|flug|spiel|profil|vorraete|tempo|alles>",
         vergissUnbekannt = "Unknown area: %s. " ..
-            "/lyra forget <gesagt|bindung|antworten|chronik|flug|spiel|profil|alles>",
+            "/lyra forget <gesagt|bindung|antworten|chronik|flug|spiel|profil|vorraete|tempo|alles>",
         vergissKeinDialog = "The dialogue window is missing - no way to confirm, nothing deleted.",
         vergissErbe = "The legacy always stays. Anyone who truly wants to delete it does it in the file - not on impulse.",
         frageAlles = "Really all of it? This can't be undone - your legacy stays.",
@@ -237,6 +245,8 @@ local TEXT = {
             gesagt = "the memory", bindung = "the bond", antworten = "the answers",
             chronik = "the chronicle", flug = "the flight times", spiel = "the quiz record",
             profil = "the play-style profile",
+            -- MERGE20: wave 14c/14d.
+            vorraete = "the supply and buff markers", tempo = "the level and reputation pace",
         },
         ehrlich = {
             gesagt    = "Gone. What I remembered is open again.",
@@ -246,6 +256,8 @@ local TEXT = {
             flug      = "Gone. The next flight is worth an estimate of zero again.",
             spiel     = "Record gone. Next round starts at zero again.",
             profil    = "I forgot how you fight. Show me again.",
+            vorraete  = "Gone. I'll look into your bags with fresh eyes.",
+            tempo     = "The pace record is gone. I'm counting fresh from here.",
         },
         ehrlichAlles = "Alright. I'm starting over. Not quite - the fallen stay.",
         abgebrochen = "Alright. Stays as it is.",
@@ -380,6 +392,18 @@ local function flugStrecken()
     return n
 end
 
+-- MERGE20 (Merge 0.20.0): Welle 14d merkt je Charakter die gespielten Sekunden je Stufe
+-- (ns.char.stufenTempo) - das ist Wissen ueber den Spieler und gehoert darum in "/lyra weisst".
+-- Welle 14c speichert nur Merker ("Stufe X schon gemeldet"), kein Wissen - dort reicht vergiss.
+local function stufenTempoAnzahl()
+    if not (ns.Welle14d and type(ns.Welle14d.stufenTempo) == "function") then return 0 end
+    local ok, t = pcall(ns.Welle14d.stufenTempo)
+    if not (ok and type(t) == "table") then return 0 end
+    local n = 0
+    for _ in pairs(t) do n = n + 1 end
+    return n
+end
+
 local function quizRekord()
     if not (ns.Welle14e and type(ns.Welle14e.rekord) == "function") then return nil end
     local ok, r = pcall(ns.Welle14e.rekord)
@@ -460,6 +484,9 @@ function W.weisstZeilen()
     local flug = flugStrecken()
     out[#out + 1] = (flug > 0) and Tx.flug:format(flug) or Tx.flugKeine
 
+    local tempoN = stufenTempoAnzahl()
+    if tempoN > 0 then out[#out + 1] = Tx.tempo:format(tempoN) end
+
     local quiz = quizRekord()
     if quiz and (tonumber(quiz.runden) or 0) > 0 then
         out[#out + 1] = Tx.spiel:format(tonumber(quiz.beste) or 0, tonumber(quiz.runden) or 0)
@@ -509,9 +536,14 @@ end
 -- =================================================================================================
 -- 6  /lyra vergiss <bereich>|alles
 -- =================================================================================================
+-- MERGE20 (Merge 0.20.0): zwei Bereiche dazu - "vorraete" (Welle 14c: Selbstbuff-Drossel,
+-- Wohlgenaehrt-Sitzung, ns.char.vorratStufen) und "tempo" (Welle 14d: ns.char.stufenTempo/
+-- stufenTempoStart, Ruf-Sitzung). Beide loeschen ueber das W.vergiss() ihres Moduls, weil jedes
+-- mehr als einen Speicherort hat (Muster: "antworten" -> ns.Person.vergiss).
 local BEREICHE = { gesagt = true, bindung = true, antworten = true, chronik = true,
-                   flug = true, spiel = true, profil = true }
-local ALLE_BEREICHE = { "gesagt", "bindung", "antworten", "chronik", "flug", "spiel", "profil" }
+                   flug = true, spiel = true, profil = true, vorraete = true, tempo = true }
+local ALLE_BEREICHE = { "gesagt", "bindung", "antworten", "chronik", "flug", "spiel", "profil",
+                        "vorraete", "tempo" }
 W.BEREICHE, W.ALLE_BEREICHE = BEREICHE, ALLE_BEREICHE
 
 -- Tatsaechliches Loeschen EINES Bereichs. Nur ueber die Schnittstelle des Moduls, wo es sie gibt
@@ -582,6 +614,12 @@ local function vergissEins(bereich)
             c.profil = { v = 1, kaempfe = 0, dauerSumme = 0, unter50 = 0, unter35 = 0, unter20 = 0,
                          rast = 0, fehlalarm = 0, hp35 = 0 }
         end
+        return true
+    elseif bereich == "vorraete" then
+        if ns.Welle14c and type(ns.Welle14c.vergiss) == "function" then pcall(ns.Welle14c.vergiss) end
+        return true
+    elseif bereich == "tempo" then
+        if ns.Welle14d and type(ns.Welle14d.vergiss) == "function" then pcall(ns.Welle14d.vergiss) end
         return true
     end
     return false

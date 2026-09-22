@@ -610,6 +610,28 @@ function W.zielPruefe(erwarteteId)
     return true
 end
 
+-- MERGE 0.20.0 (22.09.2026): "Steht fuer das AKTUELLE Ziel gleich eine Mechanik-Zeile an?" -
+-- dieselben Pruefungen wie W.zielPruefe, in derselben Reihenfolge, aber OHNE Nebenwirkung (kein
+-- mechanikStand, kein ns.melde). Gelesen von Sinne/Welle14c.lua (SELBSTBUFF_FEHLT) und
+-- Sinne/Welle14d.lua (PING_VOR_PULL): beide sprechen SOFORT beim Zielwechsel, diese Zeile erst
+-- W.ZIEL_VERZUG spaeter - ohne diese Abfrage naehme der allgemeine Vorbereitungs-Hinweis der
+-- zielbezogenen Mechanik den Stufe-1-Platz weg (Befund Merge 0.20.0, w13b-Pruefstand). Die
+-- Mechanik ist einmal je NPC-Art und Sitzung; danach sind die beiden Hinweise wieder frei.
+function W.mechanikSteht()
+    if not an("gegnerMechanik") then return false end
+    if type(_G.NpcAbilitiesNpcData) ~= "table" then return false end
+    if imKampf() or tot() or ruheLaeuft() then return false end
+    if not frage(UnitExists, "target") then return false end
+    if frage(UnitIsPlayer, "target") then return false end
+    if frage(UnitIsDeadOrGhost, "target") then return false end
+    if not frage(UnitCanAttack, "player", "target") then return false end
+    if not zielTaugt() then return false end
+    local id = npcIdVon("target")
+    if not id or mechanikGesagt[id] then return false end
+    local ok, wort = pcall(W.mechanikVon, id, sprache())
+    return ok and wort ~= nil
+end
+
 ns.on("PLAYER_TARGET_CHANGED", function()
     if not an("gegnerMechanik") then return end
     if imKampf() or tot() then return end

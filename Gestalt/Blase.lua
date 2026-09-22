@@ -458,26 +458,33 @@ local function positioniere()
     local portrait = ns.Gestalt and ns.Gestalt.istPortrait and ns.Gestalt.istPortrait()
     if lage == "oben" then
         f:SetPoint("BOTTOM", g, "TOP", 0, B.ABSTAND + B.SCHWANZ - 4)
-        schwanz:SetPoint("TOP", f, "BOTTOM", 0, 4)
+        -- FIX 0.19.1 (Spieltest 22.09.): der Zipfel haengt an der GESTALT, nicht an der Blase.
+        -- SetClampedToScreen schiebt die Blase am Bildschirmrand zur Seite; hing der Zipfel an
+        -- f:BOTTOM, wanderte er mit und zeigte ins Leere (Ganzfigur links oben: Blase 90 px nach
+        -- rechts geschoben, Zipfel ueber dem Kopf eines NPCs). An g:TOP bleibt er ueber Lyra -
+        -- und liegt trotzdem unter der Blase, weil eine geklemmte Blase immer breiter als der
+        -- Versatz ist (sie wird nur geschoben, wenn ihre halbe Breite ueber die Gestaltmitte
+        -- hinausragt). Ohne Klemmung sind beide Anker deckungsgleich.
+        schwanz:SetPoint("TOP", g, "TOP", 0, B.ABSTAND + B.SCHWANZ)
         drehe(0)
     elseif lage == "rechts" then   -- Blase rechts neben der Gestalt, Schwanz links zeigt nach links
         if portrait then
             -- A-6: auf Kreismitte. Die Mitte von G.frame liegt genau bei TOP - 0,5 x Kante, der
             -- Zipfel sitzt also auf halber Kreishoehe, ohne dass die Kante hier gerechnet wird.
             f:SetPoint("LEFT", g, "RIGHT", B.ABSTAND + B.SCHWANZ - 4, 0)
-            schwanz:SetPoint("RIGHT", f, "LEFT", 4, 0)
+            schwanz:SetPoint("RIGHT", g, "RIGHT", B.ABSTAND + B.SCHWANZ, 0)   -- FIX 0.19.1: Anker an g, s. "oben"
         else
             f:SetPoint("BOTTOMLEFT", g, "RIGHT", B.ABSTAND + B.SCHWANZ - 4, 0)
-            schwanz:SetPoint("RIGHT", f, "BOTTOMLEFT", 4, 20)
+            schwanz:SetPoint("RIGHT", g, "RIGHT", B.ABSTAND + B.SCHWANZ, 20)
         end
         if schwanz.SetRotation then drehe(-math.pi / 2) else schwanz:Hide() end
     else                            -- Blase links neben der Gestalt, Schwanz rechts zeigt nach rechts
         if portrait then
             f:SetPoint("RIGHT", g, "LEFT", -(B.ABSTAND + B.SCHWANZ - 4), 0)
-            schwanz:SetPoint("LEFT", f, "RIGHT", -4, 0)
+            schwanz:SetPoint("LEFT", g, "LEFT", -(B.ABSTAND + B.SCHWANZ), 0)   -- FIX 0.19.1: Anker an g
         else
             f:SetPoint("BOTTOMRIGHT", g, "LEFT", -(B.ABSTAND + B.SCHWANZ - 4), 0)
-            schwanz:SetPoint("LEFT", f, "BOTTOMRIGHT", -4, 20)
+            schwanz:SetPoint("LEFT", g, "LEFT", -(B.ABSTAND + B.SCHWANZ), 20)
         end
         if schwanz.SetRotation then drehe(math.pi / 2) else schwanz:Hide() end
     end

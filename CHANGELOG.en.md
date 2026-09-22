@@ -1,6 +1,66 @@
 <!-- Englische Fassung von CHANGELOG.md. Bei Änderungen beide Dateien pflegen; die Website liest je Sprache die passende. -->
 # Changelog
 
+## 0.20.0 (2026-09-22)
+
+### Wave 14c/14d: Supplies and self-buffs, pace and connection
+
+The last feature wave before 1.0. 29 new lines per language (21 of them spoken as well), ten new
+occasions, three new checkboxes in the fine tuning page, section **"Wave 14"**. All native, no
+other addon needed — and all by the same rule: Lyra only speaks up when things get tight or
+dangerous, never to repeat what the game already shows you.
+
+**Are you ready?** (checkbox "Supplies and self-buffs")
+
+Target an enemy out of combat while your class self-buff is missing — armor and Intellect for a
+mage, Fortitude for a priest, an aspect for a hunter, poison on the weapon for a rogue from level
+20, Demon Skin or Demon Armor, Mark of the Wild, Lightning Shield, a blessing — and Lyra says so
+once, before you pull. Then not again for at least five minutes. Warriors are exempt: Battle
+Shout needs rage, and there is none before the pull. From level 15 she reminds you once per
+session to eat before a dungeon or an elite without Well Fed — after the travel check, not on
+top of it. And when your water (for mana classes) or your food drops to three or fewer, she
+says so once per level.
+
+**The connection** (checkbox "Connection (ping warning)")
+
+Lyra watches your connection. When it starts lagging (above 250 ms) she says so once — never
+mid-fight, but right after. If it turns critical (above 600 ms) she warns even in combat:
+"Connection's breaking up. No fights until it holds." Target an enemy while the connection is
+lagging and she tells you first: "Don't pull that now." Once everything is fine again she
+checks back in once. No number in the speech bubble, no running commentary — the game shows
+you the latency itself.
+
+**The pace** (checkbox "Pace (level and reputation)")
+
+Lyra remembers how long each level took and, from level 10 on, tells you at level-up whether it
+went clearly faster than the last one — and doesn't judge when it took longer: "Caution costs
+time. That's okay." She only compares what she witnessed from start to finish. For your
+watched reputation faction she tells you once per session if, at this rate, you'll reach the
+next standing today.
+
+`/lyra weisst` now also shows the remembered level pace; `/lyra vergiss tempo` and
+`/lyra vergiss vorraete` delete the new markers (both are included in `alles`).
+
+### Fixed
+
+Six fixes from the play tests on the evening of 22 September.
+
+- **The speech bubble's tail points at Lyra.** At the left edge of the screen the game pushed
+  the bubble inward and the tail moved with it. It is now anchored to Lyra, not to the bubble.
+- **The hover beads appear in full-figure mode.** The row sat beside the frame and, at the edge
+  of the screen, outside the picture. It now sits centred beneath Lyra's feet.
+- **Full figure: no more jitter when hovering the beads** — the beads now count as part of
+  Lyra.
+- **Quiet on the gryphon.** Every zone you flew over used to bring a zone line and count as a
+  visit in the chronicle. On a taxi Lyra now names no zone and records none; the destination
+  zone follows after landing.
+- **Flight time, wake-up call and zone follow-up get through.** They had only one second
+  attempt when another line had just been spoken, and often dropped out entirely. Now they try
+  up to four times, each after the required pause — and only while the occasion still holds.
+- **No more throttle noise after a question.** The follow-up after a freely typed question was
+  triggered again on every output and reported as throttled in the debug chat each time. It is
+  now triggered only once per session.
+
 ## 0.19.0 (2026-09-22)
 
 ### Wave 17/15c/18: She asks back, Lyra about herself, transparency

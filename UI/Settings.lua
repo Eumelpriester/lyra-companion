@@ -666,6 +666,19 @@ local function baueNativ()
     checkbox(fein, "flugzeit", "Flight time", "Flight time tip")
     -- 14e: das Minispiel "Weisst du noch?".
     checkbox(fein, "spielFragen", "Ask me things", "Ask me things tip")
+    -- MERGE 0.20.0 (22.09.2026): die drei Kaestchen der Wellen 14c und 14d kommen in DIESEN
+    -- Abschnitt, ohne neuen Kopf. Begruendung: der Abschnitt ist ausdruecklich der Sammelkopf
+    -- fuer Welle-14-Teile, die nur die Auslieferung teilen - und genau das gilt fuer Vorraete,
+    -- Leitung und Tempo (14c/14d-Berichte schlugen "ohne Header hinter Wave 14" bzw. einen
+    -- eigenen Kopf "Wave 14d" vor; ein Kopf fuer zwei Zeilen waere Gliederung ohne Inhalt).
+    -- Alle drei ab Werk AN, Voreinstellungen auf Dateiebene in Sinne/Welle14c.lua (vorraete)
+    -- und Sinne/Welle14d.lua (leitung, tempo); Core/Init.lua bleibt unberuehrt.
+    -- 14c: Selbstbuff, Wohlgenaehrt, Wasser/Essen - ein Kaestchen fuer die Frage "vorbereitet?".
+    checkbox(fein, "vorraete", "Supplies and self-buffs", "Supplies and self-buffs tip")
+    -- 14d: die Ping-Warnung, benannt nach dem, was sie TUT.
+    checkbox(fein, "leitung", "Connection warning", "Connection warning tip")
+    -- 14d: Stufen- und Ruftempo.
+    checkbox(fein, "tempo", "Pace", "Pace tip")
 
     -- MERGE 0.18.0 (22.09.2026): EIN gemeinsamer Abschnitt fuer die Wellen 15, 16, 16v und 16b.
     -- Anders als bei Welle 13 und 14 traegt die Ueberschrift diesmal WIEDER einen beschreibenden

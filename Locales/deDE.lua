@@ -429,4 +429,14 @@ ns.locales.deDE = {
     -- 18 (Transparenz): die Vorbereitung, Standard AUS.
     ["Play-time window"] = "Spielzeit-Fenster merken",
     ["Play-time window tip"] = "Lyra merkt sich lokal, an welchem Wochentag und zu welcher groben Stunde du spielst — kein Zeitstempel, nur ein Zähler je Sitzung, für künftige Tageszeit-Zeilen. Steht ab Werk auf aus, weil Spielzeiten eine heikle Angabe sind. /lyra vergiss chronik löscht den Zähler mit.",
+    -- MERGE 0.20.0 (22.09.2026): Welle 14c/14d - NUR angehaengt. Die drei Kaestchen stehen im
+    -- Abschnitt ["Wave 14"] (Begruendung in UI/Settings.lua).
+    -- 14c (Vorraete und Selbstbuffs)
+    ["Supplies and self-buffs"] = "Vorräte und Selbstbuffs",
+    ["Supplies and self-buffs tip"] = "Lyra sagt es einmal, wenn du ein Ziel anvisierst und dein Klassen-Selbstbuff fehlt (Rüstung, Seelenstärke, Aspekt, Gift, Segen …; Krieger ausgenommen), wenn du ab Stufe 15 ohne Wohlgenährt eine Instanz betrittst oder ein Elite-Ziel anvisierst, und wenn Wasser oder Essen auf drei oder weniger fallen — höchstens einmal je Stufe. Nie im Kampf.",
+    -- 14d (Tempo und Leitung)
+    ["Connection warning"] = "Leitung (Ping-Warnung)",
+    ["Connection warning tip"] = "Lyra beobachtet deine Verbindung (Weltlatenz, Rückfall Heimlatenz) und sagt nur, wenn es gefährlich wird: einmal, wenn die Leitung hängt (über 250 ms), noch einmal, wenn sie kritisch wird (über 600 ms, auch im Kampf) — und vor einem Pull, wenn die Leitung schon hängt. Eine Entwarnung kommt, sobald es wieder gut ist. Keine Zahl in der Blase, keine Dauerbeobachtung.",
+    ["Pace"] = "Tempo (Stufe und Ruf)",
+    ["Pace tip"] = "Lyra vergleicht, wie lange die letzte Stufe gedauert hat (ab Stufe 10, nur wenn beide Stufen mit ihr gespielt wurden), und sagt bei einer beobachteten Ruf-Fraktion einmal je Sitzung, wenn die nächste Stufe bei dem Tempo in unter drei Stunden erreicht wäre. Kein XP-Balken, keine Uhr, keine Zahl außer der Minute bzw. dem Namen der Ruf-Stufe.",
 }

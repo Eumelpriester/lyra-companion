@@ -14,7 +14,7 @@
 ## Notes: Aggregated hardcore death hotspots from the public Deathlog database. Lyra warns before cliffs, deep water and deadly camps. Contains no names and no last words.
 ## Notes-deDE: Aggregierte Hardcore-Todesstellen aus der oeffentlichen Deathlog-Datenbank. Lyra warnt vor Klippen, tiefem Wasser und toedlichen Lagern. Enthaelt keine Namen und keine letzten Worte.
 ## Author: Lyra & Harald - data: Deathlog (Deathwing, Yazpad)
-## Version: 0.19.0
+## Version: 0.20.0
 ## Dependencies: Lyra_Gestalt
 ## LoadOnDemand: 0
 ## X-License: GPLv3 - see LICENSE (this folder)

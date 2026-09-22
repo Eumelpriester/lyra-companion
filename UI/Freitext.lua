@@ -1415,9 +1415,15 @@ end
 -- KEIN eigener Ticker. Der Anstoss haengt an ns.nachAusgabe, also an einer Zeile, die die Regie
 -- ohnehin gerade herausgelassen hat. Ein Dauer-Ticker mehr waere in w8_leistung.lua sichtbar
 -- und waere fuer eine Zeile je Sitzung nicht zu rechtfertigen.
-local nachklangGeplant = false
+-- FIX 0.19.1 (Spieltest Harald 22.09.): FRAGE_NACHKLANG hat die Katalog-Drossel "session" -
+-- EINMAL je Sitzung. Der Anstoss hing aber an JEDER Ausgabe, also lief nach dem ersten
+-- Nachklang bei jeder weiteren Zeile ein neuer Versuch in die Drossel ("Regie drop
+-- FRAGE_NACHKLANG: drossel" im Debug-Chat, den ganzen Abend). nachklangErledigt merkt sich
+-- die Sitzung: nach einem Erfolg oder einem Drossel-Drop wird nichts mehr angestossen.
+-- Nur ein Abstand-Drop darf es spaeter noch einmal versuchen (naechste Ausgabe).
+local nachklangGeplant, nachklangErledigt = false, false
 function F.nachklangAnstossen()
-    if nachklangGeplant then return end
+    if nachklangGeplant or nachklangErledigt then return end
     if not (ns.Persoenlichkeit and ns.Persoenlichkeit.frage) then return end
     local ok, txt = pcall(ns.Persoenlichkeit.frage)
     if not ok or not txt then return end
@@ -1426,14 +1432,18 @@ function F.nachklangAnstossen()
     local function raus()
         nachklangGeplant = false
         if imKampf() then return end
-        if ns.melde then pcall(ns.melde, "FRAGE_NACHKLANG", {}) end
+        if not ns.melde then return end
+        local ok2, durch = pcall(ns.melde, "FRAGE_NACHKLANG", {})
+        if ok2 and durch then nachklangErledigt = true; return end
+        local d = ns.Regie and ns.Regie.dropLog and ns.Regie.dropLog[1]
+        if d and d[2] == "FRAGE_NACHKLANG" and d[1] ~= "abstand" then nachklangErledigt = true end
     end
     if ns.Compat and ns.Compat.After then ns.Compat.After(F.NACHKLANG_VERZUG, raus) else raus() end
 end
 if ns.nachAusgabe then
     ns.nachAusgabe(function(id)
-        if id == "FRAGE_NACHKLANG" or id == "FREITEXT_ANTWORT"
-           or id == "FREITEXT_WARUM" then return end
+        if id == "FRAGE_NACHKLANG" then nachklangErledigt = true; return end
+        if id == "FREITEXT_ANTWORT" or id == "FREITEXT_WARUM" then return end
         F.nachklangAnstossen()
     end)
 end

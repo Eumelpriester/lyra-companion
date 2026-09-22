@@ -349,7 +349,7 @@ local function drossel(e, id, key)
         R.cool[k] = t + sek
         return true
     end
-    return true   -- flanke/tauchgang/kampf/flug/level/buff/einmal/keine: der Sinn drosselt selbst
+    return true   -- flanke/tauchgang/kampf/flug/level/buff/leitung/einmal/keine: der Sinn drosselt selbst
 end
 
 local function budgetOk()

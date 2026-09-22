@@ -105,17 +105,25 @@ end
 -- Melden mit EINEM Nachhol: Regie-Abstand (30 s) frisst sonst jeden Nachsatz, der kurz nach
 -- ZONE/LEVELUP/LOGIN kommt. Die Session-Drossel wird erst beim Erfolg verbraucht, daher ist
 -- der zweite Versuch unschaedlich. `gilt()` prueft vor jedem Versuch, ob der Anlass noch steht.
-local function meldeNachhol(id, vars, verzug, gilt)
+-- FIX 0.19.1 (Spieltest Harald 22.09.): bis zu NACHHOL_MAX Anlaeufe statt einem - nach einer
+-- Landung stehen TAXI_LANDUNG, ZONE und unser Nachsatz Schlange, und der zweite Anlauf fiel
+-- genauso in den Abstand wie der erste. Weiter geht es NUR nach einem Abstand-Drop; Drossel,
+-- Gruppe, Still-Modus sind endgueltige Antworten (die Session-Drossel ist dann verbraucht).
+local NACHHOL_MAX = 4
+local function nurAbstand(id)
+    local d = ns.Regie and ns.Regie.dropLog and ns.Regie.dropLog[1]
+    return d and d[2] == id and d[1] == "abstand"
+end
+local function meldeNachhol(id, vars, verzug, gilt, versuch)
+    versuch = versuch or 1
     ns.Compat.After(verzug, function()
         if gilt and not gilt() then return end
         if ns.melde(id, vars) then return end
         if not echterTimer() then return end
+        if versuch >= NACHHOL_MAX or not nurAbstand(id) then return end
         -- REVIEW2: Nachhol nach dem tatsaechlichen Regie-Abstand (Preset "wenig" = 90 s: fester 35-s-Nachhol fiel immer in den Abstand)
         local rest = (ns.Regie and ns.Regie.abstandRest and ns.Regie.abstandRest()) or 0
-        ns.Compat.After(math.max(NACHHOL, math.min(rest + 1, 180)), function()
-            if gilt and not gilt() then return end
-            ns.melde(id, vars)
-        end)
+        meldeNachhol(id, vars, math.max(NACHHOL, math.min(rest + 1, 180)), gilt, versuch + 1)
     end)
 end
 
@@ -183,6 +191,16 @@ local function pruefeZone()
     if z == "" then return end
     if not zoneBereit then return end
     if z == letzteZone then return end
+    -- FIX 0.19.1 (Spieltest Harald 22.09.): AUF DEM TAXI zaehlt eine Zone nicht als betreten.
+    -- Bisher bekam jede ueberflogene Zone einen Besuch in DB.zonen UND einen Nachsatz
+    -- (ZONE_ERSTMALS im Abstand-Drop, die W15-Kette "hier warst du schon dreimal" fuellte sich
+    -- mit Ueberfluegen). Jetzt: nichts merken, nichts melden, alle 15 s nachsehen, bis der
+    -- Flug vorbei ist - dann ist die Zielzone die erste, die zaehlt. Umwelt.lua macht es fuer
+    -- ZONE genauso.
+    if UnitOnTaxi and UnitOnTaxi("player") then
+        if echterTimer() then ns.Compat.After(15, pruefeZone) end
+        return
+    end
     -- Umwelt.lua wartet den Lade-Riegel der Regie ab, bevor ZONE faellt: wir ebenso, damit
     -- unser Nachsatz nach ZONE kommt.
     local riegel = ns.Regie and ns.Regie.ladeRiegelBis or 0

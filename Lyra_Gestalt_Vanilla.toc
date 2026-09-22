@@ -4,7 +4,7 @@
 ## Notes: A companion who watches, shows and speaks - and never presses a key. No automation, no chat output, no data about other players.
 ## Notes-deDE: Eine Begleiterin, die wahrnimmt, zeigt und spricht - und nie eine Taste drueckt. Keine Automation, keine Chat-Ausgabe, keine Daten anderer Spieler.
 ## Author: Lyra & Harald
-## Version: 0.19.0
+## Version: 0.20.0
 ## SavedVariables: LyraGestaltDB
 ## X-Category: Companions
 ## X-License: MIT (code) / GPLv3 (Lyra_Gestalt_Daten) / ARR (art, voice) - see LICENSE and LICENSE-ASSETS.md
@@ -422,6 +422,41 @@ Sinne/Welle17.lua
 # ns.Chronik (rohe SavedVariables), ns.Erbe, ns.Welle14b, ns.Welle14e, ns.Welle16b und ns.Profil
 # - alles existenzgeprueft/pcall, alles zur Laufzeit.
 Sinne/Welle18.lua
+
+# --------------------------------------------------------------------------------------------
+# MERGE 0.20.0 (22.09.2026): Welle 14c/14d, zwei Bauteams, letzte Funktionswelle vor der 1.0.
+# Beide haben "ganz ans Ende" verlangt; der Merge legt die Reihenfolge fest: Welle14d, Welle14c.
+#   * 14d VOR 14c, und das ist die EINZIGE Stelle, an der die Reihenfolge wirkt: beide haengen
+#     einen Stufe-1-Hinweis an PLAYER_TARGET_CHANGED (PING_VOR_PULL bzw. SELBSTBUFF_FEHLT), und
+#     die Stufe-1-Bremse der Regie (R.WARN1_ABSTAND, 15 s) laesst je Zielwechsel nur EINEN durch
+#     - den, dessen Handler zuerst laeuft (ns.on ruft in Registrierungs-, also TOC-Reihenfolge).
+#     Die haengende Leitung ist die akutere Gefahr ("zieh den jetzt nicht"), der fehlende Buff
+#     die ruhigere ("erst buffen"); der zweite Hinweis verfaellt nicht, sondern kommt beim
+#     naechsten Zielwechsel nach der Bremse (beide Sinne verbuchen ihre eigene Drossel erst bei
+#     Erfolg). Vor beiden laufen ohnehin Kampf.lua (GEFAHR_ELITE/GEFAHR_STUFEN) und Extra.lua
+#     (RUNNER_BEKANNT) - die Gefahr des Ziels selbst geht jedem Vorbereitungs-Hinweis vor.
+#   * Beide lesen ns.Welle14b.imLadebildschirm() (existenzgeprueft) und stehen hinter ihr.
+#   * Keine legt einen ns.melde-Mantel; die Mantelkette bleibt bei vier Schichten (0.19.0).
+#     14d legt einen ns.onSetting-Mantel (Ticker-Notbremse "leitung"), aussen um den aus Welle18.
+#   * DEFAULTS_ACCOUNT: vorraete (14c), leitung + tempo (14d) - keine Dopplung im Bestand.
+# --------------------------------------------------------------------------------------------
+
+# W14D (22.09.2026): Feature-Welle 14d "Tempo und Leitung" (docs/OFFEN-HARALD.md Zeile 143).
+# Drei native Teile: Ping-Warnung (GetNetStats, Median/Flanke/Hysterese), Stufentempo (Char-
+# Bereich, gespielte Sekunden je Stufe) und Ruftempo (beobachtete Fraktion, Prognose < 3 h).
+# Sie haengt ZWEI Schluessel an ns.DEFAULTS_ACCOUNT (leitung, tempo); Core/Init.lua bleibt
+# unberuehrt. Ein Ticker (Ping, 10 s, gestoppt wenn "leitung" aus), ein zweiter (Stufentempo-
+# Checkpoint, 60 s - reine GetTime-Rechenarbeit ohne Nebenwirkung). Kein OnUpdate.
+Sinne/Welle14d.lua
+
+# W14C (22.09.2026): Feature-Welle 14c "Vorraete und Selbstbuffs" (docs/OFFEN-HARALD.md Zeile
+# 142). Klassen-Selbstbuff fehlt beim Anvisieren ausserhalb des Kampfes (SELBSTBUFF_FEHLT, warn/
+# Stufe 1, eigene 5-/10-min-Drossel), Wohlgenaehrt vor Elite/Party-Instanz (WOHLGENAEHRT_FEHLT,
+# einmal je Sitzung, Verzug = Extra.lua REISE_VERZUG + 8 s, damit REISECHECK zuerst spricht) und
+# Wasser/Essen-Zaehler mit Schwelle (VORRAT_KNAPP, einmal je Charakterstufe). Ein Haekchen
+# "vorraete" fuer alle drei Teile. Liest ns.Compat (auraByIndex, Container), ns.char, ns.melde,
+# ns.Welle14b.imLadebildschirm() - Sinne/Extra.lua bleibt unberuehrt.
+Sinne/Welle14c.lua
 
 # ERZEUGT von tools/release-sync.sh aus Lyra_Gestalt.toc - nicht von Hand editieren.
 # Classic Era / Hardcore 1.15.9. Der Client bevorzugt diese Datei vor Lyra_Gestalt.toc.

@@ -1115,5 +1115,54 @@ LyraGestalt_Phrasen = {
       { de = "Da ist {haustier}.", en = "There's {haustier}.", stimme = nil, wenn = nil },
       { de = "{haustier} ist wieder da. Ich seh's.", en = "{haustier}'s back. I see it.", stimme = nil, wenn = nil },
     } },
+    SELBSTBUFF_FEHLT = { klasse = "warn", stufe = 1, gruppeOk = true, miene = "concerned", pose = nil, halte = 10, cue = nil, drossel = "buff", texte = {
+      { de = "Dein {buff} fehlt.", en = "Your {buff} is missing.", stimme = nil, wenn = nil },
+      { de = "Kein {buff} drauf.", en = "No {buff} up.", stimme = nil, wenn = nil },
+      { de = "Dir fehlt dein Buff. Erst der, dann der Pull.", en = "You're missing your buff. Buff up, then pull.", stimme = "selbstbuff_fehlt-1", wenn = nil },
+      { de = "Ohne deinen Buff? Nicht in Hardcore.", en = "No buff up? Not in hardcore.", stimme = "selbstbuff_fehlt-2", wenn = nil },
+      { de = "Der Buff fehlt. Kurz zurück, dann weiter.", en = "Buff's missing. Quick fix, then go.", stimme = "selbstbuff_fehlt-3", wenn = nil },
+    } },
+    WOHLGENAEHRT_FEHLT = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "hmm", pose = nil, halte = 8, cue = nil, drossel = "session", texte = {
+      { de = "Elite ohne Essen im Bauch? Iss erst was.", en = "Elite fight on an empty stomach? Eat first.", stimme = "wohlgenaehrt_fehlt-1", wenn = nil },
+      { de = "Vor dem großen Kampf: was Gutes essen. Das hält.", en = "Before the big fight: eat something good. It lasts.", stimme = "wohlgenaehrt_fehlt-2", wenn = nil },
+      { de = "Kein Wohlgenährt drauf. Kurz was essen.", en = "No Well Fed buff. Grab a bite.", stimme = "wohlgenaehrt_fehlt-3", wenn = nil },
+    } },
+    VORRAT_KNAPP = { klasse = "plauder", stufe = 0, gruppeOk = true, miene = "concerned", pose = nil, halte = 8, cue = nil, drossel = "level", texte = {
+      { de = "Noch {n} {was}. Denk dran, bevor's leer ist.", en = "Only {n} {was} left. Remember before it's empty.", stimme = nil, wenn = nil },
+      { de = "{n} {was} übrig. Bald nachlegen.", en = "{n} {was} left. Restock soon.", stimme = nil, wenn = nil },
+      { de = "Deine Vorräte werden knapp.", en = "Your supplies are running low.", stimme = "vorrat_knapp-1", wenn = nil },
+      { de = "Der Proviant geht zur Neige. Merk's dir.", en = "Provisions are running low. Keep that in mind.", stimme = "vorrat_knapp-2", wenn = nil },
+    } },
+    PING_HOCH = { klasse = "warn", stufe = 1, gruppeOk = false, miene = "alert", pose = nil, halte = 12, cue = nil, drossel = "leitung", texte = {
+      { de = "Die Leitung hängt. Sei vorsichtig.", en = "Your connection is lagging. Be careful.", stimme = "ping_hoch-1", wenn = nil },
+      { de = "Deine Leitung ruckelt gerade. Gib acht.", en = "Your connection just got choppy. Watch yourself.", stimme = "ping_hoch-2", wenn = nil },
+      { de = "{ms} Millisekunden. Die Leitung hängt.", en = "{ms} milliseconds. Your connection is lagging.", stimme = nil, wenn = nil },
+    } },
+    PING_KRITISCH = { klasse = "warn", stufe = 2, gruppeOk = false, miene = "scared", pose = nil, halte = 14, cue = nil, drossel = "leitung", texte = {
+      { de = "Leitung bricht weg. Keine Kämpfe, bis das steht.", en = "Connection's breaking up. No fights until it holds.", stimme = "ping_kritisch-1", wenn = nil },
+      { de = "Die Leitung reißt ab. Jetzt nichts anfangen.", en = "The connection is dropping out. Don't start anything now.", stimme = "ping_kritisch-2", wenn = nil },
+      { de = "{ms} Millisekunden. Die Leitung bricht weg.", en = "{ms} milliseconds. The connection is breaking up.", stimme = nil, wenn = nil },
+    } },
+    PING_VOR_PULL = { klasse = "warn", stufe = 1, gruppeOk = false, miene = "alert", pose = nil, halte = 12, cue = nil, drossel = "leitung", texte = {
+      { de = "Deine Leitung hängt. Zieh den jetzt nicht.", en = "Your connection is lagging. Don't pull that now.", stimme = "ping_vor_pull-1", wenn = nil },
+      { de = "Nicht pullen. Erst die Leitung.", en = "Don't pull. Fix the connection first.", stimme = "ping_vor_pull-2", wenn = nil },
+    } },
+    PING_GUT = { klasse = "plauder", stufe = 0, gruppeOk = false, miene = "neutral", pose = nil, halte = 10, cue = nil, drossel = "session", texte = {
+      { de = "Leitung steht wieder. Weiter.", en = "Connection's steady again. Onward.", stimme = "ping_gut-1", wenn = nil },
+      { de = "Wieder stabil. Weiter geht's.", en = "Stable again. Let's go.", stimme = "ping_gut-2", wenn = nil },
+    } },
+    STUFE_TEMPO_SCHNELLER = { klasse = "plauder", stufe = 0, gruppeOk = false, miene = "smug", pose = nil, halte = 12, cue = nil, drossel = "level", texte = {
+      { de = "Die ging schneller als die letzte. Du wirst besser.", en = "That one went faster than the last. You're getting better.", stimme = "stufe_tempo_schneller-1", wenn = nil },
+      { de = "{minuten} Minuten für die Stufe. Schneller als die letzte.", en = "{minuten} minutes for that level. Faster than the last.", stimme = nil, wenn = nil },
+    } },
+    STUFE_TEMPO_LANGSAMER = { klasse = "plauder", stufe = 0, gruppeOk = false, miene = "neutral", pose = nil, halte = 12, cue = nil, drossel = "level", texte = {
+      { de = "Die hat gedauert. War auch mehr los.", en = "That one took a while. There was a lot going on, too.", stimme = "stufe_tempo_langsamer-1", wenn = nil },
+      { de = "Vorsicht kostet Zeit, das ist okay.", en = "Caution costs time. That's okay.", stimme = "stufe_tempo_langsamer-2", wenn = nil },
+    } },
+    RUF_TEMPO = { klasse = "plauder", stufe = 0, gruppeOk = false, miene = "interested", pose = nil, halte = 12, cue = nil, drossel = "session", texte = {
+      { de = "Bei dem Tempo bist du heute noch {standing}.", en = "At this rate, you'll reach {standing} today.", stimme = nil, wenn = nil },
+      { de = "Der Ruf wächst. Bleib dran, das lohnt sich.", en = "Your reputation is growing. Stick with it, it's worth it.", stimme = "ruf_tempo-1", wenn = nil },
+      { de = "Die mögen dich langsam. Weiter so.", en = "They're starting to like you. Keep it up.", stimme = "ruf_tempo-2", wenn = nil },
+    } },
   },
 }

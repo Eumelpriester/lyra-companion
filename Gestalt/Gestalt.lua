@@ -1348,13 +1348,34 @@ local function tooltipSchriftZurueck()
     end
 end
 
+-- FIX 0.20.0 (Spieltest Harald 22.09., Ganzfigur): "beim Hovern ueber die Perlen zittert die
+-- Figur". Die Perlen liegen seit 0.19.1 AUF der Gestalt (Reihe unter den Fuessen); jede Perle
+-- ist ein eigener Maus-Frame. Von der Figur auf eine Perle: OnLeave (Regung aus, Grundmiene
+-- eingeblendet); in die 6-px-Luecke zur naechsten Perle: OnEnter (Not-Aus auf die Bewegungs-
+-- ebene, "interested" eingeblendet); naechste Perle: wieder OnLeave ... Vier Perlen, acht
+-- Wechsel, und jeder ein Blendwechsel plus Anker-Reset - das ist das Zittern.
+-- Jetzt gilt: die Perlen GEHOEREN zur Gestalt. hoverAktiv traegt den Zustand "Maus ist auf
+-- Lyra oder ihren Perlen"; OnEnter stoesst Not-Aus und Regung nur beim ERSTEN Betreten an,
+-- OnLeave beendet den Hover nur, wenn die Maus nicht auf einer Perle steht (geometrisch, per
+-- IsMouseOver - unabhaengig von der Reihenfolge der Maus-Ereignisse). Verlaesst die Maus eine
+-- Perle nach draussen, ruft UI/Perlen.lua G.hoverEnde() nach.
+local hoverAktiv = false
+function G.hoverEnde()
+    hoverAktiv = false
+    G.regungEnde()
+end
+function G.hoverLaeuft() return hoverAktiv end
+
 f:SetScript("OnEnter", function(self)
     -- FIX1: Hover raeumt nur auf. Kein G.layout() (das setzt SetSize waehrend die Bewegung laeuft)
     -- und kein Play()/Restart auf eine laufende Gruppe - genau das war der Ruck-und-Wachs-Pfad.
     -- FIX4: nur notAus (Anker), NICHT die harte Nullstellung - ein Hide/Show unter der Maus
     -- waere ein sichtbares Zucken, und noetig ist es hier nicht.
-    G.notAus()
-    G.regung("interested", 2)
+    if not hoverAktiv then
+        hoverAktiv = true
+        G.notAus()
+        G.regung("interested", 2)
+    end
     -- W16v Teil 3: die Hover-Perlen brauchen dasselbe OnEnter - eigene Stelle, existenzgeprueft,
     -- damit dieses Team ohne UI/Perlen.lua (z. B. im Pruefstand) unveraendert weiterlaeuft.
     if ns.Perlen and ns.Perlen.ueberGestalt then ns.Perlen.ueberGestalt(true) end
@@ -1377,8 +1398,10 @@ end)
 f:SetScript("OnLeave", function()
     if GameTooltip then GameTooltip:Hide() end
     tooltipSchriftZurueck()   -- REVIEW7: Blizzards Tooltip-Schrift war nur geliehen
-    G.regungEnde()
     if ns.Perlen and ns.Perlen.ueberGestalt then ns.Perlen.ueberGestalt(false) end
+    -- FIX 0.20.0: auf eine Perle gewandert = immer noch auf Lyra (siehe hoverAktiv oben).
+    if ns.Perlen and ns.Perlen.mausUeberPerle and ns.Perlen.mausUeberPerle() then return end
+    G.hoverEnde()
 end)
 
 function G.start()

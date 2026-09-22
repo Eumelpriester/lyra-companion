@@ -3,7 +3,7 @@
 local ADDON, ns = ...
 ns.ADDON = ADDON
 ns.PFAD  = "Interface\\AddOns\\" .. ADDON .. "\\"
-ns.VERSION = "0.19.0"
+ns.VERSION = "0.20.0"
 
 ns.DEFAULTS_ACCOUNT = {
     preset = "normal",         -- leise|normal|lebendig|streamer|eigen (UI/Settings.lua, setzt mehrere Schluessel)

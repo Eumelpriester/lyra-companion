@@ -39,6 +39,13 @@ local function pruefeZone()
     if z == "" then return end
     if not zoneBereit then letzteZone = z; return end       -- Login: still merken
     if z == letzteZone then return end
+    -- FIX 0.19.1 (Spieltest Harald 22.09.): AUF DEM TAXI keine Zonenzeile. Ein Flug ueber vier
+    -- Zonen brachte vier ZONE-Zeilen, jede setzte den Plauder-Abstand neu, und die Flugdauer
+    -- (Sinne/Welle14b.lua) fiel mit "abstand" durch - dabei war sie die einzige Zeile, die zum
+    -- Flug gehoert. Regel 1 (Recherche 18): den Zonennamen blendet der Client beim Ueberfliegen
+    -- ohnehin ein. letzteZone bleibt UNVERAENDERT, damit die Zielzone nach der Landung ihre
+    -- Zeile (und die W15-Erinnerungskette) bekommt: U.flugFlanken stoesst pruefeZone dann an.
+    if aufTaxi() then return end
     -- Ladebildschirm der Regie noch aktiv (Portal, Schiff, Instanz): spaeter noch einmal.
     local riegel = ns.Regie and ns.Regie.ladeRiegelBis or 0
     if jetzt() < riegel then
@@ -238,6 +245,19 @@ function U.flugFlanken()
         flug.ziel = ""
         flug.seit = 0
         ns.melde("TAXI_ENDE")
+        -- FIX 0.19.1: die Zielzone nachtragen (pruefeZone hat sie auf dem Taxi uebersprungen).
+        -- Erst nach TAXI_LANDUNG (Welle14b, +1 s) und dem dann laufenden Plauder-Abstand - sonst
+        -- faellt sie genau so durch wie vorher die Flugdauer.
+        if C_Timer and C_Timer.After then
+            ns.Compat.After(3, function()
+                local rest = 0
+                if ns.Regie and ns.Regie.abstandRest then
+                    local ok, r = pcall(ns.Regie.abstandRest)
+                    if ok and type(r) == "number" then rest = r end
+                end
+                ns.Compat.After(math.min(rest, 180) + 1, pruefeZone)
+            end)
+        end
     end
 end
 

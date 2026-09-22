@@ -1,5 +1,67 @@
 # Changelog
 
+## 0.20.0 (2026-09-22)
+
+### Welle 14c/14d: Vorräte und Selbstbuffs, Tempo und Leitung
+
+Die letzte Funktionswelle vor der 1.0. 29 neue Zeilen je Sprache (21 davon auch gesprochen),
+zehn neue Anlässe, drei neue Häkchen in der Feineinstellung, Abschnitt **„Welle 14"**. Alles
+nativ, ohne fremdes Addon — und alles nach derselben Regel: Lyra sagt nur, wenn es knapp oder
+gefährlich wird, nie, was dir das Spiel ohnehin schon zeigt.
+
+**Bist du vorbereitet?** (Häkchen „Vorräte und Selbstbuffs")
+
+Visierst du außerhalb des Kampfes einen Gegner an und dein Klassen-Selbstbuff fehlt —
+Rüstung und Intelligenz beim Magier, Seelenstärke beim Priester, ein Aspekt beim Jäger, Gift
+auf der Waffe beim Schurken ab Stufe 20, Dämonenhaut oder -rüstung, Mal der Wildnis,
+Blitzschlagschild, ein Segen —, sagt Lyra es einmal, bevor du ziehst. Danach frühestens nach
+fünf Minuten wieder. Krieger sind ausgenommen: Kampfschrei braucht Wut, die es vor dem Pull
+nicht gibt. Ab Stufe 15 erinnert sie dich vor einer Instanz oder einem Elite-Gegner ohne
+Wohlgenährt einmal je Sitzung daran, etwas zu essen — nach dem Reisecheck, nicht darüber.
+Und fällt dein Wasser (bei Mana-Klassen) oder dein Essen auf drei oder weniger, sagt sie es
+einmal je Stufe.
+
+**Die Leitung** (Häkchen „Leitung (Ping-Warnung)")
+
+Lyra beobachtet deine Verbindung. Hängt sie (über 250 ms), sagt sie es einmal — nie mitten im
+Kampf, sondern danach. Wird es kritisch (über 600 ms), warnt sie auch im Kampf: „Leitung bricht
+weg. Keine Kämpfe, bis das steht." Visierst du einen Gegner an, während die Leitung hängt, sagt
+sie es vorher: „Zieh den jetzt nicht." Und ist alles wieder gut, meldet sie sich einmal zurück.
+Keine Zahl in der Blase, kein Dauergerede — die Latenz zeigt dir das Spiel selbst.
+
+**Das Tempo** (Häkchen „Tempo (Stufe und Ruf)")
+
+Lyra merkt sich, wie lange jede Stufe gedauert hat, und sagt ab Stufe 10 beim Levelup, ob es
+deutlich schneller ging als die letzte — und urteilt nicht, wenn es länger gedauert hat:
+„Vorsicht kostet Zeit, das ist okay." Verglichen wird nur, was sie selbst von Anfang bis Ende
+miterlebt hat. Bei deiner beobachteten Ruf-Fraktion sagt sie einmal je Sitzung, wenn du bei
+dem Tempo heute noch die nächste Ruf-Stufe erreichst.
+
+`/lyra weisst` zeigt jetzt auch das gemerkte Stufentempo; `/lyra vergiss tempo` und
+`/lyra vergiss vorraete` löschen die neuen Merker (beide sind auch in `alles` enthalten).
+
+### Behoben
+
+Sechs Korrekturen aus den Spieltests vom Abend des 22. September.
+
+- **Der Blasen-Zipfel zeigt auf Lyra.** Am linken Bildschirmrand schob das Spiel die
+  Sprechblase nach innen, und der Zipfel wanderte mit. Er hängt jetzt an der Gestalt, nicht an
+  der Blase.
+- **Die Hover-Perlen erscheinen in der Ganzfigur.** Die Reihe lag neben dem Rahmen und damit
+  am Bildschirmrand außerhalb des Bildes. Sie sitzt jetzt mittig unter Lyras Füßen.
+- **Ganzfigur: kein Zittern mehr beim Hovern über die Perlen** — die Perlen zählen jetzt zur
+  Gestalt.
+- **Ruhe auf dem Greifen.** Jede überflogene Zone brachte bisher eine Zonenzeile und zählte
+  als Besuch in der Chronik. Auf dem Taxi sagt Lyra jetzt keine Zone mehr und merkt sich keine;
+  die Zielzone kommt nach der Landung.
+- **Flugdauer, Weckruf und Zonen-Nachsatz kommen an.** Sie hatten nur einen zweiten Anlauf,
+  wenn eine andere Zeile gerade gesprochen hatte, und fielen dann oft ganz aus. Jetzt versuchen
+  sie es bis zu viermal, jeweils nach der nötigen Pause — und nur, solange der Anlass noch
+  besteht.
+- **Kein Drossel-Rauschen mehr nach einer Frage.** Der Nachklang nach einer frei getippten
+  Frage wurde bei jeder Ausgabe neu angestoßen und im Debug-Chat jedes Mal als gedrosselt
+  gemeldet. Er wird jetzt nur noch einmal je Sitzung angestoßen.
+
 ## 0.19.0 (2026-09-22)
 
 ### Welle 17/15c/18: Rückfragen, Lyra über sich, Transparenz

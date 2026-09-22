@@ -148,7 +148,12 @@ local function status()
                            -- 17 den Stand der Rueckfragen (X/60 Charakter, Y Konto, Z offen,
                            -- Haekchen an|aus), 18 "Lyra lernt" und den Spielzeit-Fenster-Stand.
                            "Welle15", "Welle16", "Welle16b",
-                           "Welle15c", "Welle17", "Welle18", "Welle6" }) do
+                           -- MERGE 0.20.0 (22.09.2026): die zwei Module der Welle 14c/14d in
+                           -- der Ladereihenfolge der TOC (14d, 14c). Welle6 bleibt die Letzte.
+                           -- 14d nennt Leitung (Median oder "unbekannt"), Tempo (Stufen
+                           -- gemessen) und Ruf; 14c den Klassenbuff, Wohlgenaehrt und die
+                           -- Wasser/Essen-Zaehlung - je mit "fehlt", wenn die API nicht da ist.
+                           "Welle15c", "Welle17", "Welle18", "Welle14d", "Welle14c", "Welle6" }) do
         local m = ns[mod]
         if m and m.status then
             local ok, zeilen = pcall(m.status)
